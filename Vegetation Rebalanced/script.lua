@@ -39,8 +39,6 @@ function OnMsg.LoadGame()
 		  while true do
 		    Sleep(sleep)
 		    local boom = (MulDivRound(GetVegetationBoom(), sleep, sol))
-		    print("Booming")
-		    print(boom)
 		    if 0 < boom then
 		      ChangeTerraformParam("Vegetation", boom)
 		      Msg("VegetationBoom", boom)
