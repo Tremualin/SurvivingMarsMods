@@ -8,14 +8,6 @@ end
 -- load default/saved settings
 OnMsg.ModsReloaded = ModOptions
 
--- fired when option is changed
-function OnMsg.ApplyModOptions(id)
-    if id == CurrentModId then
-        ModOptions()
-    end
-    dustStormsVegetationRequired()
-end
-
 -- A vegetation of 30% is now necessary to stop dust storms
 -- Also adds 30% to breathable atmosphere; we don't want dust storms on our open domes
 function dustStormsVegetationRequired()
@@ -61,9 +53,16 @@ function dustStormsVegetationRequired()
     end
 end
 
-function OnMsg.ClassesPostprocess()
+-- fired when option is changed
+function OnMsg.ApplyModOptions(id)
+    if id == CurrentModId then
+        ModOptions()
+    end
     dustStormsVegetationRequired()
 end
+
+OnMsg.LoadGame=dustStormsVegetationRequired
+OnMsg.CityStart=dustStormsVegetationRequired
 
 function Tremualin_ForestationPlant_GetTerraformingBoostSol(self)
     -- Add all of the terraforming progress so far to calculate the boost
@@ -97,7 +96,7 @@ end
 
 -- Passively boost vegetation
 GlobalVar("VegetationBoomThread", false)
-function OnMsg.LoadGame()
+function initializeVegetationBoomThread() 
     if IsValidThread(VegetationBoomThread) then
         DeleteThread(VegetationBoomThread)
     end
@@ -115,6 +114,8 @@ function OnMsg.LoadGame()
             end
         end))
 end
+OnMsg.CityStart=initializeVegetationBoomThread
+OnMsg.LoadGame=initializeVegetationBoomThread
 
 -- Show the passive vegetation boost in the UI
 function OnMsg.ClassesPostprocess()
