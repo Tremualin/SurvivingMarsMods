@@ -1,4 +1,71 @@
-function ForestationPlant:GetTerraformingBoostSol()
+local mod_DustStorms_VegetationRequired
+
+-- fired when settings are changed/init
+local function ModOptions()
+    mod_DustStorms_VegetationRequired = CurrentModOptions:GetProperty("DustStorms_VegetationRequired")
+end
+
+-- load default/saved settings
+OnMsg.ModsReloaded = ModOptions
+
+-- fired when option is changed
+function OnMsg.ApplyModOptions(id)
+    if id == CurrentModId then
+        ModOptions()
+    end
+    dustStormsVegetationRequired()
+end
+
+-- A vegetation of 30% is now necessary to stop dust storms
+-- Also adds 30% to breathable atmosphere; we don't want dust storms on our open domes
+function dustStormsVegetationRequired()
+    for _, preset in ipairs(Presets.TerraformingParam.Default or empty_table) do
+        if preset.id == "Vegetation" then
+            local dustStomStopDefined = false
+            -- change DustStormStop requirements
+            for key, threshold in ipairs(preset.Threshold or empty_table) do
+                if threshold.Id == "DustStormStop" then 
+                    dustStomStopDefined = true
+                    if not mod_DustStorms_VegetationRequired then
+                        preset.Threshold[key] = nil
+                    end
+                    break
+                end
+            end
+            if mod_DustStorms_VegetationRequired and not dustStomStopDefined then
+                local newItem = PlaceObj("ThresholdItem", {
+                    "Id", "DustStormStop", "Threshold", 30, "Hysteresis", 2
+                })
+                table.insert(preset.Threshold, newItem)
+            end
+
+            local atmosphereBreathableDefined = false
+            -- change AtmosphereBreathable requirements
+            for key, threshold in ipairs(preset.Threshold or empty_table) do
+                if threshold.Id == "AtmosphereBreathable" then 
+                    atmosphereBreathableDefined = true
+                    if not mod_DustStorms_VegetationRequired then
+                        preset.Threshold[key] = nil
+                    end
+                    break
+                end
+            end
+            if mod_DustStorms_VegetationRequired and not atmosphereBreathableDefined then
+                local newItem = PlaceObj("ThresholdItem", {
+                    "Id", "AtmosphereBreathable", "Threshold", 30, "Hysteresis", 2
+                })
+                table.insert(preset.Threshold, newItem)
+            end
+            break
+        end
+    end
+end
+
+function OnMsg.ClassesPostprocess()
+    dustStormsVegetationRequired()
+end
+
+function Tremualin_ForestationPlant_GetTerraformingBoostSol(self)
     -- Add all of the terraforming progress so far to calculate the boost
     local terraforming_progress_boost = GetTerraformParam("Atmosphere") +
                                             GetTerraformParam("Temperature") +
@@ -10,18 +77,6 @@ function ForestationPlant:GetTerraformingBoostSol()
                                       terraforming_progress_boost,
                                       100 * const.TerraformingScale)
     return self.terraforming_boost_sol + weightedBoost
-end
-
--- A vegetation of 30% is now necessary to stop dust storms
-function OnMsg.ClassesPostprocess()
-    for _, preset in ipairs(Presets.TerraformingParam.Default or empty_table) do
-        if preset.id == "Vegetation" then
-            local newItem = PlaceObj("ThresholdItem", {
-                "Id", "DustStormStop", "Threshold", 30, "Hysteresis", 2
-            })
-            table.insert_unique(preset.Threshold, newItem)
-        end
-    end
 end
 
 function GetVegetationBoom()
@@ -66,13 +121,29 @@ function OnMsg.ClassesPostprocess()
     for _, preset in ipairs(Presets.TerraformingParam.Default or empty_table) do
         if preset.id == "Vegetation" then
             if not preset.Factors then preset.Factors = {} end
-            local newFactor = PlaceObj("TerraformingFactorItem", {
-                "Id", "VegetationBoom", "display_name", "Wild vegetation boom",
-                "units", "PerSol", "GetFactorValue",
-                function(self) return GetVegetationBoom() end
-            })
-            table.insert_unique(preset.Factors, newFactor)
+            local alreadyDefined = false
+            for _, factor in ipairs(preset.Factors or empty_table) do
+                if factor.Id == "VegetationBoom" then 
+                    alreadyDefined = true 
+                    break
+                end
+            end
+            if not alreadyDefined then
+                local newFactor = PlaceObj("TerraformingFactorItem", {
+                    "Id", "VegetationBoom", "display_name", "Wild vegetation boom",
+                    "units", "PerSol", "GetFactorValue",
+                    function(self) return GetVegetationBoom() end
+                })
+                table.insert(preset.Factors, newFactor)
+            end
+            break
         end
     end
 end
 
+function OnMsg.ClassesPostprocess()
+    ForestationPlant.GetTerraformingBoostSol = function (self)
+        -- Plays nice with Forestation Goes to 11
+        return Tremualin_ForestationPlant_GetTerraformingBoostSol(self)
+    end
+end
