@@ -4,15 +4,16 @@ return PlaceObj('ModDef', {
 	'image', "Preview.png",
 	'last_changes', "First version",
 	'id', "Tremualin_ImprovedBreakthroughs",
+	'steam_id', "2509389568",
 	'pops_desktop_uuid', "51815d6d-c444-4cd6-9ad5-18ac11d26abf",
 	'pops_any_uuid', "892a7a83-98f7-411b-8623-d6f5108556d2",
 	'author', "Tremualin",
-	'version', 8,
+	'version', 9,
 	'lua_revision', 233360,
 	'saved_with_revision', 1001586,
 	'code', {
 		"Code/Script.lua",
 	},
-	'saved', 1622990507,
+	'saved', 1622990689,
 	'TagGameplay', true,
 })
