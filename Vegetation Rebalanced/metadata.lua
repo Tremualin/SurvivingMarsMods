@@ -9,13 +9,13 @@ return PlaceObj('ModDef', {
 	'pops_any_uuid', "50d68d9d-303f-479b-8866-f8be05694c4c",
 	'author', "Tremualin",
 	'version_major', 1,
-	'version', 7,
+	'version', 8,
 	'lua_revision', 233360,
 	'saved_with_revision', 1001586,
 	'code', {
 		"Code/Script.lua",
 	},
 	'has_options', true,
-	'saved', 1622920865,
+	'saved', 1622920908,
 	'TagTerraforming', true,
 })

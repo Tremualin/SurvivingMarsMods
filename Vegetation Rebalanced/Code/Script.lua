@@ -165,7 +165,7 @@ function OnMsg.ClassesPostprocess()
             end
             if not alreadyDefined then
                 local newFactor = PlaceObj("TerraformingFactorItem", {
-                    "Id", "TranspirationBonus", "display_name", "Vegetation transpiration",
+                    "Id", "TranspirationBonus", "display_name", "From vegetation transpiration",
                     "units", "PerSol", "GetFactorValue",
                     function(self) return GetVegetationTraspirationBonus() end
                 })
@@ -190,7 +190,7 @@ function OnMsg.ClassesPostprocess()
             end
             if not alreadyDefined then
                 local newFactor = PlaceObj("TerraformingFactorItem", {
-                    "Id", "VegetationReproduction", "display_name", "Vegetative reproduction",
+                    "Id", "VegetationReproduction", "display_name", "From vegetative reproduction",
                     "units", "PerSol", "GetFactorValue",
                     function(self) return GetVegetationReproductionBonus() end
                 })
