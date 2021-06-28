@@ -46,35 +46,23 @@ function Residence:RemoveResident(unit)
   self:Notify("ApplyHiveMindBonus")
 end
 
-
--- checks that all the elements of a table are true
-local function CheckAllTrue(tbl)
-  for _,v in pairs(tbl) do
-    if not v then
-        return false     
-    end
-  end
-  return true
-end
-
 -- Modifies all the breakthroughs that are easy to modify
 function OnMsg.ClassesPostprocess()
-  local modified = { ['AlienImprints']=false, ['Vocation-Oriented Society']=false, ['PlasmaRocket']=false, ['SpaceRehabilitation']=false}
   for _, techPresets in pairs(Presets.TechPreset) do
       for key, value in pairs(techPresets) do
-        if key == "AlienImprints" and not modified['AlienImprints'] then
+        if key == "AlienImprints" and not value.Tremualin_ImprovedBreakthrough then
           -- Alien Imprints always spawns 30 anomalies instead of a random number between 3 and 10
           value.param1 = 10
-          modified['AlienImprints'] = true
+          value.Tremualin_ImprovedBreakthrough=true
           break
         end
-        if key == "Vocation-Oriented Society" and not modified['Vocation-Oriented Society'] then
+        if key == "Vocation-Oriented Society" and not value.Tremualin_ImprovedBreakthrough then
           -- Vocation-Oriented Society gives more 15 performance instead of 10
           value.param1 = 15
-          modified['Vocation-Oriented Society'] = true
+          value.Tremualin_ImprovedBreakthrough=true
           break
         end
-        if key == "PlasmaRocket" and not modified['PlasmaRocket'] then
+        if key == "PlasmaRocket" and not value.Tremualin_ImprovedBreakthrough then
           -- Plasma Rocket now offers a discount of 20 fuel to rockets
           -- Which means SpaceY rockets require no fuel at all
           table.insert(value, PlaceObj("Effect_ModifyLabel", {
@@ -82,18 +70,15 @@ function OnMsg.ClassesPostprocess()
             Label = "AllRockets",
             Prop = "launch_fuel"
           }))
-          modified['PlasmaRocket'] = true
+          value.Tremualin_ImprovedBreakthrough=true
           break
         end
-        if key == "SpaceRehabilitation" and not modified['SpaceRehabilitation'] then
+        if key == "SpaceRehabilitation" and not value.Tremualin_ImprovedBreakthrough then
           -- SpaceRehabilitation chance of removing flaws increased to 100%
           value.param1 = 100
-          modified['SpaceRehabilitation'] = true
+          value.Tremualin_ImprovedBreakthrough=true
           break
         end
-      end
-      if CheckAllTrue(modified) then 
-        break
       end
   end
 end

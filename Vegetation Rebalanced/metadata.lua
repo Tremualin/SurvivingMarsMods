@@ -9,12 +9,12 @@ return PlaceObj('ModDef', {
 	'pops_any_uuid', "50d68d9d-303f-479b-8866-f8be05694c4c",
 	'author', "Tremualin",
 	'version_major', 1,
-	'version', 9,
+	'version', 10,
 	'lua_revision', 233360,
 	'saved_with_revision', 1001586,
 	'code', {
 		"Code/Script.lua",
 	},
 	'has_options', true,
-	'saved', 1622990743,
+	'saved', 1624753232,
 })
