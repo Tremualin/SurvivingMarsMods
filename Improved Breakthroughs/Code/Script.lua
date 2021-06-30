@@ -47,41 +47,45 @@ function Residence:RemoveResident(unit)
 end
 
 -- Modifies all the breakthroughs that are easy to modify
-function OnMsg.ClassesPostprocess()
-  for _, techPresets in pairs(Presets.TechPreset) do
-      for key, value in pairs(techPresets) do
-        if key == "AlienImprints" and not value.Tremualin_ImprovedBreakthrough then
+function modifyBreakthroughs()
+  for _, techPreset in pairs(Presets.TechPreset) do
+      for key, value in pairs(techPreset) do
+        if key == "AlienImprints" then
           -- Alien Imprints always spawns 30 anomalies instead of a random number between 3 and 10
           value.param1 = 10
-          value.Tremualin_ImprovedBreakthrough=true
-          break
         end
-        if key == "Vocation-Oriented Society" and not value.Tremualin_ImprovedBreakthrough then
+        if key == "Vocation-Oriented Society" then
           -- Vocation-Oriented Society gives more 15 performance instead of 10
           value.param1 = 15
-          value.Tremualin_ImprovedBreakthrough=true
-          break
         end
-        if key == "PlasmaRocket" and not value.Tremualin_ImprovedBreakthrough then
-          -- Plasma Rocket now offers a discount of 20 fuel to rockets
-          -- Which means SpaceY rockets require no fuel at all
-          table.insert(value, PlaceObj("Effect_ModifyLabel", {
-            Amount = -20,
-            Label = "AllRockets",
-            Prop = "launch_fuel"
-          }))
-          value.Tremualin_ImprovedBreakthrough=true
-          break
+        if key == "PlasmaRocket" then
+          local alreadyDefined = false
+          for _, effect in pairs(value) do
+            if effect and type(effect) == "table" and effect:IsKindOf("Effect_ModifyLabel") and effect.Label == "AllRockets" then
+              alreadyDefined = true
+              break
+            end
+          end
+          if not alreadyDefined then 
+            -- Plasma Rocket now offers a discount of 20 fuel to rockets
+            -- Which means SpaceY rockets require no fuel at all
+            table.insert(value, PlaceObj("Effect_ModifyLabel", {
+              Amount = -20,
+              Label = "AllRockets",
+              Prop = "launch_fuel"
+            }))
+          end
         end
-        if key == "SpaceRehabilitation" and not value.Tremualin_ImprovedBreakthrough then
+        if key == "SpaceRehabilitation" then
           -- SpaceRehabilitation chance of removing flaws increased to 100%
           value.param1 = 100
-          value.Tremualin_ImprovedBreakthrough=true
-          break
         end
       end
   end
 end
+
+OnMsg.LoadGame = modifyBreakthroughs
+OnMsg.CityStart = modifyBreakthroughs
 
 -- Allows good vibrations to restore health
 local orig_Colonist_Rest = Colonist.Rest
