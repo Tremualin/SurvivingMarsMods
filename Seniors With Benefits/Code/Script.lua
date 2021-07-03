@@ -94,7 +94,7 @@ function shareCautionaryTales(colonist)
             if not dome.tremualin_removed_traits_log then
               dome.tremualin_removed_traits_log = {}
             end
-            dome.tremualin_removed_traits_log[negativeTraitId] = (dome.tremualin_removed_traits_log[trait] or 0) + 1
+            dome.tremualin_removed_traits_log[negativeTraitId] = (dome.tremualin_removed_traits_log[negativeTraitId] or 0) + 1
           end
         end
     end
@@ -281,13 +281,13 @@ function OnMsg.ClassesPostprocess()
     "OnContextUpdate", function(self, context)
       if context.exclusive_trait == "Senior" then 
         self:SetRolloverText("Only seniors are allowed on this residence")
-        self:SetTitle("Only seniors allowed in this residence")
+        self:SetTitle("Only seniors allowed")
         self:SetIcon("UI/Icons/Upgrades/rejuvenation_treatment_01.tga")
       elseif context.exclusive_trait then
         self:SetVisible(false)
       else
         self:SetRolloverText("Everyone is allowed on this residence")
-        self:SetTitle("Everyone allowed on this residence")
+        self:SetTitle("Everyone allowed")
         self:SetIcon("UI/Icons/Upgrades/rejuvenation_treatment_02.tga")
       end
     end,
