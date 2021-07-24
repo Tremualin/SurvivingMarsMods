@@ -374,27 +374,19 @@ end
 function OnMsg.ClassesPostprocess()
   local template = XTemplates.sectionDome
   RemoveXTemplateSections(template, "Tremualin_SeniorsLifetime")
-  local tremualin_SeniorsLifetime = PlaceObj("XTemplate", {
-    group = "Infopanel Sections",
-    id = "Tremualin_SeniorsLifetime",
+  local tremualin_SeniorsLifetime = PlaceObj("XTemplateTemplate", {
+    "Tremualin_SeniorsLifetime", true,
+    "__context_of_kind", "Dome",
+    "__template", "InfopanelSection",
+    "RolloverText", Untranslated("<UISectionTremualinSeniorsLifetimeRollover>"),
+    "Title", Untranslated("Traits removed by seniors"),
+    "Icon", "UI/Icons/Sections/facility.tga"
+  }, {
     PlaceObj("XTemplateTemplate", {
-      "__context_of_kind",
-      "Dome",
       "__template",
-      "InfopanelSection",
-      "RolloverText",
-      Untranslated("<UISectionTremualinSeniorsLifetimeRollover>"),
-      "Title",
-      Untranslated("Traits removed by seniors"),
-      "Icon",
-      "UI/Icons/Sections/facility.tga"
-    }, {
-      PlaceObj("XTemplateTemplate", {
-        "__template",
-        "InfopanelText",
-        "Text",
-        Untranslated("Lifetime<right><TremualinSeniorsLifetime>")
-      })
+      "InfopanelText",
+      "Text",
+      Untranslated("Lifetime<right><TremualinSeniorsLifetime>")
     })
   })
 
