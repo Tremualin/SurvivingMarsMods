@@ -89,7 +89,7 @@ function shareCautionaryTales(colonist)
           local chance = Min(maxChance, MulDivRound(seniorsWithTrait, chanceMultiplier, 1))
           if colonist:Random(100) <= chance then
             colonist.RemoveTrait(negativeTraitId)
-            colonist:ChangeComfort(10 * stat_scale, "Senior citizen talked some sense into me (%s was removed) " .. negativeTraitId)
+            colonist:ChangeComfort(10 * stat_scale, "Senior citizen talked some sense into me (" .. negativeTraitId .. " was removed) ")
             dome.tremualin_lifetime = (dome.tremualin_lifetime or 0) + 1
             if not dome.tremualin_removed_traits_log then
               dome.tremualin_removed_traits_log = {}

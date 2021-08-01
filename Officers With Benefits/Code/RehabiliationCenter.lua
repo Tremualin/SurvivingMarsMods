@@ -1,5 +1,6 @@
 Tremualin_max_renegades_per_officer = 8
 local vindication_points = 700
+local vindication_points_per_shift = 70
 local training_type = 'vindication'
 local securityStationBehavioralMelding = "Tremualin_SecurityStation_BehavioralMelding"
 local securityStationCriminalPsychologists = "Tremualin_SecurityStation_CriminalPsychologists"
@@ -37,8 +38,9 @@ local function RemoveXTemplateSections(list, name)
   end
 end
 
-local function GetPointsRolloverText(colonists)
+local function GetPointsRolloverText(residence)
   local text = {}
+  local colonists = residence.colonists
   for i = #colonists, 1, -1 do
     local colonist = colonists[i]
     colonist.training_points = colonist.training_points or {}
@@ -49,6 +51,7 @@ local function GetPointsRolloverText(colonists)
         number = MulDivRound(training_points, 100, vindication_points),
       }
   end
+  text[#text+1] = Untranslated("<newline>Lifetime cured: <right>" .. (residence.total_cured or 0))
   return table.concat(text, "<newline><left>")
 end
 
@@ -62,8 +65,8 @@ function OnMsg.ClassesPostprocess()
     "__context_of_kind", "Residence",
     "OnContextUpdate", function(self, context)
       if IsTechResearched("BehavioralShaping") then
-       if context.exclusive_trait == "Renegade" then 
-          self:SetRolloverText("Renegade progress towards rehabilitation:<newline>" .. GetPointsRolloverText(context.colonists))
+       if context.exclusive_trait == "Renegade" then
+          self:SetRolloverText("Renegade progress towards rehabilitation:<newline><newline>" .. GetPointsRolloverText(context))
           self:SetTitle("Rehabilitation Center")
           self:SetIcon("UI/Icons/Upgrades/behavioral_melding_01.tga")
         elseif context.exclusive_trait then
@@ -150,15 +153,15 @@ function OnMsg.NewWorkshift(shift)
     table_key=1
     for _, officer in pairs(officers_in_security_stations) do
       for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
-        local gain_points = MulDivRound(5000 * renegade.stat_sanity/(100*const.Scale.Stat) * renegade.stat_comfort/(100*const.Scale.Stat) * renegade.residence.service_comfort/(100*const.Scale.Stat), officer.performance, 100)
+        local gain_points = MulDivRound(vindication_points_per_shift * renegade.stat_sanity/(100*const.Scale.Stat) * renegade.stat_comfort/(100*const.Scale.Stat) * renegade.residence.service_comfort/(100*const.Scale.Stat), officer.performance, 100)
         renegade.training_points = renegade.training_points or {}
         renegade.training_points[training_type] = (renegade.training_points[training_type] or 0) + gain_points
         if renegade.training_points[training_type] >= vindication_points then
-          print("Removing renegade")
           renegade:RemoveTrait(remove_trait)
           local residence = renegade.residence
           residence.parent_dome.officers_with_benefits_rehabilitated = (residence.parent_dome.officers_with_benefits_rehabilitated or 0) + 1 
           residence:RemoveResident(renegade)
+          residence.total_cured = (residence.total_cured or 0) + 1
           if officer.workplace:HasUpgrade(securityStationBehavioralMelding) then
             renegade:AddTrait(add_trait)
             Msg("ColonistCured", renegade, residence, remove_trait, add_trait)
@@ -182,19 +185,19 @@ local function AddBehavioralMeldingUpgrade(obj, id)
 end
 
 local function AddCriminalPsychologistsUpgrade(obj, id)
-  obj.upgrade1_id = securityStationCriminalPsychologists
-  obj.upgrade1_description = Untranslated("Increases the performance of the Security building by 10 if there's a medical building in the Dome. Doubled if the medical building is a Spire or a Hospital.")
-  obj.upgrade1_display_name = T(5243, "Criminal Psychologists")
-  obj.upgrade1_icon = "UI/Icons/Upgrades/factory_ai_01.tga"
-  obj.upgrade1_upgrade_cost_Polymers = 8000
+  obj.upgrade2_id = securityStationCriminalPsychologists
+  obj.upgrade2_description = Untranslated("Increases the performance of the Security building by 10 if there's a medical building in the Dome. Doubled if the medical building is a Spire or a Hospital.")
+  obj.upgrade2_display_name = Untranslated("Criminal Psychologists")
+  obj.upgrade2_icon = "UI/Icons/Upgrades/factory_ai_01.tga"
+  obj.upgrade2_upgrade_cost_Polymers = 8000
 end
 
 local function AddVRTrainingUpgrade(obj, id)
-  obj.upgrade1_id = securityStationVRTraining
-  obj.upgrade1_description = Untranslated("Allows workers to practice with the latest that VR has to offer, which increases the performance of the building by 10 + 1 for each percentage of people working at Workshops.")
-  obj.upgrade1_display_name = T(5243, "Behavioral Melding")
-  obj.upgrade1_icon = "UI/Icons/Upgrades/service_bots_01.tga"
-  obj.upgrade1_upgrade_cost_Electronics = 8000
+  obj.upgrade3_id = securityStationVRTraining
+  obj.upgrade3_description = Untranslated("Allows workers to practice with the latest that VR has to offer, which increases the performance of the building by 10 + 1 for each percentage of people working at Workshops.")
+  obj.upgrade3_display_name = Untranslated("VR training")
+  obj.upgrade3_icon = "UI/Icons/Upgrades/service_bots_01.tga"
+  obj.upgrade3_upgrade_cost_Electronics = 8000
 end
 
 function SecurityStation:OnChangeWorkshift(old, new)
@@ -214,9 +217,18 @@ function SecurityStation:OnChangeWorkshift(old, new)
     self:SetModifier("performance", "Tremualin_CriminalPsychologists", performanceBonus, 0, "<green>Access to criminal psychologists +".. performanceBonus .. "</color>")
   end
   if self:HasUpgrade(securityStationVRTraining) then
-    local performanceBonus = 10 + city:GetWorkshopWorkersPercent()
+    local performanceBonus = 10 + UICity:GetWorkshopWorkersPercent()
     self:SetModifier("performance", "Tremualin_VRTraining", performanceBonus, 0, "<green>Access to high tech VR training +".. performanceBonus .. "</color>")
   end
+  -- Law-Law Land: fire all Renegades from security stations
+  if new then 
+    for _, worker in ipairs(self.workers[new] or empty_table) do
+      if not self:IsSuitable(worker) then
+        self:FireWorker(worker)
+      end
+    end
+  end
+  RebuildInfopanel(self)
 end
 
 local function AddBuilding(id, obj, obj_ct)
@@ -234,50 +246,77 @@ local function AddBuilding(id, obj, obj_ct)
   AddVRTrainingUpgrade(obj_ct, id)
 end
 
-function OnMsg.ModsReloaded()
+-- Law-Law Land: Renegades cannot work on security buildings anymore
+function OnMsg.LoadGame()
   local ct = ClassTemplates.Building
   local BuildingTemplates = BuildingTemplates
 
   for id, buildingTemplate in pairs(BuildingTemplates) do
     if id == "SecurityStation" then
       AddBuilding(id, buildingTemplate, ct[id])
+      -- Don't allow Renegades to work on Security Stations
+      buildingTemplate.incompatible_traits = {"Renegade"}
+      ct[id].incompatible_traits = {"Renegade"}
     end
   end
 end
 
-function OnMsg.TechResearched(tech_id)
-  if tech_id == "BehavioralMelding" then
-    UnlockUpgrade(securityStationBehavioralMelding)
-  end
-  if tech_id == "SupportiveCommunity" then
-    UnlockUpgrade(securityStationCriminalPsychologists)
-  end
-  if tech_id == "CreativeRealities" then
-    UnlockUpgrade(securityStationVRTraining)
-  end
-end
-
--- Unlock BehavioralMelding upgrade for Security Stations
-function StartupCode()
+function StartupCode(...)
   local unlocked_upgrades = UICity.unlocked_upgrades
   if IsTechResearched("BehavioralMelding") then
-    unlocked_upgrades[securityStationBehavioralMelding]=true
+    UnlockUpgrade(securityStationBehavioralMelding)
   end
    if IsTechResearched("SupportiveCommunity") then
-    unlocked_upgrades[securityStationCriminalPsychologists]=true
+    UnlockUpgrade(securityStationCriminalPsychologists)
   end 
   if IsTechResearched("CreativeRealities") then
-    unlocked_upgrades[securityStationVRTraining]=true
-  end 
+    UnlockUpgrade(securityStationVRTraining)
+  end
+
+  ColonistPerformanceReasons["Vindicated"] = Untranslated("Vindicated in the eyes of society <amount>")
 end
 
+OnMsg.TechResearched = StartupCode
 OnMsg.LoadGame = StartupCode
 
 -- Renegades under rehabilitation are negated, if security stations are properly staffed
 local origin_Dome_GetAdjustedRenegades = Dome.GetAdjustedRenegades
 function Dome:GetAdjustedRenegades()
-  local renegades_in_rehabilitation = Tremualin_RenegadesInRehabilitation(dome)
-  local officers_in_security_stations = Tremualin_OfficersInSecurityStations(dome)
+  local renegades_in_rehabilitation = Tremualin_RenegadesInRehabilitation(self)
+  local officers_in_security_stations = Tremualin_OfficersInSecurityStations(self)
   local negatedRehabilitationOfficers = Max(0, #renegades_in_rehabilitation - #officers_in_security_stations * Tremualin_max_renegades_per_officer)
   return Max(0, origin_Dome_GetAdjustedRenegades(self) - negatedRehabilitationOfficers )
+end
+
+-- Renegades in rehabilitation don't count
+function Dome:CanPreventCrimeEvents()
+  local officers = #(self.labels.security or empty_table)
+  local renegades = #(self.labels.Renegade or empty_table) - #Tremualin_RenegadesInRehabilitation(self)
+  if officers <= renegades then
+    return false
+  end
+  local stations = self.labels.SecurityStation or empty_table
+  for _, station in ipairs(stations) do
+    if station.working then
+      local chance = 50
+      if officers <= renegades * 3 then
+        chance = (MulDivRound(officers, 100, 6 * renegades))
+      end
+      return chance >= Random(0, 100)
+    end
+  end
+  return false
+end
+
+-- First responders
+local orig_Dome_GetDomeComfort = Dome.GetDomeComfort
+function Dome:GetDomeComfort()
+  local securityStationComfort = 0
+  if IsTechResearched("EmergencyTraining") then
+    local officers_in_security_stations = Tremualin_OfficersInSecurityStations(self)
+    for _, officer in pairs(officers_in_security_stations) do
+      securityStationComfort = securityStationComfort + MulDivRound(officer.performance, 2, 100)
+    end
+  end
+  return orig_Dome_GetDomeComfort(self) + securityStationComfort
 end
