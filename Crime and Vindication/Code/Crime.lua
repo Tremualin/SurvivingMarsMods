@@ -150,9 +150,18 @@ local protests_text = {
   "We have to go back"
 }
 
+local function temporarilyModifyMorale(object_to_modify, unscaled_amount, percent, duration_in_sols, modifier_id, reason)
+  return temporarilyModifyProperty("base_morale", object_to_modify, unscaled_amount, percent, duration_in_sols, modifier_id, reason)
+end
+
 local function temporarilyModifyProperty(prop_to_modify, object_to_modify, unscaled_amount, percent, duration_in_sols, modifier_id, reason)
   local scale = ModifiablePropScale[prop_to_modify]
   local amount = unscaled_amount * scale
+  -- Prevents the same thread from being assigned to the same modifier id again
+  object_to_modify.Tremualin_Threads = object_to_modify.Tremualin_Threads or empty_table
+  if IsValidThread(object_to_modify.Tremualin_Threads[modifier_id]) then
+    DeleteThread(temporarilyModifyMorale.Tremualin_Threads[modifier_id])
+  end
   object_to_modify:SetModifier(prop_to_modify, modifier_id, amount, percent, T({
     11887,
     "<color_tag><reason></color>",
@@ -164,9 +173,10 @@ local function temporarilyModifyProperty(prop_to_modify, object_to_modify, unsca
     })
   }))
   if (amount ~= 0 or percent ~= 0) and 0 < duration_in_sols then
-    CreateGameTimeThread(function()
+    object_to_modify.Tremualin_Threads[modifier_id] = CreateGameTimeThread(function()
       -- 1 sol = 720000
       Sleep(duration_in_sols * 720000)
+      -- If the colonist died; Let it go! Let it go! You'll never see me cry 
       if IsValid(object_to_modify) then 
         object_to_modify:SetModifier(prop_to_modify, modifier_id, 0, 0)
       end
@@ -178,7 +188,7 @@ end
 function Dome:Tremualin_CrimeEvents_Protest()
   for _, colonist in pairs(self.labels.Colonist or empty_table) do
     if not colonist.traits.Renegade then
-      temporarilyModifyProperty("base_morale", colonist, -self:GetAdjustedRenegades(), 0, 3, "Tremualin_CrimeEvents_Protest", "Annoying protesters ")
+      temporarilyModifyMorale(colonist, -self:GetAdjustedRenegades(), 0, 3, "Tremualin_CrimeEvents_Protest", "Annoying protesters ")
     end
   end
 
@@ -408,7 +418,7 @@ function Colonist:Suicide()
       local random = self:Random(100)
       local unit = security_in_proximity[i]
       if random <= 5 then
-        temporarilyModifyProperty("base_morale", unit, 10, 0, 1, "Tremualin_Suicide_Hero", "I saved a life ")
+        temporarilyModifyMorale(unit, 10, 0, 3, "Tremualin_Suicide_Hero", "I saved a life ")
         unit:addTrait("Celebrity")
         saved = true
         AddOnScreenNotification("Tremualin_Suicide_Hero", false, {
@@ -420,7 +430,7 @@ function Colonist:Suicide()
         })
         break
       elseif supportive_community and random >= 99 or (not supportive_community) and random>=95 then
-        temporarilyModifyProperty("base_morale", unit, -20, 0, 1, "Tremualin_Suicide_Failure", "They're dead... because of me ")
+        temporarilyModifyMorale(unit, -20, 0, 3, "Tremualin_Suicide_Failure", "They're dead... because of me ")
         AddOnScreenNotification("Tremualin_Suicide_Failure", false, {
           dome_name = dome:GetDisplayName(),
           officer_name = unit.name,

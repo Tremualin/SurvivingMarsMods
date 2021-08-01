@@ -4,8 +4,8 @@ PlaceObj('ModItemCode', {
 	'FileName', "Code/Crime.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "RehabiliationCenter",
-	'FileName', "Code/RehabiliationCenter.lua",
+	'name', "Rehabilitation",
+	'FileName', "Code/Rehabilitation.lua",
 }),
 PlaceObj('ModItemCode', {
 	'name', "Notifications",
@@ -15,7 +15,7 @@ PlaceObj('ModItemTraitPreset', {
 	__copy_group = "",
 	_incompatible = "Renegade",
 	category = "Positive",
-	description = T(598838342649, --[[ModItemTraitPreset Vindicated description]] "Vindicated renegades will no longer become renegades and will gain (+10) additional performance on all jobs"),
+	description = T(598838342649, --[[ModItemTraitPreset Vindicated description]] "Vindicated Renegades will no longer become Renegades and will gain (+20) additional performance on all jobs"),
 	display_icon = "",
 	display_name = T(520259899232, --[[ModItemTraitPreset Vindicated display_name]] "Vindicated"),
 	dome_filter_only = true,
@@ -34,7 +34,7 @@ PlaceObj('ModItemTraitPreset', {
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Composed,Vindicated",
 	category = "Negative",
-	description = T(635612439152, --[[ModItemTraitPreset Violent description]] "Violent people will resort to domestic violence (100% chance) whenever they're unhappy, and their victims will be more scared to talk about it (11% chance of becoming Renegades, instead of 33%). Violent people cannot become Vindicated until they work on their anger issues at the Sanatorium, and lose their violent urges. Can be obtained via sanity breakdown or by being the victim of domestic violence."),
+	description = T(635612439152, --[[ModItemTraitPreset Violent description]] "Violent people will resort to domestic violence more often, and their victims will be more scared to talk about it. Violent people cannot be Vindicated. Can be obtained via sanity breakdown or by being the victim of domestic violence."),
 	display_icon = "",
 	display_name = T(151354650363, --[[ModItemTraitPreset Violent display_name]] "Violent"),
 	group = "Negative",
