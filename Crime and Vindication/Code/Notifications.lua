@@ -52,7 +52,6 @@ function OnMsg.ClassesPostprocess()
     SortKey = 1000200,
     VignetteImage = "UI/Onscreen/onscreen_gradient_red.tga",
     VignettePulseDuration = 2000,
-    close_on_read = true,
     expiration = 150000,
     fx_action = "UINotificationResource",
     group = "Colonists",
@@ -72,15 +71,13 @@ function OnMsg.ClassesPostprocess()
   PlaceObj("OnScreenNotificationPreset", {
     ImagePreview = "UI/Icons/Notifications/New/renegade.tga",
     SortKey = 1000200,
-    close_on_read = true,
     expiration = 150000,
-    fx_action = "UINotificationResource",
     group = "Colonists",
     id = "Tremualin_Suicide_Hero",
     image = "UI/Icons/Notifications/New/renegade_2.tga",
     priority = "Important",
-    text = Untranslated("<officer_name> saved <colonist_name> on <dome_name>"),
-    title = Untranslated("Hero officer")
+    text = Untranslated("<officer_name> has saved <colonist_name> on <dome_name>"),
+    title = Untranslated("Off-duty Hero")
   })
 end
 
@@ -100,7 +97,7 @@ function OnMsg.ClassesPostprocess()
     image = "UI/Icons/Notifications/New/renegade_2.tga",
     priority = "Important",
     text = Untranslated("<officer_name> provoked the suicide of <colonist_name> on <dome_name>"),
-    title = Untranslated("Officer screwed up")
+    title = Untranslated("Off-duty Screw-up")
   })
 end
 
@@ -123,3 +120,23 @@ function OnMsg.ClassesPostprocess()
     title = Untranslated("Domestic violence")
   })
 end
+
+function OnMsg.ClassesPostprocess()
+  if OnScreenNotificationPresets.Tremualin_Renegades_Sabotage_Buildings then
+    return
+  end
+
+  PlaceObj("OnScreenNotificationPreset", {
+    ImagePreview = "UI/Icons/Notifications/New/renegade.tga",
+    SortKey = 1000400,
+    VignetteImage = "UI/Onscreen/onscreen_gradient_red.tga",
+    VignettePulseDuration = 2000,
+    expiration = 150000,
+    group = "Colonists",
+    id = "Tremualin_Renegades_Sabotage_Buildings",
+    image = "UI/Icons/Notifications/New/renegade_2.tga",
+    priority = "Important",
+    text = Untranslated("Buildings destroyed in <dome_name>!"),
+    title = T(5585, "Renegades Sabotage Buildings")
+  })
+  end

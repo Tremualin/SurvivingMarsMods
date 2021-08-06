@@ -20,7 +20,7 @@ end
 
 function GetSeniorCount(city_or_dome)
   local seniorCount = 0
-  if city_or_dome.labels.Senior then
+  if city_or_dome and city_or_dome.labels.Senior then
     seniorCount = #(city_or_dome.labels.Senior)
   end
   return seniorCount
@@ -28,7 +28,7 @@ end
 
 function GetSeniors(city_or_dome)
   local seniors = {}
-  if city_or_dome.labels.Senior then
+  if city_or_dome and city_or_dome.labels.Senior then
     seniors = city_or_dome.labels.Senior
   end
   return seniors
@@ -72,7 +72,8 @@ function GetRareTraitChance(unit)
 end
 
 -- Seniors share cautionary tales
-local flawRemovedByPerks = { Coward={'Composed', 'Survivor'}, Renegade={'Empath', 'Saint'}, Melancholic={'Enthusiast'}, Glutton={'Fit'}, Gambler={'Gamer'}, Idiot={'Genius'}, Hypochondriac={'Nerd'}, Loner={'Party Animal'}, Alcoholic={'Religious'}, Whiner={'Rugged'}, Lazy={'Workaholic'}} 
+-- Violent added for compatibility with Crime and Vindication
+local flawRemovedByPerks = { Violent={'Vindicated'}, Coward={'Composed', 'Survivor'}, Renegade={'Empath', 'Saint'}, Melancholic={'Enthusiast'}, Glutton={'Fit'}, Gambler={'Gamer'}, Idiot={'Genius'}, Hypochondriac={'Nerd'}, Loner={'Party Animal'}, Alcoholic={'Religious'}, Whiner={'Rugged'}, Lazy={'Workaholic'}} 
 local chanceMultipliersPerAge = { Youth=4, Adult=2, ['Middle Aged']=1}
 local maxChancePerAge = { Youth=20, Adult=10, ['Middle Aged']=5}
 function shareCautionaryTales(colonist)
