@@ -274,7 +274,7 @@ function Dome:Tremualin_CrimeEvents_Vandalism()
   for i=1, self:GetAdjustedRenegades() do
     local building = self.city:TableRand(buildings)
     if building and building:DoesRequireMaintenance() then
-      local maintenance = MulDivRound(building.maintenance_threshold_base, 4, 100)
+      local maintenance = MulDivRound(building.maintenance_threshold_base, 5, 100)
       building:AccumulateMaintenancePoints(maintenance)
       table.insert(vandalized_buildings, building)
     end
