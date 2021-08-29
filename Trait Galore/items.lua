@@ -1,44 +1,55 @@
 return {
     PlaceObj('ModItemCode', {
+        'name', "Anxious",
         'FileName', "Code/Anxious.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Common",
         'FileName', "Code/Common.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Cynical",
+        'FileName', "Code/Cynical.lua",
+    }),
+    PlaceObj('ModItemCode', {
+        'name', "Depressed",
         'FileName', "Code/Depressed.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "EarlyBird_NightOwl",
         'FileName', "Code/EarlyBird_NightOwl.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Fickle",
         'FileName', "Code/Fickle.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Fixer",
         'FileName', "Code/Fixer.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Mentor",
         'FileName', "Code/Mentor.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Paranoid",
         'FileName', "Code/Paranoid.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "Thrifty",
         'FileName', "Code/Thrifty.lua",
     }),
     PlaceObj('ModItemTraitPreset', {
-        _incompatible = "Composed",
-        category = "Negative",
-        description = T(118077551271, --[[ModItemTraitPreset Paranoid description]] "-3 sanity when moving to a new location in or out of the Dome"),
-        display_icon = "",
-        display_name = T(179422768941, --[[ModItemTraitPreset Paranoid display_name]] "Paranoid"),
-        group = "Negative",
-        id = "Paranoid",
+        _incompatible = "Enthusiast",
+        category = "other",
+        description = T(444564099265, --[[ModItemTraitPreset Cynical description]] "All sanity losses and gains are halved. Stacks with Composed."),
+        display_name = T(219804375063, --[[ModItemTraitPreset Cynical display_name]] "Cynical"),
+        group = "other",
+        id = "Cynical",
         incompatible = {
-            Composed = true,
+            Enthusiast = true,
         },
-        name = "Paranoid",
-        sanatorium_trait = true,
+        name = "Cynical",
         weight = 100,
     }),
     PlaceObj('ModItemTraitPreset', {
@@ -164,11 +175,12 @@ return {
         weight = 100,
     }),
     PlaceObj('ModItemTraitPreset', {
+        __copy_group = "Positive",
         _incompatible = "Religious",
-        category = "other",
+        category = "Positive",
         description = T(248606183601, --[[ModItemTraitPreset Fickle description]] "Alternates between different interests until it can satisfy one or goes to sleep."),
         display_name = T(562811521981, --[[ModItemTraitPreset Fickle display_name]] "Fickle"),
-        group = "other",
+        group = "Positive",
         id = "Fickle",
         incompatible = {
             Religious = true,
@@ -270,11 +282,12 @@ return {
         sanatorium_trait = true,
     }),
     PlaceObj('ModItemTraitPreset', {
+        __copy_group = "Positive",
         _incompatible = "Introvert",
-        category = "other",
+        category = "Positive",
         description = T(570630308235, --[[ModItemTraitPreset Mentor description]] "Coworkers gain +10 performance and a moderate chance of losing the Idiot flaw; unless the Mentor is also an Idiot."),
         display_name = T(365414621943, --[[ModItemTraitPreset Mentor display_name]] "Mentor"),
-        group = "other",
+        group = "Positive",
         id = "Mentor",
         incompatible = {
             Introvert = true,
@@ -298,6 +311,21 @@ return {
             EarlyBird = true,
         },
         name = "NightOwl",
+        weight = 100,
+    }),
+    PlaceObj('ModItemTraitPreset', {
+        _incompatible = "Composed",
+        category = "Negative",
+        description = T(118077551271, --[[ModItemTraitPreset Paranoid description]] "-3 sanity when moving to a new location in or out of the Dome"),
+        display_icon = "",
+        display_name = T(179422768941, --[[ModItemTraitPreset Paranoid display_name]] "Paranoid"),
+        group = "Negative",
+        id = "Paranoid",
+        incompatible = {
+            Composed = true,
+        },
+        name = "Paranoid",
+        sanatorium_trait = true,
         weight = 100,
     }),
     PlaceObj('ModItemTraitPreset', {
