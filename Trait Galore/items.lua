@@ -42,7 +42,7 @@ return {
     PlaceObj('ModItemTraitPreset', {
         _incompatible = "Enthusiast",
         category = "other",
-        description = T(444564099265, --[[ModItemTraitPreset Cynical description]] "All sanity losses and gains are halved. Stacks with Composed."),
+        description = T(444564099265, --[[ModItemTraitPreset Cynical description]] "All sanity gains and losses are halved (stacks with Composed) "),
         display_name = T(219804375063, --[[ModItemTraitPreset Cynical display_name]] "Cynical"),
         group = "other",
         id = "Cynical",
@@ -110,7 +110,7 @@ return {
                 end
             end
         end,
-        description = T(751189543735, --[[ModItemTraitPreset Brawler description]] "Once a day this and another colonist in the same Residence will lose 5 health then gain 5 sanity"),
+        description = T(751189543735, --[[ModItemTraitPreset Brawler description]] "Once a day, if healthy, this an another healthy non-child will both lose 10 health; then both colonists regain 5 sanity. "),
         display_name = T(787206239319, --[[ModItemTraitPreset Brawler display_name]] "Brawler"),
         group = "other",
         id = "Brawler",
@@ -191,7 +191,7 @@ return {
     PlaceObj('ModItemTraitPreset', {
         _incompatible = "Idiot",
         category = "Positive",
-        description = T(385525620058, --[[ModItemTraitPreset Fixer description]] "Reduces the maintenance of any building it visits by 4%. "),
+        description = T(385525620058, --[[ModItemTraitPreset Fixer description]] "Reduces the maintenance of any building it visits by 5%. "),
         display_name = T(487457715140, --[[ModItemTraitPreset Fixer display_name]] "Fixer"),
         group = "Positive",
         id = "Fixer",
@@ -267,10 +267,9 @@ return {
             if #victims > 0 then
                 local victim = table.rand(victims)
                 victim:ChangeSanity(-5 * const.Scale.Stat, "Another colonist was mean to me ")
-                colonist:ChangeSanity(5 * const.Scale.Stat, "Feels good to be mean ")
             end
         end,
-        description = T(692728959809, --[[ModItemTraitPreset Mean description]] "-5 sanity to a random person on the same residence. Recovers +5 sanity when this happens. "),
+        description = T(692728959809, --[[ModItemTraitPreset Mean description]] "-5 sanity to another random colonist in the dome"),
         display_name = T(306220161089, --[[ModItemTraitPreset Mean display_name]] "Mean"),
         group = "Negative",
         id = "Mean",
@@ -285,7 +284,7 @@ return {
         __copy_group = "Positive",
         _incompatible = "Introvert",
         category = "Positive",
-        description = T(570630308235, --[[ModItemTraitPreset Mentor description]] "Coworkers gain +10 performance and a moderate chance of losing the Idiot flaw; unless the Mentor is also an Idiot."),
+        description = T(570630308235, --[[ModItemTraitPreset Mentor description]] "Coworkers gain +20 performance and a moderate chance of losing the Idiot flaw; unless the Mentor is also an Idiot."),
         display_name = T(365414621943, --[[ModItemTraitPreset Mentor display_name]] "Mentor"),
         group = "Positive",
         id = "Mentor",
@@ -331,7 +330,7 @@ return {
     PlaceObj('ModItemTraitPreset', {
         _incompatible = "Lazy",
         category = "Positive",
-        description = T(682642468760, --[[ModItemTraitPreset Thrifty description]] "Reduces the amount of resources consumed by the workplace by 5%"),
+        description = T(682642468760, --[[ModItemTraitPreset Thrifty description]] "Reduces the amount of resources consumed by the workplace by 5%. If the building consumes no resources, then it will reduce the consumption of electricity instead."),
         display_icon = "",
         display_name = T(207956885932, --[[ModItemTraitPreset Thrifty display_name]] "Thrifty"),
         group = "Positive",
