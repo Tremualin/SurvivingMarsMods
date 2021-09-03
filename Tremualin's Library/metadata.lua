@@ -13,8 +13,11 @@ return PlaceObj('ModDef', {
     'lua_revision', 233360,
     'saved_with_revision', 1001586,
     'code', {
+        "Code/CommonUI.lua",
         "Code/Common.lua",
         "Code/Numbers.lua",
+        "Code/Labels.lua",
+        "Code/Fixes.lua",
     },
     'saved', 1630384506,
 })
