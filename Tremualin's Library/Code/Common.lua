@@ -1,8 +1,6 @@
 Tremualin = {}
 Tremualin.Debugging = {}
 Tremualin.Functions = {}
-Tremualin.UIDebugging = Tremualin.UIDebugging or {}
-Tremualin.UIFunctions = Tremualin.UIFunctions or {}
 
 Tremualin.Debugging.FindAllOtherColonistsInSameResidence = false
 
@@ -13,15 +11,16 @@ local function FindAllOtherColonistsInSameResidence(colonist, filter)
     -- if no filter is provided, return all colonists
     local none_filter = function(another, same) return true end
     if not filter then filter = none_filter end
-    local colonists_in_same_residence = {}
-    local filtered_colonists = {}
-    local residence = colonist.residence
+
     local dome = colonist.dome
+    local residence = colonist.residence
+    local colonists_in_same_residence = {}
     if residence and residence.colonists then
         colonists_in_same_residence = residence.colonists
     elseif dome and dome.labels.Homeless then
         colonists_in_same_residence = dome.labels.Homeless
     end
+    local filtered_colonists = {}
     for i = #colonists_in_same_residence, 1, -1 do
         local another = colonists_in_same_residence[i]
         if IsValid(another) and another ~= colonist and

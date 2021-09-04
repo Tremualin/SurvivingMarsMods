@@ -10,7 +10,7 @@ local seniorWellbeingPositiveMoraleChangePerAge = {Youth = 5, Adult = 5, ['Middl
 -- bad if at least 10% of senior are unhappy, good if at least 95% of seniors are happy, otherwise neutral
 local function SeniorsWellbeing(city)
     local result = 'neutral'
-    local seniors = GetSeniors(city)
+    local seniors = functions.GetSeniors(city)
     local totalSeniors = #seniors
     if totalSeniors > 0 then
         local happySeniors = 0

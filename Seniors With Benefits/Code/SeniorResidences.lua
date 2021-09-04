@@ -1,4 +1,4 @@
-local ui_functions = TremualinUI.Functions
+local ui_functions = Tremualin.UIFunctions
 
 -- A button that turns a residence into a seniors only residence
 -- Useful for those that don't have the new DLC

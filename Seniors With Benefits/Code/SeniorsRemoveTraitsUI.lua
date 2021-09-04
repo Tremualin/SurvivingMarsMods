@@ -1,4 +1,4 @@
-local ui_functions = TremualinUI.Functions
+local ui_functions = Tremualin.UIFunctions
 
 -- Initialize the removed_traits_log and lifetime cures to 0 when the Dome is built
 local orig_Dome_Init = Dome.Init

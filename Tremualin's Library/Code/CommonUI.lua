@@ -1,6 +1,4 @@
-TremualinUI = {}
-TremualinUI.Debugging = {}
-TremualinUI.Functions = {}
+Tremualin.UIFunctions = {}
 
 local function RemoveXTemplateSections(list, name)
     local idx = table.find(list, name, true)
@@ -10,4 +8,4 @@ local function RemoveXTemplateSections(list, name)
     end
 end
 
-TremualinUI.Functions.RemoveXTemplateSections = RemoveXTemplateSections
+Tremualin.UIFunctions.RemoveXTemplateSections = RemoveXTemplateSections

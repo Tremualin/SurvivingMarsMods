@@ -43,7 +43,7 @@ local function ColonistCuredBySeniors(colonist, trait_to_cure)
     local message = string.format(flaw_removed_message, trait_to_cure)
     colonist:RemoveTrait(trait_to_cure)
     colonist:ChangeSanity(flaw_removed_sanity_gain, message)
-    if Tremualin.Debugging.ColonistCuredBySeniors then print(message) end
+    if Tremualin.Debugging.ColonistCuredBySeniors then print(message .. string.format(" (%s)", colonist:GetRenameInitText())) end
     if dome then
         dome.tremualin_lifetime = (dome.tremualin_lifetime or 0) + 1
         if not dome.tremualin_removed_traits_log then

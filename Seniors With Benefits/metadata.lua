@@ -16,7 +16,7 @@ return PlaceObj('ModDef', {
     'author', "Tremualin",
     'version_major', 1,
     'version_minor', 1,
-    'version', 13,
+    'version', 14,
     'lua_revision', 233360,
     'saved_with_revision', 1001586,
     'code', {
@@ -25,6 +25,11 @@ return PlaceObj('ModDef', {
         "Code/SeniorsRemoveTraitsUI.lua",
         "Code/SeniorsWellBeing.lua",
     },
-    'saved', 1630378568,
+    'saved', 1630715766,
+    'screenshot1', "GluttonRemoved.png",
+    'screenshot2', "TraitsRemovedUI.jpg",
+    'screenshot3', "HappySeniors.png",
+    'screenshot4', "MiserableSeniors.png",
+    'screenshot5', "SeniorsCare.png",
     'TagGameplay', true,
 })

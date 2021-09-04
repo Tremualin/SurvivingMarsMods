@@ -1,11 +1,11 @@
 return {
     PlaceObj('ModItemCode', {
-        'name', "CommonUI",
-        'FileName', "Code/CommonUI.lua",
-    }),
-    PlaceObj('ModItemCode', {
         'name', "Common",
         'FileName', "Code/Common.lua",
+    }),
+    PlaceObj('ModItemCode', {
+        'name', "CommonUI",
+        'FileName', "Code/CommonUI.lua",
     }),
     PlaceObj('ModItemCode', {
         'name', "Numbers",
