@@ -10,7 +10,7 @@ local trait_defs = TraitPresets
 
 -- Violent added for compatibility with Crime and Vindication
 -- Anxious, Argumentative, Mean and Paranoid added for compatibility with Trait Galore
-local flaws_removed_by_senior_perks = {Anxious = {'Composed'}, Argumentative = {'Listener'}, Paranoid = {'Composed'}, Mean = {'Kind'}, Violent = {'Vindicated'}, Coward = {'Composed', 'Survivor'}, Renegade = {'Empath', 'Saint'}, Melancholic = {'Enthusiast'}, Glutton = {'Fit'}, Gambler = {'Fickle', 'Gamer'}, Idiot = {'Mentor', 'Fixer', 'Genius'}, Hypochondriac = {'Nerd'}, Loner = {'Party Animal'}, Alcoholic = {'Religious'}, Whiner = {'Brawler', 'Rugged'}, Lazy = {'Thrifty', 'Workaholic'}}
+local flaws_removed_by_senior_traits = {Anxious = {'Composed'}, Argumentative = {'Listener'}, Paranoid = {'Composed'}, Mean = {'Kind'}, Violent = {'Vindicated'}, Coward = {'Composed', 'Survivor'}, Renegade = {'Empath', 'Saint'}, Melancholic = {'Enthusiast'}, Glutton = {'Fit'}, Gambler = {'Fickle', 'Gamer'}, Idiot = {'Mentor', 'Fixer', 'Genius'}, Hypochondriac = {'Nerd'}, Loner = {'Party Animal'}, Alcoholic = {'Religious'}, Whiner = {'Brawler', 'Rugged'}, Lazy = {'Thrifty', 'Workaholic'}}
 local flaw_removed_chance_multipliers_per_age = {Youth = 4, Adult = 2, ['Middle Aged'] = 1}
 local flaw_removed_max_change_per_age = {Youth = 16, Adult = 10, ['Middle Aged'] = 5}
 local flaw_removed_message = "Senior citizen talked some sense into me (%s was removed) "
@@ -22,6 +22,18 @@ local seniors_care_for_other_seniors_message = "Seniors care for other seniors "
 
 local senior_role_models_performance_bonus_message = "<green>Inspired by senior role models %s </color>"
 local senior_role_models_modifier_id = "SeniorRoleModels"
+
+-- Allows me to generate the description of the mod from the table
+local function PrintFlawsRemovedBySeniorPerksTable()
+    print("[table][tr][th]Flaw[/th][th]Removed by[/th][/tr]")
+    for flaw, perks in pairsByKeys(flaws_removed_by_senior_traits) do
+        table.sort(perks)
+        print(string.format("[tr][td]%s[/td][td]%s[/td][/tr]", flaw, (table.concat(perks, ","))))
+    end
+    print("[/table]")
+end
+
+Tremualin.Debugging.PrintFlawsRemovedBySeniorPerksTable = PrintFlawsRemovedBySeniorPerksTable
 
 -- Seniors bring out the best in Children
 -- Effectively boosting the rare trait chance based on the number of seniors
@@ -63,7 +75,7 @@ local function ShareCautionaryTales(colonist)
         local chanceMultiplier = flaw_removed_chance_multipliers_per_age[ageTrait]
         local maxChance = flaw_removed_max_change_per_age[ageTrait]
         for negativeTraitId, _ in pairs(traits) do
-            local perks = flaws_removed_by_senior_perks[negativeTraitId]
+            local perks = flaws_removed_by_senior_traits[negativeTraitId]
             if perks then
                 local seniorsWithTrait = functions.GetSeniorsWithAnyTraits(dome, perks)
                 local chance = Min(maxChance, MulDivRound(seniorsWithTrait, chanceMultiplier, 1))
