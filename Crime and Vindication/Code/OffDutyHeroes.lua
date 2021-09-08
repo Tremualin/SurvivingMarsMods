@@ -6,7 +6,7 @@ function Colonist:Suicide()
     local saved = false
     local dome = self.dome
     if dome then
-        local supportive_community = IsTechResearched("SupportiveCommunity")
+        local supportive_community = UIColony:IsTechResearched("SupportiveCommunity")
         local security_in_proximity = {}
         local security = dome.labels.security or empty_table
         for i = 1, #security do
@@ -50,3 +50,15 @@ function Colonist:Suicide()
         orig_Colonist_Suicide(self)
     end
 end
+
+local function ImproveSupportiveCommunity()
+    local tech = Presets.TechPreset.Social["SupportiveCommunity"]
+    local modified = tech.Tremualin_OffDutyHeroes
+    if not modified then
+        tech.description = Untranslated("Increases the chances of Officers preventing colonists from committing <em>Suicide</em>.\n") .. tech.description
+        tech.Tremualin_OffDutyHeroes = true
+    end
+end
+
+OnMsg.LoadGame = ImproveSupportiveCommunity
+OnMsg.CityStart = ImproveSupportiveCommunity

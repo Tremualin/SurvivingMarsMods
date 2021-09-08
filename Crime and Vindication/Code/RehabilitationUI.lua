@@ -26,7 +26,7 @@ function OnMsg.ClassesPostprocess()
         "__template", "InfopanelSection",
         "__context_of_kind", "Residence",
         "OnContextUpdate", function(self, context)
-            if IsTechResearched("BehavioralShaping") then
+            if UIColony:IsTechResearched("BehavioralShaping") then
                 if context.exclusive_trait == "Renegade" then
                     self:SetRolloverText("Renegade progress towards rehabilitation:<newline><newline>" .. GetPointsRolloverText(context))
                     self:SetTitle("Rehabilitation Center")

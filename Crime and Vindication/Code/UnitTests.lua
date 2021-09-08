@@ -42,6 +42,7 @@ local function DomesticViolenceTests(dome)
 end
 
 local function FirstRespondersTest(dome)
+    local failed = false
     local status, err = pcall(Dome.GetDomeComfort, dome)
     if not status then
         failed = true
@@ -52,11 +53,14 @@ local function FirstRespondersTest(dome)
 end
 
 local function CrimeAndVindicationTests()
-    for _, dome in ipairs(UICity.labels.Dome or empty_table) do
-        CrimeTests(dome)
-        DomesticViolenceTests(dome)
-        FirstRespondersTest(dome)
+    for _, city in ipairs(Cities) do
+        for _, dome in ipairs(city.labels.Dome or empty_table) do
+            CrimeTests(dome)
+            DomesticViolenceTests(dome)
+            FirstRespondersTest(dome)
+        end
     end
+
 end
 
 Tremualin.Tests.CrimeTests = CrimeTests

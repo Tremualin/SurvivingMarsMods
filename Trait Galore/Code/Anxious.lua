@@ -1,6 +1,6 @@
 local functions = Tremualin.Functions
 
-local anxious_sanity_loss = -2 * const.Scale.Stat
+local anxious_sanity_loss = -1 * const.Scale.Stat
 local anxious_sanity_loss_message = "Unable to immediately satisfy an interest (Anxious) "
 
 function OnMsg.ClassesPostprocess()

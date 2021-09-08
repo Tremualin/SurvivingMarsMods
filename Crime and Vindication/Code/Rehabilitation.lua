@@ -1,7 +1,7 @@
 local functions = Tremualin.Functions
 
 Tremualin_max_renegades_per_officer = 4
-local vindication_points = 700
+vindication_points = 700
 local vindication_points_per_shift = 70
 local training_type = 'vindication'
 local securityStationBehavioralMelding = "Tremualin_SecurityStation_BehavioralMelding"
@@ -11,54 +11,56 @@ local securityStationCriminalPsychologists = "Tremualin_SecurityStation_Criminal
 function OnMsg.NewWorkshift(shift)
     local remove_trait = "Renegade"
     local add_trait = "Vindicated"
-    local domes = UICity.labels.Dome or empty_table
-    for j = #domes, 1, -1 do
-        local dome = domes[j]
+    for _, city in ipairs(Cities) do
+        local domes = city.labels.Dome or empty_table
+        for j = #domes, 1, -1 do
+            local dome = domes[j]
 
-        -- determine how many Renegades are in Rehabilitation
-        local renegades_in_rehabilitation = functions.RenegadesInRehabilitation(dome)
-        -- determine how many officers are working in security stations during this shift
-        local officers_in_security_stations = functions.OfficersInSecurityStations(dome)
+            -- determine how many Renegades are in Rehabilitation
+            local renegades_in_rehabilitation = functions.RenegadesInRehabilitation(dome)
+            -- determine how many officers are working in security stations during this shift
+            local officers_in_security_stations = functions.OfficersInSecurityStations(dome)
 
-        -- split renegades on groups of Tremualin_max_renegades_per_officer
-        -- so they can be treated by a security officer
-        local table_key = 1
-        local renegades_per_officer_table = {}
-        for i = #renegades_in_rehabilitation, 1, -1 do
-            renegades_per_officer_table[table_key] = renegades_per_officer_table[table_key] or {}
-            table.insert(renegades_per_officer_table[table_key], renegades_in_rehabilitation[i])
-            if #renegades_per_officer_table[table_key] >= Tremualin_max_renegades_per_officer then
-                table_key = table_key + 1
+            -- split renegades on groups of Tremualin_max_renegades_per_officer
+            -- so they can be treated by a security officer
+            local table_key = 1
+            local renegades_per_officer_table = {}
+            for i = #renegades_in_rehabilitation, 1, -1 do
+                renegades_per_officer_table[table_key] = renegades_per_officer_table[table_key] or {}
+                table.insert(renegades_per_officer_table[table_key], renegades_in_rehabilitation[i])
+                if #renegades_per_officer_table[table_key] >= Tremualin_max_renegades_per_officer then
+                    table_key = table_key + 1
+                end
             end
-        end
 
-        -- for each officer; treat up to Tremualin_max_renegades_per_officer renegades
-        table_key = 1
-        for _, officer in pairs(officers_in_security_stations) do
-            for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
-                local gain_points = MulDivRound(vindication_points_per_shift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), officer.performance, 100)
-                renegade.training_points = renegade.training_points or {}
-                renegade.training_points[training_type] = (renegade.training_points[training_type] or 0) + gain_points
-                if renegade.training_points[training_type] >= vindication_points then
-                    renegade:RemoveTrait(remove_trait)
-                    local residence = renegade.residence
-                    residence.parent_dome.officers_with_benefits_rehabilitated = (residence.parent_dome.officers_with_benefits_rehabilitated or 0) + 1
-                    residence:RemoveResident(renegade)
-                    residence.total_cured = (residence.total_cured or 0) + 1
-                    if officer.workplace:HasUpgrade(securityStationBehavioralMelding) then
-                        local compatible = (FilterCompatibleTraitsWith({add_trait}, renegade.traits))
-                        if 0 < #compatible then
-                            renegade:AddTrait(add_trait)
-                            Msg("ColonistCured", renegade, residence, remove_trait, add_trait)
+            -- for each officer; treat up to Tremualin_max_renegades_per_officer renegades
+            table_key = 1
+            for _, officer in pairs(officers_in_security_stations) do
+                for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
+                    local gain_points = MulDivRound(vindication_points_per_shift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), officer.performance, 100)
+                    renegade.training_points = renegade.training_points or {}
+                    renegade.training_points[training_type] = (renegade.training_points[training_type] or 0) + gain_points
+                    if renegade.training_points[training_type] >= vindication_points then
+                        renegade:RemoveTrait(remove_trait)
+                        local residence = renegade.residence
+                        residence.parent_dome.officers_with_benefits_rehabilitated = (residence.parent_dome.officers_with_benefits_rehabilitated or 0) + 1
+                        residence:RemoveResident(renegade)
+                        residence.total_cured = (residence.total_cured or 0) + 1
+                        if officer.workplace:HasUpgrade(securityStationBehavioralMelding) then
+                            local compatible = (FilterCompatibleTraitsWith({add_trait}, renegade.traits))
+                            if 0 < #compatible then
+                                renegade:AddTrait(add_trait)
+                                Msg("ColonistCured", renegade, residence, remove_trait, add_trait)
+                            else
+                                Msg("ColonistCured", renegade, residence, remove_trait, nil)
+                            end
                         else
                             Msg("ColonistCured", renegade, residence, remove_trait, nil)
                         end
-                    else
-                        Msg("ColonistCured", renegade, residence, remove_trait, nil)
                     end
                 end
+                table_key = table_key + 1
             end
-            table_key = table_key + 1
         end
     end
 end
@@ -70,6 +72,13 @@ local function AddBehavioralMeldingUpgrade(obj, id)
     obj.upgrade1_icon = "UI/Icons/Upgrades/behavioral_melding_01.tga"
     obj.upgrade1_upgrade_cost_Polymers = id == "SecurityPostCCP1" and 4000 or 10000
     obj.upgrade1_upgrade_cost_Electronics = id == "SecurityPostCCP1" and 4000 or 10000
+
+    local tech = Presets.TechPreset.Social["BehavioralMelding"]
+    local modified = tech.Tremualin_Vindication
+    if not modified then
+        tech.description = Untranslated("Security building Upgrade (<em>Behavioral Melding</em>) - Renegades in Rehabilitation become <em>Vindicated</em>, gaining +20 performance and becoming unable to become Renegades ever again.\n") .. tech.description
+        tech.Tremualin_Vindication = true
+    end
 end
 
 local function AddCriminalPsychologistsUpgrade(obj, id)
@@ -78,6 +87,13 @@ local function AddCriminalPsychologistsUpgrade(obj, id)
     obj.upgrade2_display_name = Untranslated("Criminal Psychologists")
     obj.upgrade2_icon = "UI/Icons/Upgrades/factory_ai_01.tga"
     obj.upgrade2_upgrade_cost_Polymers = id == "SecurityPostCCP1" and 3000 or 8000
+
+    local tech = Presets.TechPreset.Social["SupportiveCommunity"]
+    local modified = tech.Tremualin_CriminalPsychologists
+    if not modified then
+        tech.description = Untranslated("Security building Upgrade (<em>Criminal Psychologists</em>) - Increases the performance of the Security building by 10 if there's a medical building in the Dome. Doubled if the medical building is a Spire or a Hospital.\n") .. tech.description
+        tech.Tremualin_CriminalPsychologists = true
+    end
 end
 
 function SecurityStation:OnChangeWorkshift(old, new)
@@ -142,12 +158,23 @@ function OnMsg.ClassesPostprocess()
     end
 end
 
+local function ImproveBehavioralShaping()
+    local tech = Presets.TechPreset.Social["BehavioralShaping"]
+    local modified = tech.Tremualin_Rehabilitation
+    if not modified then
+        tech.description = Untranslated("Allows you to turn any non-Senior Residence into a <em>Rehabilitation Center</em> which can cure up to 4 Renegades in Rehabilitation for each Officer working in a Security building in the same dome.\n") .. tech.description
+        tech.Tremualin_Rehabilitation = true
+    end
+end
+
 function StartupCode(...)
-    local unlocked_upgrades = UICity.unlocked_upgrades
-    if IsTechResearched("BehavioralMelding") then
+    ImproveBehavioralShaping()
+
+    local unlocked_upgrades = UIColony.unlocked_upgrades
+    if UIColony:IsTechResearched("BehavioralMelding") then
         UnlockUpgrade(securityStationBehavioralMelding)
     end
-    if IsTechResearched("SupportiveCommunity") then
+    if UIColony:IsTechResearched("SupportiveCommunity") then
         UnlockUpgrade(securityStationCriminalPsychologists)
     end
 

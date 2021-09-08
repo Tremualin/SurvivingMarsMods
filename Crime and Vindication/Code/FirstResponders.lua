@@ -6,7 +6,7 @@ local debugging = Tremualin.Debugging
 local orig_Dome_GetDomeComfort = Dome.GetDomeComfort
 function Dome:GetDomeComfort()
     local securityStationComfort = 0
-    if IsTechResearched("EmergencyTraining") then
+    if UIColony:IsTechResearched("EmergencyTraining") then
         local officers_in_security_stations = functions.OfficersInSecurityStations(self)
         for _, officer in pairs(officers_in_security_stations) do
             securityStationComfort = securityStationComfort + officer.performance * 2 / 100

@@ -107,3 +107,15 @@ function OnMsg.ColonistBecameYouth(colonist)
         functions.AddSanityBreakdownFlaw(colonist)
     end
 end
+
+local function ImproveSupportiveCommunity()
+    local tech = Presets.TechPreset.Social["SupportiveCommunity"]
+    local modified = tech.Tremualin_DomesticViolence
+    if not modified then
+        tech.description = Untranslated("Lowers the risk of colonists developing flaws from <em>Domestic violence.</em>\n") .. tech.description
+        tech.Tremualin_DomesticViolence = true
+    end
+end
+
+OnMsg.LoadGame = ImproveSupportiveCommunity
+OnMsg.CityStart = ImproveSupportiveCommunity

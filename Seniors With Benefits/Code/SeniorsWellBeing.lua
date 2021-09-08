@@ -6,11 +6,21 @@ local stat_scale = const.Scale.Stat
 local seniorWellbeingNegativeMoraleChangePerAge = {Youth = 10, Adult = 20, ['Middle Aged'] = 30}
 local seniorWellbeingPositiveMoraleChangePerAge = {Youth = 5, Adult = 5, ['Middle Aged'] = 15}
 
+local function TableConcat(t1, t2)
+    for i = 1, #t2 do
+        t1[#t1 + 1] = t2[i]
+    end
+    return t1
+end
+
 -- How are our seniors doing across the city?
 -- bad if at least 10% of senior are unhappy, good if at least 95% of seniors are happy, otherwise neutral
-local function SeniorsWellbeing(city)
+local function SeniorsWellbeing()
     local result = 'neutral'
-    local seniors = functions.GetSeniors(city)
+    local seniors = {}
+    for _, city in ipairs(Cities) do
+        seniors = TableConcat(seniors, functions.GetSeniors(city))
+    end
     local totalSeniors = #seniors
     if totalSeniors > 0 then
         local happySeniors = 0
@@ -33,10 +43,10 @@ end
 
 -- Calculate the Seniors Well-being only once a day
 GlobalVar("g_Tremualin_Seniors_Wellbeing_Result", 'neutral')
-local orig_DailyUpdate = City.DailyUpdate
-function City:DailyUpdate(day)
-    orig_DailyUpdate(self, day)
-    g_Tremualin_Seniors_Wellbeing_Result = SeniorsWellbeing(self.city)
+local orig_Colony_DailyUpdate = Colony.DailyUpdate
+function Colony:DailyUpdate(day)
+    orig_Colony_DailyUpdate(self, day)
+    g_Tremualin_Seniors_Wellbeing_Result = SeniorsWellbeing()
     if Tremualin.Debugging.SeniorsWellBeing then print(string.format("Seniors are %s", g_Tremualin_Seniors_Wellbeing_Result)) end
 end
 

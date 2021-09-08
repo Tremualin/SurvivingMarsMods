@@ -1,6 +1,6 @@
 local functions = Tremualin.Functions
 
-local paranoid_sanity_loss = -3 * const.Scale.Stat
+local paranoid_sanity_loss = -2 * const.Scale.Stat
 local paranoid_sanity_loss_message = "<red>Will the building collapse on me? (Paranoid) </color>"
 
 function OnMsg.ClassesPostprocess()

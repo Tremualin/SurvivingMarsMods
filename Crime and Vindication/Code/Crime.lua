@@ -169,8 +169,8 @@ end
 
 -- Colonists steal some money; no one knows how
 function Dome:Tremualin_CrimeEvents_Embezzlement()
-    local stolen_amount = MulDivRound(UICity.funding, self:GetAdjustedRenegades(), 100)
-    UICity:ChangeFunding(-stolen_amount)
+    local stolen_amount = MulDivRound(UIColony.funds.funding, self:GetAdjustedRenegades(), 100)
+    UIColony.funds.funding = UIColony.funds.funding - stolen_amount
 
     AddOnScreenNotification("Tremualin_CrimeEvents_Embezzlement", false, {
         dome_name = self:GetDisplayName(),
