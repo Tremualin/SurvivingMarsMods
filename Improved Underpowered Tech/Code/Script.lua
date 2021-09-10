@@ -52,7 +52,7 @@ local function ImproveAdaptedProbes()
     local tech = Presets.TechPreset.Physics["AdaptedProbes"]
     local modified = tech.Tremualin_3Probes
     if not modified then
-        tech.description = Untranslated("Grants 3 <em>Probes</em> when researched\n") .. tech.description
+        tech.description = Untranslated("Immediately gain 3 <em>Probes</em>\n") .. tech.description
         tech.Tremualin_3Probes = true
     end
 end

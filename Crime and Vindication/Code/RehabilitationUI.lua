@@ -1,20 +1,24 @@
 local ui_functions = Tremualin.UIFunctions
+local configuration = Tremualin.Configuration
 
-local function GetPointsRolloverText(residence)
+function Residence:GetUISectionTremualinVindicationRolloverText()
+    if not self.exclusive_trait == "Renegade" then
+        return "Not a rehabilitation center"
+    end
+
     local text = {}
-    local colonists = residence.colonists
+    local colonists = self.colonists
     for i = #colonists, 1, -1 do
         local colonist = colonists[i]
         colonist.training_points = colonist.training_points or {}
-        local training_points = colonist.training_points[training_type] or 0
-
+        local training_points = colonist.training_points[configuration.VindicationTrainingType] or 0
         text[i] = T(colonist:GetDisplayName()) .. "<right>"
         .. T{9766, "<percent(number)>",
-            number = MulDivRound(training_points, 100, vindication_points),
+            number = MulDivRound(training_points, 100, configuration.VindicationPointsRequired),
         }
     end
-    text[#text + 1] = Untranslated("<newline>Lifetime cured: <right>" .. (residence.total_cured or 0))
-    return table.concat(text, "<newline><left>")
+    text[#text + 1] = Untranslated("<newline>Lifetime cured: <right>" .. (self.total_cured or 0))
+    return "Renegade progress towards rehabilitation:<newline><newline>" .. table.concat(text, "<newline><left>")
 end
 
 -- A button that turns a residence into a rehabilitation center
@@ -25,16 +29,15 @@ function OnMsg.ClassesPostprocess()
         "Tremualin_RehabilitationCenter", true,
         "__template", "InfopanelSection",
         "__context_of_kind", "Residence",
+        "RolloverText", Untranslated("<UISectionTremualinVindicationRolloverText>"),
         "OnContextUpdate", function(self, context)
             if UIColony:IsTechResearched("BehavioralShaping") then
                 if context.exclusive_trait == "Renegade" then
-                    self:SetRolloverText("Renegade progress towards rehabilitation:<newline><newline>" .. GetPointsRolloverText(context))
                     self:SetTitle("Rehabilitation Center")
                     self:SetIcon("UI/Icons/Upgrades/behavioral_melding_01.tga")
                 elseif context.exclusive_trait then
                     self:SetVisible(false)
                 else
-                    self:SetRolloverText("Not a rehabilitation center")
                     self:SetTitle("Regular Residence")
                     self:SetIcon("UI/Icons/Upgrades/behavioral_melding_02.tga")
                 end

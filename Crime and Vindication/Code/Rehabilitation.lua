@@ -1,9 +1,11 @@
-local functions = Tremualin.Functions
+Tremualin.Configuration.VindicationPointsRequired = 700
+Tremualin.Configuration.VindicationPointsAcquiredPerShift = 70
+Tremualin.Configuration.VindicationTrainingType = "vindication"
+Tremualin.Configuration.MaxRenegadesRehabilitatedPerOfficer = 4
 
-Tremualin_max_renegades_per_officer = 4
-vindication_points = 700
-local vindication_points_per_shift = 70
-local training_type = 'vindication'
+local functions = Tremualin.Functions
+local configuration = Tremualin.Configuration
+
 local securityStationBehavioralMelding = "Tremualin_SecurityStation_BehavioralMelding"
 local securityStationCriminalPsychologists = "Tremualin_SecurityStation_CriminalPsychologists"
 
@@ -21,26 +23,26 @@ function OnMsg.NewWorkshift(shift)
             -- determine how many officers are working in security stations during this shift
             local officers_in_security_stations = functions.OfficersInSecurityStations(dome)
 
-            -- split renegades on groups of Tremualin_max_renegades_per_officer
+            -- split renegades on groups of MaxRenegadesRehabilitatedPerOfficer
             -- so they can be treated by a security officer
             local table_key = 1
             local renegades_per_officer_table = {}
             for i = #renegades_in_rehabilitation, 1, -1 do
                 renegades_per_officer_table[table_key] = renegades_per_officer_table[table_key] or {}
                 table.insert(renegades_per_officer_table[table_key], renegades_in_rehabilitation[i])
-                if #renegades_per_officer_table[table_key] >= Tremualin_max_renegades_per_officer then
+                if #renegades_per_officer_table[table_key] >= configuration.MaxRenegadesRehabilitatedPerOfficer then
                     table_key = table_key + 1
                 end
             end
 
-            -- for each officer; treat up to Tremualin_max_renegades_per_officer renegades
+            -- for each officer; treat up to MaxRenegadesRehabilitatedPerOfficer renegades
             table_key = 1
             for _, officer in pairs(officers_in_security_stations) do
                 for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
-                    local gain_points = MulDivRound(vindication_points_per_shift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), officer.performance, 100)
+                    local gain_points = MulDivRound(configuration.VindicationPointsAcquiredPerShift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), officer.performance, 100)
                     renegade.training_points = renegade.training_points or {}
-                    renegade.training_points[training_type] = (renegade.training_points[training_type] or 0) + gain_points
-                    if renegade.training_points[training_type] >= vindication_points then
+                    renegade.training_points[configuration.VindicationTrainingType] = (renegade.training_points[configuration.VindicationTrainingType] or 0) + gain_points
+                    if renegade.training_points[configuration.VindicationTrainingType] >= configuration.VindicationPointsRequired then
                         renegade:RemoveTrait(remove_trait)
                         local residence = renegade.residence
                         residence.parent_dome.officers_with_benefits_rehabilitated = (residence.parent_dome.officers_with_benefits_rehabilitated or 0) + 1
@@ -189,7 +191,7 @@ local origin_Dome_GetAdjustedRenegades = Dome.GetAdjustedRenegades
 function Dome:GetAdjustedRenegades()
     local renegades_in_rehabilitation = functions.RenegadesInRehabilitation(self)
     local officers_in_security_stations = functions.OfficersInSecurityStations(self)
-    local negatedRehabilitationOfficers = Min(#officers_in_security_stations * Tremualin_max_renegades_per_officer, #renegades_in_rehabilitation)
+    local negatedRehabilitationOfficers = Min(#officers_in_security_stations * configuration.MaxRenegadesRehabilitatedPerOfficer, #renegades_in_rehabilitation)
     return Max(0, origin_Dome_GetAdjustedRenegades(self) - negatedRehabilitationOfficers)
 end
 
