@@ -203,6 +203,25 @@ local function RenegadesInRehabilitation(dome)
     return renegades_in_rehabilitation
 end
 
+local function ShallowCopy(original)
+    local copy = {}
+    for key, value in pairs(original) do
+        copy[key] = value
+    end
+    return copy
+end
+
+local function DeepCopy(original)
+    local copy = {}
+    for k, v in pairs(original) do
+        if type(v) == "table" then
+            v = DeepCopy(v)
+        end
+        copy[k] = v
+    end
+    return copy
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -220,3 +239,5 @@ Tremualin.Functions.TemporarilyModifyProperty = TemporarilyModifyProperty
 Tremualin.Functions.TemporarilyModifyMorale = TemporarilyModifyMorale
 Tremualin.Functions.OfficersInSecurityStations = OfficersInSecurityStations
 Tremualin.Functions.RenegadesInRehabilitation = RenegadesInRehabilitation
+Tremualin.Functions.ShallowCopy = ShallowCopy
+Tremualin.Functions.DeepCopy = DeepCopy

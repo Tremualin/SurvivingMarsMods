@@ -67,10 +67,50 @@ function OnMsg.TechResearched(tech_id)
     end
 end
 
+local function ImproveResilientArchitecture()
+    local tech = Presets.TechPreset.Engineering["ResilientArchitecture"]
+    local modified = tech.Tremualin_AdditionalRefund
+    if not modified then
+        tech.description = Untranslated("Salvaging now yields back the <em>full cost</em> of a building\n") .. tech.description
+        tech.Tremualin_AdditionalRefund = true
+    end
+end
+
+local orig_CalcRefundAmount = Building.CalcRefundAmount
+function Building:CalcRefundAmount(total_amount)
+    if self.city.colony:IsTechResearched("ResilientArchitecture") then
+        total_amount = total_amount * 2
+    end
+    return orig_CalcRefundAmount(self, total_amount)
+end
+
+local function ImproveMartianFestivals()
+    local tech = Presets.TechPreset.Social["MartianFestivals"]
+    local alreadyDefined = false
+    for _, effect in pairs(tech) do
+        if effect and type(effect) == "table" and effect.IsKindOf and effect:IsKindOf("Effect_ModifyLabel") and effect.Prop == "satisfaction_change" then
+            alreadyDefined = true
+            break
+        end
+    end
+    if not alreadyDefined then
+        -- Fuel Compression allows you to export 10 additional Rare Metals
+        table.insert(tech, PlaceObj("Effect_ModifyLabel", {
+            Amount = 2,
+            Label = "Decorations",
+            Prop = "satisfaction_change"
+        }))
+
+        tech.description = Untranslated("<em>Decorations</em> now grant 2 satisfaction to tourists\n") .. tech.description
+    end
+end
+
 local function ImproveTechnologies()
     ImproveSmartHomes()
     ImproveFuelCompression()
     ImproveAdaptedProbes()
+    ImproveResilientArchitecture()
+    ImproveMartianFestivals()
 end
 
 OnMsg.LoadGame = ImproveTechnologies
