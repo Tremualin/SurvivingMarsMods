@@ -1,10 +1,17 @@
-local seasonalEffectsText = table.concat({
-    Untranslated("<white>Seasons:</white>"),
-    Untranslated("<em>Summer</em> (89 sols): <em>Dust Storms</em> appear 0.5% faster each sol"),
-    Untranslated("<em>Autumn</em> (71 sols): <em>Cold Waves</em> are 2.5% longer each sol. <em>Dust Storms</em> slowly normalize"),
-    Untranslated("<em>Winter</em> (77 sols): <em>Cold Waves</em> appear 0.5% faster each sol"),
-    Untranslated("<em>Spring</em> (97 sols): <em>Dust Storms</em> are 2.5% longer each sol. <em>Cold Waves</em> slowly normalize"),
-}, "< newline >")
+local function GetSeasonDuration(season)
+    local seasonsOfMars = SeasonsOfMars
+    return MulDivRound(seasonsOfMars[season].Duration, 1, seasonsOfMars.DurationDivider)
+end
+
+local function GetSeasonalEffectsText()
+    return table.concat({
+        Untranslated("<white>Seasons:</white>"),
+        Untranslated(string.format("<em>Summer</em> (%d sols): <em>Dust Storms</em> appear %.1f%% faster each sol", GetSeasonDuration("Summer"), SeasonsOfMars.FrequencyDifficulty)),
+        Untranslated(string.format("<em>Autumn</em> (%d sols): <em>Cold Waves</em> are %.1f%% longer each sol. <em>Dust Storms</em> slowly normalize", GetSeasonDuration("Autumn"), SeasonsOfMars.DurationDifficulty)),
+        Untranslated(string.format("<em>Winter</em> (%d sols): <em>Cold Waves</em> appear %.1f%% faster each sol", GetSeasonDuration("Winter"), SeasonsOfMars.FrequencyDifficulty)),
+        Untranslated(string.format("<em>Spring</em> (%d sols): <em>Dust Storms</em> are %.1f%% longer each sol. <em>Cold Waves</em> slowly normalize", GetSeasonDuration("Spring"), SeasonsOfMars.DurationDifficulty)),
+    Untranslated("Hint: You can change duration, frequency and difficulty of Seasons in the Mod Options")}, "< newline >")
+end
 
 local function SeasonsOfMarsWelcome()
     if not SeasonsOfMars.Greetings then
@@ -18,7 +25,7 @@ local function SeasonsOfMarsWelcome()
             }
 
             local greetings = Untranslated("<white>Seasons of Mars</white> extends <em>Surviving Mars</em> with new seasonal effects to make the game more difficult.< newline >< newline >Will you Terraform your way out of the problem?< newline >Will you find refuge Below and Beyond instead?< newline >Or will you power through the seasons and survive until next year?< newline >< newline >")
-            params.text = greetings .. seasonalEffectsText .. Untranslated("< newline >< newline >It's the beginning of <em>Spring</em> and all is calm. But not for long. Good luck!")
+            params.text = greetings .. GetSeasonalEffectsText() .. Untranslated("< newline >< newline >It's the beginning of <em>Spring</em> and all is calm. But not for long. Good luck!< newline >")
             Sleep(5000) -- add 5 second delay to allow for the map load to prevent issue with lockup
             WaitPopupNotification(false, params)
             SeasonsOfMars.Greetings = true
@@ -38,16 +45,16 @@ function HUD:SetDayProgress(value)
     orig_HUD_SetDayProgress(self, value)
     local seasonsOfMars = SeasonsOfMars
     local activeSeasonId = seasonsOfMars.ActiveSeason
-    local daysLeft = seasonsOfMars[activeSeasonId].Duration - seasonsOfMars.ActiveSeasonDuration
+    local daysLeft = GetSeasonDuration(activeSeasonId) - seasonsOfMars.ActiveSeasonDuration
     local currentSeasonDescription = Untranslated(string.format("< newline >< newline ><white>%d sols</white> before <em>%s</em>< newline >< newline >", daysLeft, seasonsOfMars[activeSeasonId].NextSeason))
 
     -- Appears over the progress bar
-    self.idDayProgress:SetRolloverText(seasonalEffectsText .. currentSeasonDescription .. vanilla_id_day_rollover_progress_text)
+    self.idDayProgress:SetRolloverText(GetSeasonalEffectsText() .. currentSeasonDescription .. vanilla_id_day_rollover_progress_text)
 
     local dlg = GetHUD()
     -- Appears over the day bar
     if dlg then
-        dlg.idSol:SetRolloverText(seasonalEffectsText .. currentSeasonDescription .. vanilla_id_sol_rollover_text)
+        dlg.idSol:SetRolloverText(GetSeasonalEffectsText() .. currentSeasonDescription .. vanilla_id_sol_rollover_text)
     end
 
     local dlg = GetHUD()

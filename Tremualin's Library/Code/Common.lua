@@ -222,6 +222,13 @@ local function DeepCopy(original)
     return copy
 end
 
+local function AddParentToClass(class_obj, parent_name)
+    local p = class_obj.__parents
+    if not table.find(p, parent_name) then
+        p[#p + 1] = parent_name
+    end
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -241,3 +248,4 @@ Tremualin.Functions.OfficersInSecurityStations = OfficersInSecurityStations
 Tremualin.Functions.RenegadesInRehabilitation = RenegadesInRehabilitation
 Tremualin.Functions.ShallowCopy = ShallowCopy
 Tremualin.Functions.DeepCopy = DeepCopy
+Tremualin.Functions.AddParentToClass = AddParentToClass
