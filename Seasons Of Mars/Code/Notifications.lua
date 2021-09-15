@@ -10,6 +10,7 @@ local function GetSeasonalEffectsText()
         Untranslated(string.format("<em>Autumn</em> (%d sols): <em>Cold Waves</em> are %.1f%% longer each sol. <em>Dust Storms</em> slowly normalize", GetSeasonDuration("Autumn"), SeasonsOfMars.DurationDifficulty)),
         Untranslated(string.format("<em>Winter</em> (%d sols): <em>Cold Waves</em> appear %.1f%% faster each sol", GetSeasonDuration("Winter"), SeasonsOfMars.FrequencyDifficulty)),
         Untranslated(string.format("<em>Spring</em> (%d sols): <em>Dust Storms</em> are %.1f%% longer each sol. <em>Cold Waves</em> slowly normalize", GetSeasonDuration("Spring"), SeasonsOfMars.DurationDifficulty)),
+        Untranslated("Hint: Each Season applies a color filter to vegetation. You can disable the filter in the Mod Options"),
     Untranslated("Hint: You can change duration, frequency and difficulty of Seasons in the Mod Options")}, "< newline >")
 end
 

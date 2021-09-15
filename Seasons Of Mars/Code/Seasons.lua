@@ -34,6 +34,7 @@ local function SeasonalDailyUpdate()
         seasonsOfMars.ActiveSeason = activeSeason.NextSeason
         seasonsOfMars.ActiveSeasonDuration = 1
         activeSeason = seasonsOfMars[activeSeasonId]
+        Msg("SeasonsOfMars_SeasonChange", activeSeasonId)
     else
         seasonsOfMars.ActiveSeasonDuration = seasonsOfMars.ActiveSeasonDuration + 1
     end
@@ -98,7 +99,10 @@ local function ModOptions()
         seasonsOfMars.DurationDivider = options:GetProperty("DurationDivider")
         seasonsOfMars.FrequencyDifficulty = options:GetProperty("FrequencyDifficulty") / 10.0
         seasonsOfMars.DurationDifficulty = options:GetProperty("DurationDifficulty") / 10.0
-
+        seasonsOfMars.ChangeColors = options:GetProperty("ChangeColors")
+        if not seasonsOfMars.ChangeColors and SeasonsOfMars_ChangeColors then
+            SeasonsOfMars_ChangeColors("Spring", true)
+        end
     end
 end
 
