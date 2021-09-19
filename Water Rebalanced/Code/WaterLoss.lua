@@ -4,7 +4,7 @@ local water_loss_text = Untranslated("Water loss from lack of Atmosphere")
 -- Loses 2% of current Water each sol. Reduced by Atmosphere.
 function GetWaterLoss()
     local water = MulDivRound(GetTerraformParam("Water"), 1, const.TerraformingScale)
-    return MulDivRound(water * -1, (100 * const.TerraformingScale - GetTerraformParam("Atmosphere")) * 0.02, const.TerraformingScale)
+    return MulDivRound(water * -1, (100 * const.TerraformingScale - GetTerraformParam("Atmosphere")) * 0.2, const.TerraformingScale)
 end
 
 -- Passively lose water
@@ -18,8 +18,8 @@ function InitializeWaterLossThread()
         local sol = const.DayDuration
         while true do
             Sleep(sleep)
-            local waterLoss = (MulDivRound(GetVegetationReproductionBonus(), sleep, sol))
-            if waterLoss > 0 then
+            local waterLoss = (MulDivRound(GetWaterLoss(), sleep, sol))
+            if waterLoss ~= 0 then
                 ChangeTerraformParam("Water", waterLoss)
             end
         end
