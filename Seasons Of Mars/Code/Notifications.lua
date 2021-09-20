@@ -39,7 +39,6 @@ OnMsg.CityStart = SeasonsOfMarsWelcome
 
 local vanilla_id_day_rollover_progress_text = T(4027, "Hour <hour> of Sol <day>. Martian days consist of nearly 25 Earth hours.")
 local vanilla_id_sol_rollover_text = T(8104, "Martian days consist of nearly 25 Earth hours.")
-local vanilla_id_sol_text = T({4031, "Sol <day>", day = day})
 
 local orig_HUD_SetDayProgress = HUD.SetDayProgress
 function HUD:SetDayProgress(value)
@@ -60,6 +59,7 @@ function HUD:SetDayProgress(value)
 
     local dlg = GetHUD()
     if dlg then
+        local vanilla_id_sol_text = T({4031, "Sol <day>", day = UIColony.day})
         dlg.idSol:SetText(Untranslated(string.format("%s:", activeSeasonId)) .. vanilla_id_sol_text)
     end
 end
