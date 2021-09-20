@@ -1,4 +1,5 @@
 local functions = Tremualin.Functions
+local configuration = Tremualin.Configuration
 
 local function ReportDomesticAssault(perpetrator)
     local dome = perpetrator.dome
@@ -44,7 +45,7 @@ function Colonist:DailyUpdate()
                 local officers_in_security_stations = functions.OfficersInSecurityStations(residence.parent_dome)
                 local renegades_in_rehabilitation = functions.RenegadesInRehabilitation(residence.parent_dome)
                 -- are there more renegades in rehabilitation than officers to monitor them?
-                if #renegades_in_rehabilitation > #officers_in_security_stations * Tremualin_max_renegades_per_officer then
+                if #renegades_in_rehabilitation > #officers_in_security_stations * configuration.MaxRenegadesRehabilitatedPerOfficer then
                     victims = functions.FindAllOtherColonistsInSameResidence(self)
                 end
             else
