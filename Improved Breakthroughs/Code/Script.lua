@@ -51,8 +51,8 @@ end
 -- Modifies all the breakthroughs that are easy to modify
 function modifyBreakthroughs()
     local breakthrough = breakthroughs["AlienImprints"]
-    -- Alien Imprints always spawns 8 anomalies instead of a random number between 3 and 10
-    breakthrough.param1 = 8
+    -- Alien Imprints always spawns 10 anomalies instead of a random number between 3 and 10
+    breakthrough.param1 = 10
 
     breakthrough = breakthroughs["Vocation-Oriented Society"]
     -- Vocation-Oriented Society gives more 15 performance instead of 10
