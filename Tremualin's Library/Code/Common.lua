@@ -2,6 +2,7 @@ Tremualin = {}
 Tremualin.Configuration = {}
 Tremualin.Debugging = {}
 Tremualin.Functions = {}
+Tremualin.Utilities = {}
 Tremualin.Tests = {}
 
 Tremualin.Debugging.FindAllOtherColonistsInSameResidence = false
@@ -232,7 +233,7 @@ end
 local function PrintVisitDurations(uncommon_only)
     for _, bt in pairs(BuildingTemplates) do
         if bt.visit_duration and bt.max_visitors and (not uncommon_only or bt.visit_duration ~= 5) then
-            print(string.format("Colonists spend %d hours inside %s which has a max capacity of %d for a total of %.0f max visits per day", bt.visit_duration, _InternalTranslate(bt.display_name), bt.max_visitors, bt.max_visitors * 25 / bt.visit_duration))
+            print(string.format("Colonists spend %d hours inside %s which has a max capacity of %d for a total of %.0f max visits per Sol", bt.visit_duration, _InternalTranslate(bt.display_name), bt.max_visitors, bt.max_visitors * 25 / bt.visit_duration))
         end
     end
 end
@@ -257,4 +258,4 @@ Tremualin.Functions.RenegadesInRehabilitation = RenegadesInRehabilitation
 Tremualin.Functions.ShallowCopy = ShallowCopy
 Tremualin.Functions.DeepCopy = DeepCopy
 Tremualin.Functions.AddParentToClass = AddParentToClass
-Tremualin.Functions.PrintVisitDurations = PrintVisitDurations
+Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations
