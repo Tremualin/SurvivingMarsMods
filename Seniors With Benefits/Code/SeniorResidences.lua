@@ -10,7 +10,7 @@ function OnMsg.ClassesPostprocess()
         "__template", "InfopanelSection",
         "__context_of_kind", "Residence",
         "OnContextUpdate", function(self, context)
-            if context.exclusive_trait == "Senior" and not IsKindOf("SeniorsResidenceCCP1") then
+            if context.exclusive_trait == "Senior" and not context:IsKindOf("SeniorsResidence") then
                 self:SetRolloverText("Only seniors are allowed on this residence")
                 self:SetTitle("Only seniors allowed")
                 self:SetIcon("UI/Icons/Upgrades/rejuvenation_treatment_01.tga")
