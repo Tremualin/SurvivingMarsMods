@@ -214,3 +214,15 @@ function Dome:CanPreventCrimeEvents()
     end
     return false
 end
+
+function OnMsg.ClassesGenerate()
+    -- Prevents Vindicated colonists from becoming Renegades
+    local Trem_orig_Colonist_AddTrait = Colonist.AddTrait
+    function Colonist:AddTrait(trait_id, init)
+        if trait_id == "Renegade" and self.traits.Vindicated then
+            return
+        else
+            Trem_orig_Colonist_AddTrait(self, trait_id, init)
+        end
+    end
+end -- function OnMsg.ClassesGenerate()
