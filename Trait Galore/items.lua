@@ -100,7 +100,7 @@ function (colonist, trait)
             if #victims > 0 then
                 for i = 1, 3 do
                     local victim = table.rand(victims)
-                    if victim:GetHealth() > 30 then
+                    if victim:GetHealth() > 30 * const.Scale.Stat then
                         victim:ChangeHealth(-10 * const.Scale.Stat, "Fought with a Brawler ")
                         victim:ChangeSanity(5 * const.Scale.Stat, "Adrenaline rush (fought a Brawler) ")
                         colonist:ChangeHealth(-10 * const.Scale.Stat, "Fought with another colonist (Brawler) ")
@@ -159,11 +159,7 @@ end,
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "NightOwl",
 	category = "other",
-	daily_update_func = 
-function (colonist, trait)
-            Tremualin_SwitchWithDesiredWorkshift(colonist, 1, trait)
-end,
-	description = T(135341313645, --[[ModItemTraitPreset EarlyBird description]] "Gains/loses comfort when working the morning/night. Will try to switch jobs with someone in the Morning Shift."),
+	description = T(135341313645, --[[ModItemTraitPreset EarlyBird description]] "+5 comfort when working the morning or afternoon shift. -5 comfort when working at night"),
 	display_icon = "",
 	display_name = T(430948295700, --[[ModItemTraitPreset EarlyBird display_name]] "Early Bird"),
 	group = "other",
@@ -298,11 +294,7 @@ PlaceObj('ModItemTraitPreset', {
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "EarlyBird",
 	category = "other",
-	daily_update_func = 
-function (colonist, trait)
-            Tremualin_SwitchWithDesiredWorkshift(colonist, 1, trait)
-end,
-	description = T(765493344095, --[[ModItemTraitPreset NightOwl description]] "Gains/loses comfort when working the night/morning. Regains sanity lost from Night Shifts. Will try to switch jobs with someone on the Night Shift"),
+	description = T(765493344095, --[[ModItemTraitPreset NightOwl description]] "+5 comfort when working the afternoon or night shift. -5 comfort when working on the day shift. Regains sanity lost from night shifts."),
 	display_name = T(123528136563, --[[ModItemTraitPreset NightOwl display_name]] "Night Owl"),
 	group = "other",
 	id = "NightOwl",
