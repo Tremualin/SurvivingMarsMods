@@ -24,18 +24,18 @@ function ImproveLakes()
     end
 end
 
-OnMsg.LoadGame = ImproveLakes
-OnMsg.CityStart = ImproveLakes
-
--- Find all Lakes up to twice the work distance from the Dome and add their comfort to the Dome
-local orig_Dome_GetDomeComfort = Dome.GetDomeComfort
-function Dome:GetDomeComfort()
-    local lake_comfort = 0
-    local realm = GetRealm(self)
-    realm:MapForEach(self, "hex", self:GetOutsideWorkplacesDist() * 2, "LandscapeLake", function(lake, self)
-        if not (not lake.working or lake.destroyed or lake:IsFrozen()) and lake.volume >= lake.volume_max then
-            lake_comfort = lake_comfort + GetLakeComfort(lake)
-        end
-    end, self)
-    return orig_Dome_GetDomeComfort(self) + lake_comfort
+function OnMsg.ClassesGenerate()
+    ImproveLakes()
+    -- Find all Lakes up to twice the work distance from the Dome and add their comfort to the Dome
+    local orig_Dome_GetDomeComfort = Dome.GetDomeComfort
+    function Dome:GetDomeComfort()
+        local lake_comfort = 0
+        local realm = GetRealm(self)
+        realm:MapForEach(self, "hex", self:GetOutsideWorkplacesDist() * 2, "LandscapeLake", function(lake, self)
+            if not (not lake.working or lake.destroyed or lake:IsFrozen()) and lake.volume >= lake.volume_max then
+                lake_comfort = lake_comfort + GetLakeComfort(lake)
+            end
+        end, self)
+        return orig_Dome_GetDomeComfort(self) + lake_comfort
+    end
 end

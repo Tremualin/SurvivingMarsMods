@@ -2,10 +2,8 @@ local functions = Tremualin.Functions
 
 local moisture_drainage_text = Untranslated("<em>Moisture Vaporators</em> reduce the level of Water <icon_WaterTP_alt> on Mars.<newline>")
 
-functions.AddParentToClass(MoistureVaporator, "TerraformingBuildingBase")
-
 function ModifyMoistureVaporators()
-    local g_Classes = g_Classes
+    functions.AddParentToClass(MoistureVaporator, "TerraformingBuildingBase")
 
     local ct = ClassTemplates.Building
     local MoistureVaporatorBuildingTemplate = BuildingTemplates.MoistureVaporator
@@ -24,10 +22,10 @@ function ModifyMoistureVaporators()
     end
 end
 
-OnMsg.LoadGame = ModifyMoistureVaporators
-OnMsg.CityStart = ModifyMoistureVaporators
-
--- As water increases in the atmosphere, so does the sucking capability
-function MoistureVaporator:GetTerraformingBoostSol()
-    return self.terraforming_boost_sol + MulDivRound(self.terraforming_boost_sol, GetTerraformParam("Water"), 100 * const.TerraformingScale)
-end
+function OnMsg.ClassesGenerate()
+    ModifyMoistureVaporators()
+    -- As water increases in the atmosphere, so does the sucking capability
+    function MoistureVaporator:GetTerraformingBoostSol()
+        return self.terraforming_boost_sol + MulDivRound(self.terraforming_boost_sol, GetTerraformParam("Water"), 100 * const.TerraformingScale)
+    end -- function MoistureVaporator:GetTerraformingBoostSol
+end -- function OnMsg.ClassesGenerate
