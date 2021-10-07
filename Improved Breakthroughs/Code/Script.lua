@@ -80,6 +80,9 @@ function modifyBreakthroughs()
     -- SpaceRehabilitation chance of removing flaws increased to 100%
     breakthrough.param1 = 100
 
+    BuildingTemplates.FungalFarm.upgrade1_mul_value_1 = 100
+    ClassTemplates.Building.FungalFarm.upgrade1_mul_value_1 = 100
+
     BuildingTemplates.FungalFarm.upgrade1_mul_value_2 = 50
     ClassTemplates.Building.FungalFarm.upgrade1_mul_value_2 = 50
 end
@@ -100,7 +103,7 @@ function Colonist:Rest()
     orig_Colonist_Rest(self)
 end
 
-function OnMsg.ColonistDied(colonist, ...)
+function OnMsg.ColonistDie(colonist, ...)
     local realm = GetRealm(colonist)
     local pt = realm:GetPassablePointNearby(colonist) or colonist:GetNavigationPos()
     if colonist.city.colony:IsTechResearched("SoylentGreen") then
