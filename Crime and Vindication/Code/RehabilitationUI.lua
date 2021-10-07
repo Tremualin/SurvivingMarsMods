@@ -35,11 +35,13 @@ function OnMsg.ClassesPostprocess()
                 if context.exclusive_trait == "Renegade" then
                     self:SetTitle("Rehabilitation Center")
                     self:SetIcon("UI/Icons/Upgrades/behavioral_melding_01.tga")
+                    self:SetVisible(true)
                 elseif context.exclusive_trait then
                     self:SetVisible(false)
                 else
                     self:SetTitle("Regular Residence")
                     self:SetIcon("UI/Icons/Upgrades/behavioral_melding_02.tga")
+                    self:SetVisible(true)
                 end
             else
                 self:SetVisible(false)

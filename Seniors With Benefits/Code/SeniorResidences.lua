@@ -14,12 +14,14 @@ function OnMsg.ClassesPostprocess()
                 self:SetRolloverText("Only seniors are allowed on this residence")
                 self:SetTitle("Only seniors allowed")
                 self:SetIcon("UI/Icons/Upgrades/rejuvenation_treatment_01.tga")
+                self:SetVisible(true)
             elseif context.exclusive_trait then
                 self:SetVisible(false)
             else
                 self:SetRolloverText("Everyone is allowed on this residence")
                 self:SetTitle("Everyone allowed")
                 self:SetIcon("UI/Icons/Upgrades/rejuvenation_treatment_02.tga")
+                self:SetVisible(true)
             end
         end,
     },
