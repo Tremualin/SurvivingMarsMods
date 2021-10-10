@@ -1,5 +1,5 @@
-Tremualin.Configuration.VindicationPointsRequired = 700
-Tremualin.Configuration.VindicationPointsAcquiredPerShift = 70
+Tremualin.Configuration.VindicationPointsRequired = 750
+Tremualin.Configuration.VindicationPointsAcquiredPerShift = 50
 Tremualin.Configuration.VindicationTrainingType = "vindication"
 Tremualin.Configuration.MaxRenegadesRehabilitatedPerOfficer = 4
 
@@ -8,6 +8,14 @@ local configuration = Tremualin.Configuration
 
 local securityStationBehavioralMelding = "Tremualin_SecurityStation_BehavioralMelding"
 local securityStationCriminalPsychologists = "Tremualin_SecurityStation_CriminalPsychologists"
+
+local function GetOfficerPerformance(worker)
+    local workplace = worker.workplace
+    if workplace and workplace.performance then
+        return workplace.performance
+    end
+    return worker.performance
+end
 
 -- Gain rehabilitation points at the end of every shift
 function OnMsg.NewWorkshift(shift)
@@ -39,7 +47,7 @@ function OnMsg.NewWorkshift(shift)
             table_key = 1
             for _, officer in pairs(officers_in_security_stations) do
                 for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
-                    local gain_points = MulDivRound(configuration.VindicationPointsAcquiredPerShift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), officer.performance, 100)
+                    local gain_points = MulDivRound(configuration.VindicationPointsAcquiredPerShift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), GetOfficerPerformance(officer), 100)
                     renegade.training_points = renegade.training_points or {}
                     renegade.training_points[configuration.VindicationTrainingType] = (renegade.training_points[configuration.VindicationTrainingType] or 0) + gain_points
                     if renegade.training_points[configuration.VindicationTrainingType] >= configuration.VindicationPointsRequired then
@@ -98,38 +106,46 @@ local function AddCriminalPsychologistsUpgrade(obj, id)
     end
 end
 
-function SecurityStation:OnChangeWorkshift(old, new)
-    Workplace.OnChangeWorkshift(self, old, new)
-    if self:HasUpgrade(securityStationCriminalPsychologists) then
-        local performanceBonus = 10
-        local spire_or_hospital = false
-        local dome = self.parent_dome
-        for _, spire in ipairs(dome.labels.Spire or empty_table) do
-            if spire.working and spire:IsKindOf("MedicalCenter") then
-                spire_or_hospital = true
-            end
+local function ApplyCriminalPsychologistsUpgrade(securityStation, enabled)
+    local performanceBonus = 0
+    if enabled then
+        local dome = securityStation.parent_dome
+        if functions.HasMedicalSpireOrHospital(dome) then
+            performanceBonus = 20
+        elseif functions.HasWorkingMedicalBuilding(dome) then
+            performanceBonus = 10
         end
-        if not spire_or_hospital then
-            for _, medical_building in ipairs(dome.labels.MedicalBuilding or empty_table) do
-                if medical_building.working and medical_building:IsKindOf("Hospital") then
-                    spire_or_hospital = true
+    end
+    securityStation:SetModifier("performance", "Tremualin_CriminalPsychologists", performanceBonus, 0, "<green>Access to criminal psychologists +" .. performanceBonus .. "</color>")
+end
+
+function OnMsg.ClassesGenerate()
+    function SecurityStation:OnUpgradeToggled(upgrade_id, new_state)
+        if upgrade_id == securityStationCriminalPsychologists then
+            ApplyCriminalPsychologistsUpgrade(self, new_state)
+        end
+    end
+
+    function SecurityStation:OnChangeWorkshift(old, new)
+        local onChangeWorkshiftResult = Workplace.OnChangeWorkshift(self, old, new)
+        -- Fitness for duty evaluation: fire all Renegades from security stations
+        if new then
+            local workers = self.workers[new] or empty_table
+            if #workers > 0 then
+                for _, worker in ipairs(workers) do
+                    if not self:IsSuitable(worker) then
+                        self:FireWorker(worker)
+                    end
                 end
+                CreateGameTimeThread(function()
+                    Sleep(2000)
+                    ApplyCriminalPsychologistsUpgrade(self, self:HasUpgrade(securityStationCriminalPsychologists))
+                end)
             end
         end
-        if spire_or_hospital then
-            performanceBonus = performanceBonus + 10
-        end
-        self:SetModifier("performance", "Tremualin_CriminalPsychologists", performanceBonus, 0, "<green>Access to criminal psychologists +" .. performanceBonus .. "</color>")
+        RebuildInfopanel(self)
+        return onChangeWorkshiftResult
     end
-    -- Fitness for duty evaluation: fire all Renegades from security stations
-    if new then
-        for _, worker in ipairs(self.workers[new] or empty_table) do
-            if not self:IsSuitable(worker) then
-                self:FireWorker(worker)
-            end
-        end
-    end
-    RebuildInfopanel(self)
 end
 
 local function AddBuilding(id, obj, obj_ct)

@@ -21,7 +21,6 @@ function FillTraitSelectorItems(object, items, traits, align, list)
                 icon = icon_9_str:format(num)
             else
                 icon = icon_10plus_str:format(num)
-                print(icon)
             end
 
             local enabled = trait.id ~= object.trait1 and trait.id ~= object.trait2 and trait.id ~= object.trait3

@@ -238,6 +238,36 @@ local function PrintVisitDurations(uncommon_only)
     end
 end
 
+local function HasMedicalSpireOrHospital(dome)
+    local spire_or_hospital = false
+    if dome then
+        for _, spire in ipairs(dome.labels.Spire or empty_table) do
+            if spire.working and spire:IsKindOf("MedicalCenter") then
+                spire_or_hospital = true
+            end
+        end
+        if not spire_or_hospital then
+            for _, medical_building in ipairs(dome.labels.MedicalBuilding or empty_table) do
+                if medical_building.working and medical_building:IsKindOf("Hospital") then
+                    spire_or_hospital = true
+                end
+            end
+        end
+    end
+    return spire_or_hospital
+end
+
+local function HasWorkingMedicalBuilding(dome)
+    if dome then
+        for _, medical_building in ipairs(dome.labels.MedicalBuilding or empty_table) do
+            if medical_building.working then
+                return true
+            end
+        end
+    end
+    return false
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -258,4 +288,7 @@ Tremualin.Functions.RenegadesInRehabilitation = RenegadesInRehabilitation
 Tremualin.Functions.ShallowCopy = ShallowCopy
 Tremualin.Functions.DeepCopy = DeepCopy
 Tremualin.Functions.AddParentToClass = AddParentToClass
+Tremualin.Functions.HasMedicalSpireOrHospital = HasMedicalSpireOrHospital
+Tremualin.Functions.HasWorkingMedicalBuilding = HasWorkingMedicalBuilding
+
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations

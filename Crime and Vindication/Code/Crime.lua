@@ -209,7 +209,7 @@ function Dome:CheckCrimeEvents()
     for crime_id, crime in pairs(configuration.CrimeTable) do
         local min = crime.min
         if is_rebel_rule then
-            crime.min = crime.min - rebel_yell_minus
+            min = crime.min - rebel_yell_minus
         end
 
         if min <= count then

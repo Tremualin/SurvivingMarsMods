@@ -118,5 +118,13 @@ local function ImproveSupportiveCommunity()
     end
 end
 
-OnMsg.LoadGame = ImproveSupportiveCommunity
-OnMsg.CityStart = ImproveSupportiveCommunity
+local function SetViolentUIWarning()
+    if ColonistTraitsWarnings then
+        ColonistTraitsWarnings["Violent"] = Untranslated("This Colonist is Violent. Violent colonists will commit domestic violence, unless rehabilitated at a Sanatorium.")
+    end
+end
+
+function OnMsg.ClassesGenerate()
+    ImproveSupportiveCommunity()
+    SetViolentUIWarning()
+end

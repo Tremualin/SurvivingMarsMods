@@ -11,6 +11,7 @@ local function FixTraitsWithDailyUpdates()
 end
 OnMsg.CityStart = FixTraitsWithDailyUpdates
 OnMsg.LoadGame = FixTraitsWithDailyUpdates
+OnMsg.ModsReloaded = FixTraitsWithDailyUpdates
 
 local function FixColonistsWithoutAWorkplaceAppearingInWorkplaces()
     for _, city in ipairs(Cities) do
@@ -34,3 +35,18 @@ local function FixColonistsWithoutAWorkplaceAppearingInWorkplaces()
     end
 end
 OnMsg.LoadGame = FixColonistsWithoutAWorkplaceAppearingInWorkplaces
+
+local function FixSchoolAndSanatoriumTraits()
+    ForEachPreset(ModItemTraitPreset, function(trait, category)
+        if g_SchoolTraits and trait.school_trait then
+            table.insert_unique(g_SchoolTraits, trait.id)
+        end
+        if g_SanatoriumTraits and trait.sanatorium_trait then
+            table.insert_unique(g_SanatoriumTraits, trait.id)
+        end
+    end)
+    if g_SchoolTraits then table.sort(g_SchoolTraits) end
+    if g_SanatoriumTraits then table.sort(g_SanatoriumTraits) end
+end
+OnMsg.LoadGame = FixSchoolAndSanatoriumTraits
+OnMsg.ModsReloaded = FixSchoolAndSanatoriumTraits
