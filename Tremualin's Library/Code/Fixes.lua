@@ -50,3 +50,23 @@ local function FixSchoolAndSanatoriumTraits()
 end
 OnMsg.LoadGame = FixSchoolAndSanatoriumTraits
 OnMsg.ModsReloaded = FixSchoolAndSanatoriumTraits
+
+local function FixDisasterGameRules()
+    if IsGameRuleActive("WinterIsComing") then
+        ActiveMaps[MainMapID].MapSettings_ColdWave = "ColdWave_GameRule"
+    end
+
+    if IsGameRuleActive("Armageddon") then
+        ActiveMaps[MainMapID].MapSettings_Meteor = "Meteor_GameRule"
+    end
+
+    if IsGameRuleActive("DustInTheWind") then
+        ActiveMaps[MainMapID].MapSettings_DustStorm = "DustStorm_GameRule"
+    end
+
+    if IsGameRuleActive("Twister") then
+        ActiveMaps[MainMapID].MapSettings_DustDevils = "DustDevils_GameRule"
+    end
+end
+OnMsg.CityStart = FixDisasterGameRules
+OnMsg.LoadGame = FixDisasterGameRules

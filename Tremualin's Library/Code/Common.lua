@@ -268,6 +268,13 @@ local function HasWorkingMedicalBuilding(dome)
     return false
 end
 
+local function AddIncompatibleTraits(bt, ct, trait)
+    if bt.incompatible_traits == empty_table then bt.incompatible_traits = {} end
+    if ct.incompatible_traits == empty_table then ct.incompatible_traits = {} end
+    table.insert_unique(bt.incompatible_traits, trait)
+    table.insert_unique(ct.incompatible_traits, trait)
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -290,5 +297,6 @@ Tremualin.Functions.DeepCopy = DeepCopy
 Tremualin.Functions.AddParentToClass = AddParentToClass
 Tremualin.Functions.HasMedicalSpireOrHospital = HasMedicalSpireOrHospital
 Tremualin.Functions.HasWorkingMedicalBuilding = HasWorkingMedicalBuilding
+Tremualin.Functions.AddIncompatibleTraits = AddIncompatibleTraits
 
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations
