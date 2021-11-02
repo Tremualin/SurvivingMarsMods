@@ -9,10 +9,10 @@ function ModifyMoistureVaporators()
     local MoistureVaporatorBuildingTemplate = BuildingTemplates.MoistureVaporator
 
     MoistureVaporatorBuildingTemplate.terraforming_param = "Water"
-    MoistureVaporatorBuildingTemplate.terraforming_boost_sol = -10
+    MoistureVaporatorBuildingTemplate.terraforming_boost_sol = -5
 
     ct.MoistureVaporator.terraforming_param = "Water"
-    ct.MoistureVaporator.terraforming_boost_sol = -10
+    ct.MoistureVaporator.terraforming_boost_sol = -5
 
     local tech = Presets.TechPreset.Biotech["MoistureFarming"]
     local modified = tech.Tremualin_MoistureConsumption
@@ -24,8 +24,4 @@ end
 
 function OnMsg.ClassesGenerate()
     ModifyMoistureVaporators()
-    -- As water increases in the atmosphere, so does the sucking capability
-    function MoistureVaporator:GetTerraformingBoostSol()
-        return self.terraforming_boost_sol + MulDivRound(self.terraforming_boost_sol, GetTerraformParam("Water"), 100 * const.TerraformingScale)
-    end -- function MoistureVaporator:GetTerraformingBoostSol
 end -- function OnMsg.ClassesGenerate
