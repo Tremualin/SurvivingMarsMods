@@ -62,7 +62,7 @@ function Colonist:UpdateMorale()
         return
     end
     local seniors_wellbeing_result = g_Tremualin_Seniors_Wellbeing_Result
-    if self.traits.Renegade or self.traits.Child or self.traits.Senior then
+    if self.traits.Renegade or self.traits.Child or self.traits.Senior or self.traits.Tourist then
         -- Renegades don't have morale you silly goose
         -- Children don't keep up with the news
         -- Seniors are already happy/unhappy
@@ -88,7 +88,7 @@ function Colonist:UIStatUpdate(win, stat)
     win.GetRolloverText = function(self)
         local texts = orig_win_GetRolloverText(self)
         local colonist = self.context
-        if colonist.traits.Renegade or colonist.traits.Child or colonist.traits.Senior then
+        if colonist.traits.Renegade or colonist.traits.Child or colonist.traits.Senior or colonist.traits.Tourist then
             -- Renegades don't have morale you silly goose
             -- Children don't keep up with the news about Seniors
             -- Seniors are already happy/unhappy about their situation
