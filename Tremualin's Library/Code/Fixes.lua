@@ -70,3 +70,8 @@ local function FixDisasterGameRules()
 end
 OnMsg.CityStart = FixDisasterGameRules
 OnMsg.LoadGame = FixDisasterGameRules
+
+local function FixSpawnColonistDescription()
+    SpawnColonist.Description = Untranslated("Receive <Count> <opt(display_name('TraitPresets',Trait1), '', ' ')><opt(display_name('TraitPresets',Trait2), '', ' ')><opt(display_name('TraitPresets',Trait3), '', ' ')><opt(display_name('TraitPresets',Specialization), '', ' ')><opt(display_name('TraitPresets',Age), '', ' ')>")
+end
+OnMsg.ClassesPostprocess = FixSpawnColonistDescription
