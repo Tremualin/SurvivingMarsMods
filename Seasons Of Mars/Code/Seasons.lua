@@ -28,11 +28,12 @@ end
 
 local function SeasonalDailyUpdate()
     local seasonsOfMars = SeasonsOfMars
-    local activeSeasonId = SeasonsOfMars.ActiveSeason
+    local activeSeasonId = seasonsOfMars.ActiveSeason
     local activeSeason = seasonsOfMars[activeSeasonId]
     if seasonsOfMars.ActiveSeasonDuration >= activeSeason.Duration / seasonsOfMars.DurationDivider then
         seasonsOfMars.ActiveSeason = activeSeason.NextSeason
         seasonsOfMars.ActiveSeasonDuration = 1
+        activeSeasonId = seasonsOfMars.ActiveSeason
         activeSeason = seasonsOfMars[activeSeasonId]
         Msg("SeasonsOfMars_SeasonChange", activeSeasonId)
     else
