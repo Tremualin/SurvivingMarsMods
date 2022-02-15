@@ -189,11 +189,11 @@ function StartupCode(...)
     ImproveBehavioralShaping()
 
     local unlocked_upgrades = UIColony.unlocked_upgrades
-    if UIColony:IsTechResearched("BehavioralMelding") then
-        UnlockUpgrade(securityStationBehavioralMelding)
+    if UIColony:IsTechResearched("BehavioralMelding") and not UIColony:IsUpgradeUnlocked(securityStationBehavioralMelding) then
+        UnlockUpgrade(securityStationBehavioralMelding, UICity)
     end
-    if UIColony:IsTechResearched("SupportiveCommunity") then
-        UnlockUpgrade(securityStationCriminalPsychologists)
+    if UIColony:IsTechResearched("SupportiveCommunity") and not UIColony:IsUpgradeUnlocked(securityStationCriminalPsychologists) then
+        UnlockUpgrade(securityStationCriminalPsychologists, UICity)
     end
 
     ColonistPerformanceReasons["Vindicated"] = Untranslated("Compensating for past crimes <amount> (Vindicated)")
@@ -233,12 +233,12 @@ end
 
 function OnMsg.ClassesGenerate()
     -- Prevents Vindicated colonists from becoming Renegades
-    local Trem_orig_Colonist_AddTrait = Colonist.AddTrait
+    local Tremualin_Orig_Colonist_AddTrait = Colonist.AddTrait
     function Colonist:AddTrait(trait_id, init)
         if trait_id == "Renegade" and self.traits.Vindicated then
             return
         else
-            Trem_orig_Colonist_AddTrait(self, trait_id, init)
+            return Tremualin_Orig_Colonist_AddTrait(self, trait_id, init)
         end
     end
 end -- function OnMsg.ClassesGenerate()

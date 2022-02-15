@@ -17,7 +17,6 @@ function Colonist:Suicide()
         end
         for i = 1, #security_in_proximity do
             local random = self:Random(100)
-            print(random)
             local unit = security_in_proximity[i]
             if unit ~= self then
                 if supportive_community and random <= 10 or random <= 5 then
