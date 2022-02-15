@@ -75,3 +75,15 @@ local function FixSpawnColonistDescription()
     SpawnColonist.Description = Untranslated("Receive <Count> <opt(display_name('TraitPresets',Trait1), '', ' ')><opt(display_name('TraitPresets',Trait2), '', ' ')><opt(display_name('TraitPresets',Trait3), '', ' ')><opt(display_name('TraitPresets',Specialization), '', ' ')><opt(display_name('TraitPresets',Age), '', ' ')>")
 end
 OnMsg.ClassesPostprocess = FixSpawnColonistDescription
+
+function FixNilAddTrait()
+    -- Prevents nil traits from causing errors
+    local Tremualin_Orig_Colonist_AddTrait = Colonist.AddTrait
+    function Colonist:AddTrait(trait_id, init)
+        if trait_id then
+            return Tremualin_Orig_Colonist_AddTrait(self, trait_id, init)
+        end -- if trait_id
+    end
+end -- function FixAddNilTrait
+
+OnMsg.ClassesGenerate = FixNilAddTrait()
