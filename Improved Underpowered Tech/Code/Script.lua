@@ -94,7 +94,7 @@ local function ImproveMartianFestivals()
         end
     end
     if not alreadyDefined then
-        -- Fuel Compression allows you to export 10 additional Rare Metals
+        -- Martian Festivals grants additional Satisfaction to tourists who use Decorations
         table.insert(tech, PlaceObj("Effect_ModifyLabel", {
             Amount = 2,
             Label = "Decorations",

@@ -70,7 +70,7 @@ end -- function StatusEffect_TemporarilyImpaired
 -- Retrains a colonist's specialty based on that colonists impairments
 local function RetrainColonistBasedOnImpairments(colonist)
     if colonist.specialist ~= "none" then
-        local allowed = table.append(physically_impaired_forbidden, intellectually_impaired_forbidden)
+        local allowed = table.iappend(physically_impaired_forbidden, intellectually_impaired_forbidden)
         if colonist.PhysicallyImpaired then
             table.substraction(allowed, physically_impaired_forbidden)
         end
