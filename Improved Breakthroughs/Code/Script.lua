@@ -1,3 +1,6 @@
+-- more performant this way
+local IsValid = IsValid
+
 local breakthroughs = Presets.TechPreset.Breakthroughs
 
 -- HiveMind applied to Residences
@@ -104,9 +107,9 @@ function Colonist:Rest()
 end
 
 function OnMsg.ColonistDie(colonist, ...)
-    local realm = GetRealm(colonist)
-    local pt = realm:GetPassablePointNearby(colonist) or colonist:GetNavigationPos()
-    if colonist.city.colony:IsTechResearched("SoylentGreen") then
+    if IsValid(colonist) and colonist.city.colony:IsTechResearched("SoylentGreen") then
+        local realm = GetRealm(colonist)
+        local pt = realm:GetPassablePointNearby(colonist) or colonist:GetNavigationPos()
         PlaceResourcePile(pt, "Food", 4 * const.ResourceScale, map_id)
     end
 end
