@@ -8,9 +8,12 @@ function Dome:Init()
     self.tremualin_lifetime = 0
 end
 
+local seniorsRemoveTraitsDescription = Untranslated("<em>Seniors</em> living in this Dome will help <em>non-Senior colonists</em> cure their <em>flaws</em>, including those that are normally unavailable in the <em>Sanatorium</em>, like <em>Renegade</em> and <em>Idiot</em>. Seniors in this Dome have cured:\n")
+
 -- When the user puts their mouse in the area, show them how many traits have been removed
 function Dome:GetUISectionTremualinSeniorsLifetimeRollover()
     local items = {}
+    items[#items + 1] = seniorsRemoveTraitsDescription
     for trait_id, val in sorted_pairs(self.tremualin_removed_traits_log or empty_table) do
         local trait = TraitPresets[trait_id]
         items[#items + 1] = (T({
@@ -20,7 +23,7 @@ function Dome:GetUISectionTremualinSeniorsLifetimeRollover()
             value = val
         }))
     end
-    return next(items) and table.concat(items, "<newline><left>") or Untranslated("Information about the traits removed by Seniors")
+    return next(items) and table.concat(items, "<newline><left>") or Untranslated("Nothing yet")
 end
 
 -- UI classes use Getters to access values
@@ -37,13 +40,8 @@ function OnMsg.ClassesPostprocess()
         "__context_of_kind", "Dome",
         "__template", "InfopanelSection",
         "RolloverText", Untranslated("<UISectionTremualinSeniorsLifetimeRollover>"),
-        "Title", Untranslated("Traits removed by seniors"),
-        "Icon", "UI/Icons/Sections/facility.tga"}, {PlaceObj("XTemplateTemplate", {
-            "__template",
-            "InfopanelText",
-            "Text",
-        Untranslated("Lifetime<right><TremualinSeniorsLifetime>")});
-    })
+        "Title", Untranslated("Traits cured by seniors on this Dome<right><TremualinSeniorsLifetime>"),
+    "Icon", CurrentModPath .. "seniors_section.png"})
 
-    table.insert(template, #template, tremualin_SeniorsLifetime)
+    table.insert(template, #template + 1, tremualin_SeniorsLifetime)
 end

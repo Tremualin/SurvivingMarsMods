@@ -66,7 +66,6 @@ local function ColonistCuredBySeniors(colonist, trait_to_cure)
 end
 
 -- Seniors share cautionary tales
-
 local function ShareCautionaryTales(colonist)
     local dome = colonist.dome
     local traits = colonist.traits
