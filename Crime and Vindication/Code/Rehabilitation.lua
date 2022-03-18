@@ -188,12 +188,11 @@ end
 function StartupCode(...)
     ImproveBehavioralShaping()
 
-    local unlocked_upgrades = UIColony.unlocked_upgrades
     if UIColony:IsTechResearched("BehavioralMelding") and not UIColony:IsUpgradeUnlocked(securityStationBehavioralMelding) then
-        UnlockUpgrade(securityStationBehavioralMelding, UICity)
+        UnlockUpgrade(securityStationBehavioralMelding, MainCity)
     end
     if UIColony:IsTechResearched("SupportiveCommunity") and not UIColony:IsUpgradeUnlocked(securityStationCriminalPsychologists) then
-        UnlockUpgrade(securityStationCriminalPsychologists, UICity)
+        UnlockUpgrade(securityStationCriminalPsychologists, MainCity)
     end
 
     ColonistPerformanceReasons["Vindicated"] = Untranslated("Compensating for past crimes <amount> (Vindicated)")

@@ -7,12 +7,17 @@ function Dome:GetUISectionTremualinDomesticViolenceRollover()
     local domesticViolenceAssaults = self.Tremualin_DomesticViolenceAssaults or 0
     local domesticViolenceReports = self.Tremualin_DomesticViolenceReports or 0
     local items = {
-        Untranslated("Domestic violence assaults: <right>" .. domesticViolenceAssaults),
-        Untranslated("Renegades reported for domestic violence: <right>" .. domesticViolenceReports),
+        Untranslated("<em>Unhappy</em> (any stat < 30), <em>Violent</em> and <em>Renegade</em> colonists can commit acts of <em>domestic violence</em>. When this happens, the <em>domestic violence survivor</em> can gain flaws from the encounter, and the perpetrator can become a Renegade (if reported and not already a Renegade).\nViolent colonists have a lower chance of being reported and can can even <em>escalate the violence</em> to other violent colonists in the same Residence.\n\n  "),
+        Untranslated(string.format("Renegades reported for domestic violence: <right><colonist(%s)>", domesticViolenceReports)),
         Untranslated("Flaws gained due to domestic violence: <right>" .. domesticViolenceFlaws),
-        Untranslated("Violent retaliations: <right>" .. domesticViolenceRetalations),
+        Untranslated("Violent escalations: <right>" .. domesticViolenceRetalations),
+        Untranslated("Domestic violence assaults: <right>" .. domesticViolenceAssaults),
     }
     return table.concat(items, "<newline><left>")
+end
+
+function Dome:GetTremualin_DomesticViolenceAssaults()
+    return self.Tremualin_DomesticViolenceAssaults or 0
 end
 
 -- A panel that shows domestic violence in the Dome UI
@@ -24,9 +29,8 @@ function OnMsg.ClassesPostprocess()
         "__context_of_kind", "Dome",
         "__template", "InfopanelSection",
         "RolloverText", Untranslated("<UISectionTremualinDomesticViolenceRollover>"),
-        "Title", Untranslated("Information about domestic violence in the dome"),
-        "Icon", "UI/Icons/Notifications/renegade.tga"
-    })
+        "Title", Untranslated("Domestic violence assaults in the dome: <right><Tremualin_DomesticViolenceAssaults>"),
+    "Icon", table.rand({CurrentModPath .. "violence_1.png", CurrentModPath .. "violence_2.png"})})
 
-    table.insert(template, #template, tremualin_DomesticViolenceLifetime)
+    table.insert(template, #template + 1, tremualin_DomesticViolenceLifetime)
 end
