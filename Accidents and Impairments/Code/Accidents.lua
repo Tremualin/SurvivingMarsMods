@@ -14,11 +14,20 @@ local stat_scale = const.Scale.Stat
 local temporarily_impaired_status = "StatusEffect_TemporarilyImpaired"
 local impairments_list = {temporarily_impaired_status, "IntellectuallyImpaired", "PhysicallyImpaired", "SensoryImpaired"}
 
+local INJURY_BEST_HEALTH_LOSS = -5 * stat_scale
+local INJURY_WORST_HEALTH_LOSS = -20 * stat_scale
+local ACCIDENT_HEALTH_LOSS = -20 * stat_scale
+local DEATH_CHANCES = 1
+
+local UNHAPPY_WORKER_ACCIDENT_CHANCES = 5
+local INDIFFERENT_WORKER_ACCIDENT_CHANCES = 1
+local HAPPY_WORKER_ACCIDENT_CHANCES = -2
+
 -- Randomly applies (or not) an injury
 local function TryGenerateInjury(worker, chances)
     local random_number = worker:Random(100)
     if random_number < chances then
-        worker:ChangeHealth(worker:Random(5, 20), "Got injured while working ")
+        worker:ChangeHealth(worker:Random(INJURY_WORST_HEALTH_LOSS, INJURY_BEST_HEALTH_LOSS), "Got injured while working ")
     end -- random_number < chances
 end -- function TryGenerateInjury
 
@@ -26,14 +35,14 @@ end -- function TryGenerateInjury
 local function TryGenerateAccident(worker, chances)
     if chances > 0 then
         local random_number = worker:Random(1000)
-        if random_number == 1 then
+        if random_number == DEATH_CHANCES then
             worker:SetCommand("Die", accident_death_reason_id)
             return
         end -- if random_number == 1
 
         if random_number < chances * 10 then
             local impairment = table.rand(impairments_list)
-            worker:ChangeHealth(-20 * stat_scale, "Had a terrible work accident ")
+            worker:ChangeHealth(ACCIDENT_HEALTH_LOSS, "Had a terrible work accident ")
             if impairment ~= temporarily_impaired_status then
                 worker:AddTrait(impairment)
             end -- if impairment ~= temporarily_impaired_status
@@ -44,6 +53,7 @@ end -- function TryGenerateAccident
 
 -- Randomly applies accidents and injuries to all workers
 local function GenerateAccidentsAndInjuries(workshift)
+    -- Sleep to prevent lag on large colonies
     Sleep(2000)
     for i, bld in ipairs(UIColony.city_labels.labels.Workplace or empty_table) do
         if IsValid(bld) then
@@ -62,11 +72,11 @@ local function GenerateAccidentsAndInjuries(workshift)
             for j, worker in ipairs(workers) do
                 local chances = base_chances
                 if functions.IsUnhappy(worker) then
-                    chances = chances + 3
+                    chances = chances + UNHAPPY_WORKER_ACCIDENT_CHANCES
                 elseif functions.IsHappy(worker) then
-                    chances = chances - 1
+                    chances = chances + HAPPY_WORKER_ACCIDENT_CHANCES
                 else
-                    chances = chances + 1
+                    chances = chances + INDIFFERENT_WORKER_ACCIDENT_CHANCES
                 end -- if functions.IsUnhappy
                 local traits_by_category = functions.TraitsByCategory(worker.traits)
                 chances = chances + traits_by_category["Negative"] - traits_by_category["Positive"]

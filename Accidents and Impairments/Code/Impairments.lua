@@ -1,9 +1,12 @@
 local functions = Tremualin.Functions
 
 local physically_impaired = "PhysicallyImpaired"
-local physically_impaired_forbidden = {"botanist", "geologist", "engineer"}
+local physically_impaired_forbidden = {"geologist", "engineer", "security"}
 local intellectually_impaired = "IntellectuallyImpaired"
 local intellectually_impaired_forbidden = {"scientist", "security", "medic"}
+
+local MEDICAL_EXPERTS_RECOVERY_CHANCE = 10
+local FIT_RECOVERY_CHANCE = 10
 
 -- Add incompatible traits to all buildings where impaired colonists can't work
 function OnMsg.ClassesPostprocess()
@@ -53,10 +56,10 @@ function StatusEffect_TemporarilyImpaired:Start(unit, time)
     local spire_or_hospital = functions.HasMedicalSpireOrHospital(unit.dome)
     local recovery_chance = self.base_recovery_chance
     if spire_or_hospital then
-        recovery_chance = recovery_chance + 10
+        recovery_chance = recovery_chance + MEDICAL_EXPERTS_RECOVERY_CHANCE
     end -- if spire_or_hospital
     if unit.traits.Fit then
-        recovery_chance = recovery_chance + 10
+        recovery_chance = recovery_chance + FIT_RECOVERY_CHANCE
     end -- if unit.traits.Fit
     unit.Tremualin_impaired_recovery_chance = recovery_chance
     unit:SetWorkplace(false)
@@ -79,19 +82,19 @@ local function RetrainColonistBasedOnImpairments(colonist)
         end
         if #allowed == 0 then
             -- should never execute; but just in case; if nothing is allowed, remove the specialization
-            unit:RemoveTrait(colonist.specialist)
+            colonist:RemoveTrait(colonist.specialist)
         elseif not table.find(allowed, colonist.specialist) then
             -- if the specialization is not allowed; find any other one among the allowed ones
-            unit:RemoveTrait(colonist.specialist)
+            colonist:RemoveTrait(colonist.specialist)
             for _, specialization in pairs(allowed) do
                 local needed = GetNeededSpecialistAround(colonist.dome, specialization)
-                if #needed > 0 then
-                    unit:AddTrait(specialization)
+                if needed > 0 then
+                    colonist:AddTrait(specialization)
                 end
             end
             -- if no specialization is needed; go with random among the allowed ones
             if not colonist.specialist then
-                unit:AddTrait(table.rand(allowed))
+                colonist:AddTrait(table.rand(allowed))
             end
         end
     end
@@ -131,20 +134,10 @@ function OnMsg.ClassesGenerate()
         return Tremualin_Orig_Colonist_GetUIWorkplaceLine(self)
     end --  function Colonist:GetUIWorkplaceLine
 
-    -- If both physically and intellectually impaired, they can't attend college
-    local Tremualin_Orig_MartianUniversity_CanTrain = MartianUniversity.CanTrain
-    function MartianUniversity:CanTrain(unit)
-        if unit.traits.PhysicallyImpaired and unit.traits.IntellectuallyImpaired then
-            return
-        end -- end unit.traits.PhysicallyImpaired
-        return Tremualin_Orig_MartianUniversity_CanTrain(self, unit)
-    end -- end function MartianUniversity:CanTrain
-
     -- Prevents the generation of impaired forbidden specialists
-    local Tremualin_Orig_GenerateColonistData = GenerateColonistData
-    function GenerateColonistData(city, age_trait, martianborn, params)
-        local colonist = Tremualin_Orig_GenerateColonistData(city, age_trait, martianborn, params)
-        RetrainColonistBasedOnImpairments(colonist)
-        return colonist
+    local Tremualin_Orig_Colonist_Init = Colonist.Init
+    function Colonist:Init()
+        Tremualin_Orig_Colonist_Init(self)
+        RetrainColonistBasedOnImpairments(self)
     end
 end -- function OnMsg.ClassesGenerate()
