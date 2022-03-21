@@ -1,4 +1,4 @@
-local FITNESS_ICON = CurrentModPath .. "fitness.png"
+local FITNESS_ICON = CurrentModPath .. "UI/fitness.png"
 local FITNESS_STAT_ID = "Tremualin_Fitness"
 
 local ui_functions = Tremualin.UIFunctions
@@ -18,9 +18,10 @@ local FITNESS_RAW_FOOD_REASON = "Had an unprepared meal "
 local FITNESS_FIT_SANITY_GAIN_REASON = "Exercise feels natural (Fit) "
 local FITNESS_UNFIT_SANITY_LOSS_REASON = "Exercise is a curse (Unfit) "
 local FITNESS_FIT_SERVICE = const.Scale.Stat * 7
+local FITNESS_SANITY_GAIN_OR_LOSS = const.Scale.Stat * 5
 local FITNESS_DECORATION_SERVICE = const.Scale.Stat * 3
 local FITNESS_OTHER_SERVICE = const.Scale.Stat * 5
-local FITNESS_COACH_ICON = CurrentModPath .. "fitness_coaches_01.tga"
+local FITNESS_COACH_ICON = CurrentModPath .. "UI/fitness_coaches_01.tga"
 
 -- Allows gyms to have multiple fitness coaches
 -- They will no longer recover health, however
@@ -42,10 +43,10 @@ function ModifyGyms()
         template.automation = 1
         template.auto_performance = 100
         template.max_workers = 0
-        template.incompatible_traits = {Unfit}
+        template.incompatible_traits = {"Unfit"}
         template.upgrade1_id = "Fitness_Coaches"
         template.upgrade1_display_name = Untranslated("Fitness Coaches")
-        template.upgrade1_description = Untranslated("Allows this building to employ two Fitness Coaches per shift, which can increase <em>Fitness</em>, <em>Comfort</em> and <em>Sanity</em> gained from visiting the building.\n<em>Unfit</em> colonists cannot become Fitness Coaches\nUnstaffed shifts will still provide 100% performance.")
+        template.upgrade1_description = Untranslated("Allows this building to employ two Fitness Coaches per shift, which can increase <em>Fitness</em>, <em>Comfort</em> and <em>Sanity</em> gained from visiting the building.\n<em>Unfit</em> colonists cannot become Fitness Coaches.\nUnstaffed shifts will still provide 100% performance.")
         template.upgrade1_icon = FITNESS_COACH_ICON
         template.upgrade1_mod_prop_id_1 = "service_comfort"
         template.upgrade1_add_value_1 = 10
@@ -54,6 +55,9 @@ function ModifyGyms()
         template.upgrade1_mod_prop_id_3 = "max_workers"
         template.upgrade1_add_value_3 = 2
     end
+    -- Fit will no longer appear randomly as a trait - it must be earned
+    TraitPresets.Fit.weight = 0
+    TraitPresets.Fit.description = Untranslated("+5 recovered while resting. Can work when health is low. Recovers +5 sanity when exercising.")
 end
 
 OnMsg.ClassesPreprocess = ModifyGyms
@@ -62,7 +66,7 @@ function OnMsg.ClassesGenerate()
     table.insert_unique(ColonistStatList, FITNESS_STAT_ID)
     ColonistStat.Tremualin_Fitness = {
         value = FITNESS_STAT_ID, text = Untranslated("Fitness"), log = "Tremualin_log_fitness",
-        description = Untranslated("Fitness is a measure of the body's ability to function efficiently and effectively in work and leisure activities. Gyms (and Tai Chi Gardens) provide +10 base Fitness, Decorations provide +4 Fitness, while Hanging Gardens and Low-G Amusement Parks provide +7 Fitness.\n\nFitness decays (-4) any day that the colonist hasn't exercised, and when eating unprepared food (-2).\n\nColonists with a low level of Fitness will become Unfit. Unfit colonists lose Sanity each Sol, recover 50% less health from all sources, and lose sanity when visiting any service that provides exercise.\n\nColonists with a high level of Fitness will become Fit. Fit colonists can work with low health, recover more health (+5) each Sol and will recover sanity (+5) when visiting any service that provides exercise.\n\nFitness gains can be augmented by proper nutrition; Grocers and Diners will apply a multiplicative effect (based on their performance; could be negative) to the next exercise session.\n\nChildren gain +10 Fitness from playing.\nGyms no longer recover health on visit."),
+        description = Untranslated("<em>Fitness</em> is a measure of the body's ability to function efficiently and effectively in work and leisure activities. Gyms (and Tai Chi Gardens) provide +7 base Fitness, Decorations provide +3 Fitness, while Hanging Gardens, Low-G Amusement Parks and Playgrounds provide +5 Fitness.\n\nFitness decays (-3) any day that the colonist hasn't exercised, and when eating unprepared food (-2).\n\nColonists with a low level of Fitness will become Unfit. <em>Unfit</em> colonists recover 50% less health from all sources, and lose (-5) sanity when visiting any service that provides exercise.\n\nColonists with a high level of Fitness will become Fit. <em>Fit</em> colonists can work with low health, recover more health (+5) each Sol and will recover sanity (+5) when visiting any service that provides exercise.\n\nFitness gains can be augmented by <em>proper nutrition</em>; Grocers and Diners will apply a multiplicative effect (based on their performance; could be negative) to the next exercise session.\nGyms no longer recover health on visit."),
         icon = FITNESS_ICON
     }
 
@@ -133,14 +137,12 @@ function OnMsg.ClassesGenerate()
     function Colonist:VisitService(service, need)
         Tremualin_Orig_Colonist_VisitService(self, service, need)
         if service:IsOneOfInterests("interestExercise") or
-            (self.traits.Children and service:IsOneOfInterests("interestPlaying")) then
+            (self.traits.Child and service:IsOneOfInterests("interestPlaying")) then
             local fitness_gain = FITNESS_OTHER_SERVICE
-            if service:IsKindOf("Playground") then
-                fitness_gain = FITNESS_FIT_SERVICE
-            elseif service:GetBuildMenuCategory() == "Decorations" then
+            if service:GetBuildMenuCategory() == "Decorations" then
                 fitness_gain = FITNESS_DECORATION_SERVICE
             elseif service:IsKindOf("FitService") then
-                fitness_gain = MulDivRound(FITNESS_FIT_SERVICE, self.performance, 100)
+                fitness_gain = MulDivRound(FITNESS_FIT_SERVICE, service.performance, 100)
             end
             self:ChangeFitness(fitness_gain, service.template_name)
             local fitness_nutrition_bonus = MulDivRound(fitness_gain, self.Tremualin_Nutrition_Fitness_Bonus, 100)
@@ -156,17 +158,17 @@ function OnMsg.ClassesGenerate()
     function FitService:Service(unit, duration)
         Service.Service(self, unit, duration)
         if unit.traits.Fit then
-            unit:ChangeSanity(FITNESS_FIT_SERVICE / 2, FITNESS_FIT_SANITY_GAIN_REASON)
+            unit:ChangeSanity(FITNESS_SANITY_GAIN_OR_LOSS, FITNESS_FIT_SANITY_GAIN_REASON)
         end
         if unit.traits.Unfit then
-            unit:ChangeSanity(-FITNESS_FIT_SERVICE / 2, FITNESS_UNFIT_SANITY_LOSS_REASON)
+            unit:ChangeSanity(-FITNESS_SANITY_GAIN_OR_LOSS, FITNESS_UNFIT_SANITY_LOSS_REASON)
         end
     end
 
     local function RawFoodFitnessPenalty(unit)
         if unit.last_meal == DayStart then
             -- unit was able to ate today
-            self:ChangeFitness(FITNESS_RAW_FOOD_LOSS, FITNESS_RAW_FOOD_REASON)
+            unit:ChangeFitness(FITNESS_RAW_FOOD_LOSS, FITNESS_RAW_FOOD_REASON)
             unit.Tremualin_Nutrition_Fitness_Bonus = 0
         end
     end
@@ -183,6 +185,12 @@ function OnMsg.ClassesGenerate()
     local Tremualin_Origin_ResourceStockpileBase_Service = ResourceStockpileBase.Service
     function ResourceStockpileBase:Service(unit, duration)
         Tremualin_Origin_ResourceStockpileBase_Service(self, unit, duration)
+        RawFoodFitnessPenalty(unit)
+    end
+
+    local Tremualin_Origin_ConsumptionResourceStockpile_Service = ConsumptionResourceStockpile.Service
+    function ConsumptionResourceStockpile:Service(unit)
+        Tremualin_Origin_ConsumptionResourceStockpile_Service(self, unit)
         RawFoodFitnessPenalty(unit)
     end
 

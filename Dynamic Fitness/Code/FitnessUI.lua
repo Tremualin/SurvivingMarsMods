@@ -1,4 +1,4 @@
-local FITNESS_ICON = CurrentModPath .. "fitness.png"
+local FITNESS_ICON = CurrentModPath .. "UI/fitness.png"
 local FITNESS_STAT_ID = "Tremualin_Fitness"
 local ui_functions = Tremualin.UIFunctions
 
@@ -63,8 +63,12 @@ end
 function UpdateColonistsOverviewFitnessFilter(template)
     for index, section in pairs(template) do
         if (type(section) == "table") then
-            if section.Image and section.Image == "UI/Icons/Sections/satisfaction.tga" then
+            if template.Tremualin_ColonistsOverviewFitnessFilter then
+                section.Image = FITNESS_ICON
+                break
+            elseif section.Image and section.Image == "UI/Icons/Sections/satisfaction.tga" then
                 table.insert(template, index + 1, BuildColonistsOverviewFitnessFilter())
+                template.Tremualin_ColonistsOverviewFitnessFilter = true
                 break
             else UpdateColonistsOverviewFitnessFilter(section)
             end
@@ -75,9 +79,13 @@ end
 function UpdateDomesOverviewFitnessFilter(template)
     for index, section in pairs(template) do
         if (type(section) == "table") then
-            if section.Image and (section.Image == "UI/Icons/Sections/satisfaction" or section.Image == "UI/Icons/Sections/satisfaction.tga") then
+            if template.Tremualin_DomesOverviewFitnessFilter then
+                section.Image = FITNESS_ICON
+                break
+            elseif section.Image and (section.Image == "UI/Icons/Sections/satisfaction" or section.Image == "UI/Icons/Sections/satisfaction.tga") then
                 section.Margins = box(0, 0, 0, 0)
                 table.insert(template, index + 1, BuildDomesOverviewFitnessFilter())
+                template.Tremualin_DomesOverviewFitnessFilter = true
                 break
             else UpdateDomesOverviewFitnessFilter(section)
             end
