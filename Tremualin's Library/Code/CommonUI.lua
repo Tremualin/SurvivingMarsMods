@@ -8,7 +8,27 @@ local function RemoveXTemplateSections(list, name)
     end
 end
 
+local function FindSectionIndexAfterExistingIfPossible(baseSection, existsSectionId)
+    for index, section in pairs(baseSection) do
+        if section[existsSectionId] then
+            return index + 1
+        end
+    end
+    return #baseSection + 1
+end
+
+local function FindSectionIndexBeforeExistingIfPossible(baseSection, existsSectionId)
+    for index, section in pairs(baseSection) do
+        if section[existsSectionId] then
+            return index
+        end
+    end
+    return #baseSection + 1
+end
+
 Tremualin.UIFunctions.RemoveXTemplateSections = RemoveXTemplateSections
+Tremualin.UIFunctions.FindSectionIndexAfterExistingIfPossible = FindSectionIndexAfterExistingIfPossible
+Tremualin.UIFunctions.FindSectionIndexBeforeExistingIfPossible = FindSectionIndexBeforeExistingIfPossible
 
 local Tremualin_Orig_UpdateAttachedSign = UpdateAttachedSign
 function UpdateAttachedSign(unit, forceadd)

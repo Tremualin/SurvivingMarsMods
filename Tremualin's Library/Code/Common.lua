@@ -275,24 +275,6 @@ local function AddIncompatibleTraits(bt, ct, trait)
     table.insert_unique(ct.incompatible_traits, trait)
 end
 
-local function FindSectionIndexAfterExistingIfPossible(baseSection, existsSectionId)
-    for index, section in pairs(baseSection) do
-        if section[existsSectionId] then
-            return index + 1
-        end
-    end
-    return #baseSection + 1
-end
-
-local function FindSectionIndexBeforeExistingIfPossible(baseSection, existsSectionId)
-    for index, section in pairs(baseSection) do
-        if section[existsSectionId] then
-            return index
-        end
-    end
-    return #baseSection + 1
-end
-
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -316,7 +298,5 @@ Tremualin.Functions.AddParentToClass = AddParentToClass
 Tremualin.Functions.HasMedicalSpireOrHospital = HasMedicalSpireOrHospital
 Tremualin.Functions.HasWorkingMedicalBuilding = HasWorkingMedicalBuilding
 Tremualin.Functions.AddIncompatibleTraits = AddIncompatibleTraits
-Tremualin.Functions.FindSectionIndexAfterExistingIfPossible = FindSectionIndexAfterExistingIfPossible
-Tremualin.Functions.FindSectionIndexBeforeExistingIfPossible = FindSectionIndexBeforeExistingIfPossible
 
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations
