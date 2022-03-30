@@ -7,7 +7,7 @@ function Dome:GetUISectionTremualinDomesticViolenceRollover()
     local domesticViolenceAssaults = self.Tremualin_DomesticViolenceAssaults or 0
     local domesticViolenceReports = self.Tremualin_DomesticViolenceReports or 0
     local items = {
-        Untranslated("<em>Unhappy</em> (any stat < 30), <em>Violent</em> and <em>Renegade</em> colonists can commit acts of <em>domestic violence</em>. When this happens, the <em>domestic violence survivor</em> can gain flaws from the encounter, and the perpetrator can become a Renegade (if reported and not already a Renegade).\nViolent colonists have a lower chance of being reported and can can even <em>escalate the violence</em> to other violent colonists in the same Residence.\n\n  "),
+        Untranslated("<em>Unhappy</em> (any stat < 30), <em>Violent</em> and <em>Renegade</em> colonists can commit acts of <em>domestic violence</em>. When this happens, the <em>domestic violence survivor</em> will lose up to 15 health and/or sanity, can gain flaws from the encounter, and the perpetrator can become a Renegade (if reported and not already a Renegade).\nViolent colonists have a lower chance of being reported and can can even <em>escalate the violence</em> to other violent colonists in the same Residence.\nSecurity Stations can mitigate the effects of domestic violence.\n\n"),
         Untranslated(string.format("Renegades reported for domestic violence: <right><colonist(%s)>", domesticViolenceReports)),
         Untranslated("Flaws gained due to domestic violence: <right>" .. domesticViolenceFlaws),
         Untranslated("Violent escalations: <right>" .. domesticViolenceRetalations),
@@ -29,7 +29,7 @@ function OnMsg.ClassesPostprocess()
         "__context_of_kind", "Dome",
         "__template", "InfopanelSection",
         "RolloverText", Untranslated("<UISectionTremualinDomesticViolenceRollover>"),
-        "Title", Untranslated("Domestic violence assaults in the dome: <right><Tremualin_DomesticViolenceAssaults>"),
+        "Title", Untranslated("Domestic violence assaults on this Dome<right><Tremualin_DomesticViolenceAssaults>"),
     "Icon", table.rand({CurrentModPath .. "violence_1.png", CurrentModPath .. "violence_2.png"})})
 
     table.insert(template, #template + 1, tremualin_DomesticViolenceLifetime)
