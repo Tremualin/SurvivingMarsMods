@@ -24,6 +24,14 @@ local function GetRandomUnregisteredBreakthroughs(first_breakthrough)
     return random_breakthroughts
 end
 
+local GetUUID = function()
+    local template = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'
+    return string.gsub(template, '[xy]', function (c)
+        local v = (c == 'x') and SessionRandom:Random(0, 0xf) or SessionRandom:Random(8, 0xb)
+        return string.format('%x', v)
+    end)
+end
+
 local function ShowCherryPickingPopup(first_breakthrough, map_id, notification_type, research_instead_of_discover)
     local colony = UIColony
     local unregistered_breakthroughs = colony:GetUnregisteredBreakthroughs()
