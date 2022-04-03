@@ -16,13 +16,13 @@ return PlaceObj('ModDef', {
 	'author', "Tremualin",
 	'version_major', 1,
 	'version_minor', 1,
-	'version', 13,
+	'version', 15,
 	'lua_revision', 1009413,
 	'saved_with_revision', 1010838,
 	'code', {
 		"Code/Script.lua",
 	},
-	'saved', 1648943573,
+	'saved', 1648947294,
 	'screenshot1', "Choose.jpg",
 	'TagGameplay', true,
 })

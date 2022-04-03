@@ -4,6 +4,7 @@ local physically_impaired = "PhysicallyImpaired"
 local physically_impaired_forbidden = {"geologist", "engineer", "security"}
 local intellectually_impaired = "IntellectuallyImpaired"
 local intellectually_impaired_forbidden = {"scientist", "security", "medic"}
+local all_specializations = {"geologist", "engineer", "scientist", "security", "medic", "botanist"}
 
 local MEDICAL_EXPERTS_RECOVERY_CHANCE = 10
 local FIT_RECOVERY_CHANCE = 10
@@ -71,31 +72,32 @@ function StatusEffect_TemporarilyImpaired:Stop(unit)
 end -- function StatusEffect_TemporarilyImpaired
 
 -- Retrains a colonist's specialty based on that colonists impairments
-local function RetrainColonistBasedOnImpairments(colonist)
-    if colonist.specialist ~= "none" then
-        local allowed = table.iappend(physically_impaired_forbidden, intellectually_impaired_forbidden)
-        if colonist.PhysicallyImpaired then
+function Colonist:RetrainBasedOnImpairments()
+    if self.specialist ~= "none" then
+        local allowed = table.copy(all_specializations)
+        if self.PhysicallyImpaired then
             table.substraction(allowed, physically_impaired_forbidden)
         end
-        if colonist.IntellectuallyImpaired then
+        if self.IntellectuallyImpaired then
             table.substraction(allowed, intellectually_impaired_forbidden)
         end
-        if #allowed == 0 then
-            -- should never execute; but just in case; if nothing is allowed, remove the specialization
-            colonist:RemoveTrait(colonist.specialist)
-        elseif not table.find(allowed, colonist.specialist) then
+        if not table.find(allowed, self.specialist) then
             -- if the specialization is not allowed; find any other one among the allowed ones
-            colonist:RemoveTrait(colonist.specialist)
+            local selectedSpecialization = nil
             for _, specialization in pairs(allowed) do
-                local needed = GetNeededSpecialistAround(colonist.dome, specialization)
+                local needed = GetNeededSpecialistAround(self.dome, specialization)
                 if needed > 0 then
-                    colonist:AddTrait(specialization)
+                    selectedSpecialization = specialization
                 end
             end
             -- if no specialization is needed; go with random among the allowed ones
-            if not colonist.specialist then
-                colonist:AddTrait(table.rand(allowed))
-            end
+            selectedSpecialization = table.rand(allowed)
+            self.city:RemoveFromLabel(self.specialist, self)
+            self:RemoveTrait(self.specialist)
+            self.traits.none = true
+            self:ChooseEntity()
+            self.city:AddToLabel(self.specialist, self)
+            Msg("NewSpecialist", self)
         end
     end
     -- if the specialization is allowed, do nothing
@@ -104,7 +106,7 @@ end
 -- Re-train impaired specialists after they go out of university so they become something compatible
 function OnMsg.TrainingComplete(building, colonist)
     if building.training_type == "specialization" then
-        RetrainColonistBasedOnImpairments(colonist)
+        colonist:RetrainBasedOnImpairments()
     end
 end
 
@@ -129,7 +131,7 @@ function OnMsg.ClassesGenerate()
     local Tremualin_Orig_Colonist_GetUIWorkplaceLine = Colonist.GetUIWorkplaceLine
     function Colonist:GetUIWorkplaceLine()
         if self.status_effects.StatusEffect_TemporarilyImpaired and self.Tremualin_impaired_recovery_chance then
-            return Untranslated("Temporarily impaired<right>Chances of recovery: " .. self.Tremualin_impaired_recovery_chance .. "%")
+            return Untranslated("Temporarily impaired<right>Chance of recovery: " .. self.Tremualin_impaired_recovery_chance .. "%")
         end -- if self.status_effects.StatusEffect_TemporarilyImpaired
         return Tremualin_Orig_Colonist_GetUIWorkplaceLine(self)
     end --  function Colonist:GetUIWorkplaceLine
@@ -138,6 +140,6 @@ function OnMsg.ClassesGenerate()
     local Tremualin_Orig_Colonist_Init = Colonist.Init
     function Colonist:Init()
         Tremualin_Orig_Colonist_Init(self)
-        RetrainColonistBasedOnImpairments(self)
+        self:RetrainBasedOnImpairments()
     end
 end -- function OnMsg.ClassesGenerate()

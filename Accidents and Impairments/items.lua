@@ -23,15 +23,11 @@ PlaceObj('ModItemEntity', {
 }),
 PlaceObj('ModItemTraitPreset', {
 	apply_func = function (colonist, trait)
-            if table.find({"scientist", "security", "medic"}, colonist.specialist) then
-                colonist:SetSpecialization("none")
-            end
+            colonist:RetrainBasedOnImpairments()
 end,
 	category = "other",
 	daily_update_func = function (colonist, trait)
-            if table.find({"scientist", "security", "medic"}, colonist.specialist) then
-                colonist:SetSpecialization("none")
-            end
+            colonist:RetrainBasedOnImpairments()
 end,
 	description = T(630404482146, --[[ModItemTraitPreset IntellectuallyImpaired description]] "Discouraged from working as a Scientist, Officer or Medic."),
 	display_name = T(586654232200, --[[ModItemTraitPreset IntellectuallyImpaired display_name]] "Intellectually Impaired"),
@@ -44,15 +40,11 @@ end,
 }),
 PlaceObj('ModItemTraitPreset', {
 	apply_func = function (colonist, trait)
-            if table.find({"engineer", "geologist", "security"}, colonist.specialist) then
-                colonist:SetSpecialization("none")
-            end
+            colonist:RetrainBasedOnImpairments()
 end,
 	category = "other",
 	daily_update_func = function (colonist, trait)
-            if table.find({"engineer", "geologist", "security"}, colonist.specialist) then
-                colonist:SetSpecialization("none")
-            end
+            colonist:RetrainBasedOnImpairments()
 end,
 	description = T(740962527296, --[[ModItemTraitPreset PhysicallyImpaired description]] "Discouraged from working as an Engineer, Geologist, Officer, or in Ranches."),
 	display_icon = "",
