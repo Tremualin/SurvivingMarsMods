@@ -8,6 +8,10 @@ PlaceObj('ModItemCode', {
 	'FileName', "Code/FitnessUI.lua",
 }),
 PlaceObj('ModItemCode', {
+	'name', "ImprovedTech",
+	'FileName', "Code/ImprovedTech.lua",
+}),
+PlaceObj('ModItemCode', {
 	'name', "WorkOpenAirGym",
 	'FileName', "Code/WorkOpenAirGym.lua",
 }),

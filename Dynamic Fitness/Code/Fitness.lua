@@ -127,7 +127,7 @@ function OnMsg.ClassesGenerate()
 
     local Tremualin_Orig_Colonist_ChangeHealth = Colonist.ChangeHealth
     function Colonist:ChangeHealth(amount, reason)
-        if self.traits.Unfit then
+        if self.traits.Unfit and amount > 0 then
             amount = amount / 2
         end
         Tremualin_Orig_Colonist_ChangeHealth(self, amount, reason)
@@ -146,9 +146,9 @@ function OnMsg.ClassesGenerate()
             end
             self:ChangeFitness(fitness_gain, service.template_name)
             local fitness_nutrition_bonus = MulDivRound(fitness_gain, self.Tremualin_Nutrition_Fitness_Bonus, 100)
-            if fitness_nutrition_bonus > 0 then
+            if fitness_nutrition_bonus >= const.Scale.Stat then
                 self:ChangeFitness(fitness_nutrition_bonus, NUTRITION_BONUS)
-            elseif fitness_nutrition_bonus < 0 then
+            elseif fitness_nutrition_bonus <= -const.Scale.Stat then
                 self:ChangeFitness(fitness_nutrition_bonus, NUTRITION_PENALTY)
             end
             self.Tremualin_daily_exercise = true
@@ -165,7 +165,7 @@ function OnMsg.ClassesGenerate()
         end
     end
 
-    local function RawFoodFitnessPenalty(unit)
+    local function SetRawFoodFitnessPenalty(unit)
         if unit.last_meal == DayStart then
             -- unit was able to ate today
             unit:ChangeFitness(FITNESS_RAW_FOOD_LOSS, FITNESS_RAW_FOOD_REASON)
@@ -173,32 +173,35 @@ function OnMsg.ClassesGenerate()
         end
     end
 
-    local function PreparedFoodFitnessBonus(performance, unit)
-        unit.Tremualin_Nutrition_Fitness_Bonus = performance - 100
+    local function SetPreparedFoodFitnessBonus(performance, unit)
+        local nutrition_bonus = performance - 100
+        if UIColony:IsTechResearched("MartianDiet") then
+            nutrition_bonus = nutrition_bonus + 25
+        end
+        unit.Tremualin_Nutrition_Fitness_Bonus = nutrition_bonus
     end
 
     local Tremualin_Origin_Farm_Service = Farm.Service
     function Farm:Service(unit, duration)
         Tremualin_Origin_Farm_Service(self, unit, duration)
-        RawFoodFitnessPenalty(unit)
+        SetRawFoodFitnessPenalty(unit)
     end
     local Tremualin_Origin_ResourceStockpileBase_Service = ResourceStockpileBase.Service
     function ResourceStockpileBase:Service(unit, duration)
         Tremualin_Origin_ResourceStockpileBase_Service(self, unit, duration)
-        RawFoodFitnessPenalty(unit)
+        SetRawFoodFitnessPenalty(unit)
     end
 
     local Tremualin_Origin_ConsumptionResourceStockpile_Service = ConsumptionResourceStockpile.Service
     function ConsumptionResourceStockpile:Service(unit)
         Tremualin_Origin_ConsumptionResourceStockpile_Service(self, unit)
-        RawFoodFitnessPenalty(unit)
+        SetRawFoodFitnessPenalty(unit)
     end
 
     local Tremualin_Orig_StatsChange_Service = StatsChange.Service
     function StatsChange:Service(unit, duration, reason, comfort_threshold, interest)
         if self.consumption_resource_type == "Food" then
-            local performance = self:GetEffectivePerformance()
-            PreparedFoodFitnessBonus(performance, unit)
+            SetPreparedFoodFitnessBonus(self:GetEffectivePerformance(), unit)
         end
         return Tremualin_Orig_StatsChange_Service(self, unit, duration, reason, comfort_threshold, interest)
     end
