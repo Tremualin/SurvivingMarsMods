@@ -75,11 +75,11 @@ end -- function StatusEffect_TemporarilyImpaired
 function Colonist:RetrainBasedOnImpairments()
     if self.specialist ~= "none" then
         local allowed = table.copy(all_specializations)
-        if self.PhysicallyImpaired then
-            table.substraction(allowed, physically_impaired_forbidden)
+        if self.traits.PhysicallyImpaired then
+            allowed = table.subtraction(allowed, physically_impaired_forbidden)
         end
-        if self.IntellectuallyImpaired then
-            table.substraction(allowed, intellectually_impaired_forbidden)
+        if self.traits.IntellectuallyImpaired then
+            allowed = table.subtraction(allowed, intellectually_impaired_forbidden)
         end
         if not table.find(allowed, self.specialist) then
             -- if the specialization is not allowed; find any other one among the allowed ones
@@ -94,8 +94,10 @@ function Colonist:RetrainBasedOnImpairments()
             selectedSpecialization = table.rand(allowed)
             self.city:RemoveFromLabel(self.specialist, self)
             self:RemoveTrait(self.specialist)
+            self.specialist = 'none'
             self.traits.none = true
             self:ChooseEntity()
+            self:AddTrait(selectedSpecialization)
             self.city:AddToLabel(self.specialist, self)
             Msg("NewSpecialist", self)
         end
