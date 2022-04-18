@@ -52,44 +52,49 @@ end
 
 local shallowCopy = Tremualin.Functions.ShallowCopy
 
-local orig_OverrideDisasterDescriptor = OverrideDisasterDescriptor
-function OverrideDisasterDescriptor(original)
-    if not original or original.forbidden then
-        return original
-    end
+function OnMsg.ClassesPostprocess()
+    local orig_OverrideDisasterDescriptor = OverrideDisasterDescriptor
+    function OverrideDisasterDescriptor(original)
+        if not original or original.forbidden then
+            return original
+        end
 
-    local settings_type = original.class
-    local overriden = orig_OverrideDisasterDescriptor(original)
-    local seasonsOfMarsDisasterSettings = SeasonsOfMars[settings_type]
-    if not seasonsOfMarsDisasterSettings then
+        local overriden = orig_OverrideDisasterDescriptor(original)
+        if not overriden then
+            return
+        end
+        local settings_type = original.class
+        local seasonsOfMarsDisasterSettings = SeasonsOfMars[settings_type]
+        if not seasonsOfMarsDisasterSettings then
+            return overriden
+        end
+
+        if not seasonsOfMarsDisasterSettings.OriginalSettings then
+            seasonsOfMarsDisasterSettings.OriginalSettings = {
+                spawntime = overriden.spawntime,
+                spawntime_random = overriden.spawntime_random,
+                min_duration = overriden.min_duration,
+                max_duration = overriden.max_duration
+            }
+            if overriden.seasonal and overriden.seasonal_sols then
+                seasonsOfMarsDisasterSettings.OriginalSettings.seasonal_sols = overriden.seasonal_sols
+            end
+        end
+
+        local originalSettings = seasonsOfMarsDisasterSettings.OriginalSettings
+        local spawnTimePercentage = seasonsOfMarsDisasterSettings.SpawntimePercentage
+        if overriden.seasonal and overriden.seasonal_sols then
+            overriden.seasonal_sols = MulDivRound(originalSettings.seasonal_sols, spawnTimePercentage, 100)
+        else
+            overriden.spawntime = MulDivRound(originalSettings.spawntime, spawnTimePercentage, 100)
+            overriden.spawntime_random = MulDivRound(originalSettings.spawntime_random, spawnTimePercentage, 100)
+        end
+
+        local durationPercentage = seasonsOfMarsDisasterSettings.DurationPercentage
+        overriden.min_duration = MulDivRound(originalSettings.min_duration, durationPercentage, 100)
+        overriden.max_duration = MulDivRound(originalSettings.max_duration, durationPercentage, 100)
         return overriden
     end
-
-    if not seasonsOfMarsDisasterSettings.OriginalSettings then
-        seasonsOfMarsDisasterSettings.OriginalSettings = {
-            spawntime = overriden.spawntime,
-            spawntime_random = overriden.spawntime_random,
-            min_duration = overriden.min_duration,
-            max_duration = overriden.max_duration
-        }
-        if overriden.seasonal and overriden.seasonal_sols then
-            seasonsOfMarsDisasterSettings.OriginalSettings.seasonal_sols = overriden.seasonal_sols
-        end
-    end
-
-    local originalSettings = seasonsOfMarsDisasterSettings.OriginalSettings
-    local spawnTimePercentage = seasonsOfMarsDisasterSettings.SpawntimePercentage
-    if overriden.seasonal and overriden.seasonal_sols then
-        overriden.seasonal_sols = MulDivRound(originalSettings.seasonal_sols, spawnTimePercentage, 100)
-    else
-        overriden.spawntime = MulDivRound(originalSettings.spawntime, spawnTimePercentage, 100)
-        overriden.spawntime_random = MulDivRound(originalSettings.spawntime_random, spawnTimePercentage, 100)
-    end
-
-    local durationPercentage = seasonsOfMarsDisasterSettings.DurationPercentage
-    overriden.min_duration = MulDivRound(originalSettings.min_duration, durationPercentage, 100)
-    overriden.max_duration = MulDivRound(originalSettings.max_duration, durationPercentage, 100)
-    return overriden
 end
 
 -- fired when settings are changed/init
@@ -133,4 +138,3 @@ end
 
 OnMsg.LoadGame = InitSeasonsOfMars
 OnMsg.CityStart = InitSeasonsOfMars
-
