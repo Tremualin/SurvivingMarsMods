@@ -104,7 +104,7 @@ function SubsurfaceAnomaly:ScanCompleted(scanner, ...)
     return orig_SubsurfaceAnomaly_ScanCompleted(self, scanner, ...)
 end
 
-local orig_PlanetaryAnomaly_Scan = PlanetaryAnomaly.Scan
+local Orig_Tremualin_PlanetaryAnomaly_Scan = PlanetaryAnomaly.Scan
 function PlanetaryAnomaly:Scan(rocket)
     local reward = self.reward
     if reward == "breakthrough" then
@@ -115,16 +115,18 @@ function PlanetaryAnomaly:Scan(rocket)
             self.reward = "tech unlock"
         end
     end
-    orig_PlanetaryAnomaly_Scan(self, rocket)
+    Orig_Tremualin_PlanetaryAnomaly_Scan(self, rocket)
 end
 
-function OmegaTelescope:UnlockBreakthroughs(count)
-    CreateGameTimeThread(function()
+local Orig_Tremualin_Research_UnlockBreakthroughs = Research.UnlockBreakthroughs
+function Research:UnlockBreakthroughs(count, name, map_id)
+    if table.find(ModsLoaded, "id", "ChoGGi_OmegaUnlocksAll") or table.find(ModsLoaded, "id", "ChoGGi_OmegaUnlocksAllSlowly") then
+        return Orig_Tremualin_Research_UnlockBreakthroughs(self, count, name, map_id)
+    else
         local unlocked = 0
         while count > unlocked do
-            ShowCherryPickingPopup(nil, nil, "BreakthroughDiscovered", true)
+            ShowCherryPickingPopup(nil, map_id, "BreakthroughDiscovered", true)
             unlocked = unlocked + 1
-            Sleep(100)
         end
-    end)
+    end
 end
