@@ -43,7 +43,7 @@ function OnMsg.ClassesPostprocess()
             else
                 context.exclusive_trait = "Senior"
                 -- increase capacity by 50% to compete with senior residences
-                context.seniors_extra_capacity = context.capacity * 0.5
+                context.seniors_extra_capacity = MulDivRound(context.capacity, 0.5, 1)
                 context.capacity = context.capacity + context.seniors_extra_capacity
                 -- first we process all colonists within the residence and kick out the youngsters
                 for i = #context.colonists, 1, -1 do

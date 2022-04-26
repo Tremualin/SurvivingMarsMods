@@ -270,9 +270,11 @@ end
 
 local function AddIncompatibleTraits(bt, ct, trait)
     if bt.incompatible_traits == empty_table then bt.incompatible_traits = {} end
-    if ct.incompatible_traits == empty_table then ct.incompatible_traits = {} end
     table.insert_unique(bt.incompatible_traits, trait)
-    table.insert_unique(ct.incompatible_traits, trait)
+    if ct then
+        if ct.incompatible_traits == empty_table then ct.incompatible_traits = {} end
+        table.insert_unique(ct.incompatible_traits, trait)
+    end
 end
 
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
