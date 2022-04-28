@@ -87,3 +87,9 @@ function FixNilAddTrait()
 end -- function FixAddNilTrait
 
 OnMsg.ClassesGenerate = FixNilAddTrait()
+
+local Orig_Tremualin_Colonist_DetachFromRealm = Colonist.DetachFromRealm
+function Colonist:DetachFromRealm()
+    Orig_Tremualin_Colonist_DetachFromRealm(self)
+    Unit.DetachFromRealm(self)
+end
