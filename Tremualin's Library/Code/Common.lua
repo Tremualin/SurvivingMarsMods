@@ -277,6 +277,10 @@ local function AddIncompatibleTraits(bt, ct, trait)
     end
 end
 
+local function IsInAnAsteroid(object)
+    return ObjectIsInEnvironment(object, "Asteroid")
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -300,5 +304,6 @@ Tremualin.Functions.AddParentToClass = AddParentToClass
 Tremualin.Functions.HasMedicalSpireOrHospital = HasMedicalSpireOrHospital
 Tremualin.Functions.HasWorkingMedicalBuilding = HasWorkingMedicalBuilding
 Tremualin.Functions.AddIncompatibleTraits = AddIncompatibleTraits
+Tremualin.Functions.IsInAnAsteroid = IsInAnAsteroid
 
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations
