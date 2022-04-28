@@ -1,12 +1,9 @@
-
-function OnMsg.ClassesPostprocess()
-    local Orig_Tremualin_DroneHubExtender_CanInteractWithObject = DroneHubExtender.CanInteractWithObject
-    function DroneHubExtender:CanInteractWithObject(obj)
-        if obj:IsKindOf("Elevator") then
-            return true, Untranslated("Connect to Elevator")
-        end
-        return Orig_Tremualin_DroneHubExtender_CanInteractWithObject(self, obj)
+local Orig_Tremualin_DroneHubExtender_CanInteractWithObject = DroneHubExtender.CanInteractWithObject
+function DroneHubExtender:CanInteractWithObject(obj)
+    if obj:IsKindOf("Elevator") then
+        return true, Untranslated("Connect to Elevator")
     end
+    return Orig_Tremualin_DroneHubExtender_CanInteractWithObject(self, obj)
 end
 
 local Orig_Tremualin_CaveInRubble_GameInit = CaveInRubble.GameInit
