@@ -1,3 +1,4 @@
+local functions = Tremualin.Functions
 local ui_functions = Tremualin.UIFunctions
 local TO_MARS_AND_BACK_BUTTON = "Tremualin_ToMarsAndBackButton"
 local ASTEROID_CLEAN_UP_BUTTON_ID = "Tremualin_AsteroidCleanUpButton"
@@ -19,7 +20,7 @@ local function AddMultipurposeUpgradeStorageUpgrade()
     AddMultipurposeUpgradeStorageUpgradeToObject(ClassTemplates.Building.LanderRocket)
     AddMultipurposeUpgradeStorageUpgradeToObject(BuildingTemplates.LanderRocket)
 
-    local tech = Presets.TechPreset.ReconAndExpansion["ExtendedCargoModules"]
+    local tech = Presets.TechPreset.ReconAndExpansion.ExtendedCargoModules
     local modified = tech.Tremualin_MultipurposeUpgradeStorage
     if not modified then
         tech.description = Untranslated("Asteroid Lander Upgrade (<em>Multipurpose Upgrade Storage</em>) - ") .. MULTIPURPOSE_UPGRADE_STORAGE_DESCRIPTION .. "\n" .. tech.description
@@ -50,7 +51,7 @@ local function AddSolarEnergyLanderUpgrade()
     AddSolarEnergyLanderUpgradeToObject(ClassTemplates.Building.LanderRocket)
     AddSolarEnergyLanderUpgradeToObject(BuildingTemplates.LanderRocket)
 
-    local tech = Presets.TechPreset.ReconAndExpansion["MineralApplications"]
+    local tech = Presets.TechPreset.ReconAndExpansion.MineralApplications
     local modified = tech.Tremualin_SolarEnergyLanders
     if not modified then
         tech.description = Untranslated("Asteroid Lander Upgrade (<em>Solar Energy Landers</em>) - ") .. SOLAR_ENERGY_LANDER_DESCRIPTION .. "\n" .. tech.description
@@ -78,13 +79,10 @@ local function AddToMarsAndBackButton()
         "__context_of_kind", "LanderRocketBase",
         "RolloverTitle", Untranslated("Advanced B&B (Mod)"),
         "OnContextUpdate", function(self, context)
-            if ObjectIsInEnvironment(context, "Asteroid") then
-                self:SetVisible(true)
-                self:SetIcon(context.Tremualin_ToMarsAndBack and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/automated_mode.tga")
-                self:SetRolloverText(context.Tremualin_ToMarsAndBack and Untranslated("Cancel returning from Mars automatically") or Untranslated("Automatically return from Mars after refueling, with all the drones and enough fuel for a trip back, landing in the same spot"))
-            else
-                self:SetVisible(false)
-            end
+            local toMarsAndBack = context.Tremualin_ToMarsAndBack
+            self:SetVisible(true)
+            self:SetIcon(toMarsAndBack and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/automated_mode.tga")
+            self:SetRolloverText(toMarsAndBack and Untranslated("Cancel returning to/from Mars and back to/from the Asteroid automatically") or Untranslated("Automatically return from Mars after refueling, with all the drones and enough fuel for a trip back, landing in the same spot, in the last visited Asteroid"))
         end,
         "OnPress", function(self, gamepad)
             local context = self.context
@@ -108,11 +106,11 @@ local function AddAsteroidCleanupButton()
         "RolloverTitle", Untranslated("Advanced B&B (Mod)"),
         "RolloverText", Untranslated("Salvage/Refab all buildings on this Asteroid"),
         "OnContextUpdate", function(self, context)
-            if ObjectIsInEnvironment(context, "Asteroid") then
+            if functions.IsInAnAsteroid(context) then
                 self:SetVisible(true)
                 self:SetIcon(context.Tremualin_AsteroidCleanUp and "UI/Icons/IPButtons/cancel.tga" or "UI/Icons/IPButtons/refab.tga")
             else
-                self.Tremualin_AsteroidCleanUp = false
+                context.Tremualin_AsteroidCleanUp = false
                 self:SetVisible(false)
             end
         end,
@@ -120,6 +118,8 @@ local function AddAsteroidCleanupButton()
             local context = self.context
             context.Tremualin_AsteroidCleanUp = not context.Tremualin_AsteroidCleanUp
             local refabOrDestroy = function(o)
+                -- Refab/destroy only those that are Refablable
+                -- Except StorageDepots, which for some reason are Refabable
                 if o:IsRefabable() and not o:IsKindOf("StorageDepot") then
                     if o:CanRefab() then
                         o:ToggleRefab()
@@ -159,133 +159,95 @@ local function AddConvertToAsteroidLandingPadButton()
     ui_functions.RemoveXTemplateSections(template, CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID)
     table.insert(template, #template + 1, converToAsteroidLandingPadButton)
 
-    local template = XTemplates.customLandingPad
+    template = XTemplates.customLandingPad
     ui_functions.RemoveXTemplateSections(template, CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID)
     table.insert(template, #template + 1, converToAsteroidLandingPadButton)
 end
 
-local function IsInAnAsteroid(object)
-    return ObjectIsInEnvironment(object, "Asteroid")
-end
-
+-- A function used to filter landers that have been upgraded with the multipurpose upgrade storage
 local function LanderHasMultipurposeUpgradeStorageFilter(key, value)
     return value:HasUpgrade(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID)
 end
 
-function OnMsg.ClassesPostprocess()
-    AddMultipurposeUpgradeStorageUpgrade()
-    AddSolarEnergyLanderUpgrade()
-    AddToMarsAndBackButton()
-    AddAsteroidCleanupButton()
-    AddConvertToAsteroidLandingPadButton()
-
-    local Orig_Tremualin_LanderRocketBase_PrepareLanding = LanderRocketBase.PrepareLanding
-    function LanderRocketBase:PrepareLanding(target)
-        Orig_Tremualin_LanderRocketBase_PrepareLanding(self, target)
-        if target.id == "OurColony" then
-            local asteroidLanderPads = Cities[MainMapID].labels.AsteroidLanderPad
-            if asteroidLanderPads and #asteroidLanderPads > 0 then
-                for _, landerPad in pairs(asteroidLanderPads) do
-                    if landerPad:IsAvailable() then
-                        self.landing_site = PlaceBuildingIn("RocketLandingSite", landerPad:GetMapID())
-                        self.landing_site:SetAngle(landerPad:GetAngle())
-                        self.landing_site:SetPos(landerPad:GetPos())
-                        self.landing_site.landing_pad = landerPad
-                        self:SetCommand("LandOnMars", self.landing_site)
-                        break
-                    end
+local Orig_Tremualin_LanderRocketBase_PrepareLanding = LanderRocketBase.PrepareLanding
+function LanderRocketBase:PrepareLanding(target)
+    Orig_Tremualin_LanderRocketBase_PrepareLanding(self, target)
+    if target.id == "OurColony" then
+        local asteroidLanderPads = Cities[MainMapID].labels.AsteroidLanderPad
+        if asteroidLanderPads and #asteroidLanderPads > 0 then
+            for _, landerPad in pairs(asteroidLanderPads) do
+                if landerPad:IsAvailable() then
+                    self.landing_site = PlaceBuildingIn("RocketLandingSite", landerPad:GetMapID())
+                    self.landing_site:SetAngle(landerPad:GetAngle())
+                    self.landing_site:SetPos(landerPad:GetPos())
+                    self.landing_site.landing_pad = landerPad
+                    self:SetCommand("LandOnMars", self.landing_site)
+                    break
                 end
             end
-        elseif self.last_asteroid_visited == target and self.last_asteroid_landing_site_angle and self.last_asteroid_landing_site_pos then
-            self.landing_site = PlaceBuildingIn("RocketLandingSite", self.last_asteroid_visited.id)
-            self.landing_site:SetAngle(self.last_asteroid_landing_site_angle)
-            self.landing_site:SetPos(self.last_asteroid_landing_site_pos)
-            self:SetCommand("LandOnMars", self.landing_site)
+        end
+    elseif self.Tremualin_ToMarsAndBack
+        and self.last_asteroid_visited == target
+        and self.last_asteroid_landing_site_angle
+        and self.last_asteroid_landing_site_pos then
+        -- If returning to an Asteroid, and ToMarsAndBack is enabled, land in the same spot
+        self.landing_site = PlaceBuildingIn("RocketLandingSite", self.last_asteroid_visited.id)
+        self.landing_site:SetAngle(self.last_asteroid_landing_site_angle)
+        self.landing_site:SetPos(self.last_asteroid_landing_site_pos)
+        self:SetCommand("LandOnMars", self.landing_site)
+    end
+end
+
+local function ApplySolarEnergyLanderUpgradeIfPossible(lander)
+    if lander:IsUpgradeOn(SOLAR_ENERGY_LANDER_UPGRADE_ID) then
+        lander.launch_fuel = 0
+        if lander.refuel_request then
+            lander.refuel_request:SetAmount(0)
         end
     end
+end
 
-    local Orig_Tremualin_LanderRocketBase_OnLanded = LanderRocketBase.OnLanded
-    function LanderRocketBase:OnLanded()
-        if IsInAnAsteroid(self) then
-            self.last_asteroid_visited = self.target_spot
-            if self:IsUpgradeOn(SOLAR_ENERGY_LANDER_UPGRADE_ID) then
-                self.launch_fuel = 0
-                if self.refuel_request then
-                    self.refuel_request:SetAmount(0)
-                end
-            end
+local Orig_Tremualin_LanderRocketBase_OnLanded = LanderRocketBase.OnLanded
+function LanderRocketBase:OnLanded()
+    if functions.IsInAnAsteroid(self) then
+        self.last_asteroid_visited = self.target_spot
+        ApplySolarEnergyLanderUpgradeIfPossible(self)
+    else
+        self.launch_fuel = self.base_launch_fuel
+    end
+    Orig_Tremualin_LanderRocketBase_OnLanded(self)
+end
+
+local Orig_Tremualin_LanderRocketBase_HourlyUpdate = LanderRocketBase.HourlyUpdate
+function LanderRocketBase:HourlyUpdate(hour)
+    Orig_Tremualin_LanderRocketBase_HourlyUpdate(self, hour)
+    if self:IsRocketLanded()
+        and self.Tremualin_ToMarsAndBack
+        and functions.IsInAnAsteroid(self)
+        and not HasDustStorm(MainMapID)
+        -- We will issue the return command when we are close to a full cargo
+        and self.cargo_capacity - self:CalculatePayloadWeight() <= 5000 then
+        self.target_spot = HomeColonySpot()
+        self:SetCommand("LoadAndLaunch", function() return self.target_spot end)
+    end
+end
+
+local Orig_Tremualin_Building_GatherUpgradeSpentResources = Building.GatherUpgradeSpentResources
+function Building:GatherUpgradeSpentResources()
+    if functions.IsInAnAsteroid(self)
+        and not self:IsKindOf("LanderRocket")
+        and #table.filter(Cities[self:GetMapID()].labels.LanderRocketBase, LanderHasMultipurposeUpgradeStorageFilter) > 0 then
+        return {}
+    end
+    return Orig_Tremualin_Building_GatherUpgradeSpentResources(self)
+end
+
+function LanderRocketBase:OnUpgradeToggled(upgrade_id, new_state)
+    if upgrade_id == SOLAR_ENERGY_LANDER_UPGRADE_ID then
+        if new_state and functions.IsInAnAsteroid(self) then
+            ApplySolarEnergyLanderUpgradeIfPossible(lander)
         else
             self.launch_fuel = self.base_launch_fuel
-        end
-        Orig_Tremualin_LanderRocketBase_OnLanded(self)
-    end
-
-    local Orig_Tremualin_RocketBase_WaitLaunchOrder = RocketBase.WaitLaunchOrder
-    function LanderRocketBase:WaitLaunchOrder()
-        if self.Tremualin_ToMarsAndBack
-            and self.last_asteroid_visited
-            and UIColony:IsActiveColonyMap(self.last_asteroid_visited.id)
-            and not IsInAnAsteroid(self) then
-            local fuel_needed_to_return = self:IsUpgradeOn(SOLAR_ENERGY_LANDER_UPGRADE_ID) and 0 or self.launch_fuel / const.ResourceScale
-            -- Sometimes drones are sent on missions or whatever; take at least 5
-            local return_cargo_request = {Drone = {amount = Max(5, #self.drones), class = Drone, type = Drone}, Fuel = {amount = fuel_needed_to_return, class = Fuel, type = Resource}}
-            local existing_cargo_request = self.cargo or empty_table
-            for key, existing_resource_request in pairs(existing_cargo_request) do
-                local new_resource_request = table.copy(existing_resource_request)
-                local return_resource_request = return_cargo_request[key] or empty_table
-                -- If the player choose more fuel or drones; we'll respect that
-                new_resource_request.amount = Max(new_resource_request.requested or 0, return_resource_request.amount or 0)
-                new_resource_request.requested = nil
-                return_cargo_request[key] = new_resource_request
-            end
-            CargoTransporter.SetCargoRequest(self, return_cargo_request, empty_table)
-            self.target_spot = self.last_asteroid_visited
-            self:SetCommand("LoadAndLaunch", function() return self.target_spot end)
-        else
-            Orig_Tremualin_RocketBase_WaitLaunchOrder(self)
-        end
-    end
-
-    local Orig_Tremualin_LanderRocketBase_HourlyUpdate = LanderRocketBase.HourlyUpdate
-    function LanderRocketBase:HourlyUpdate(hour)
-        Orig_Tremualin_LanderRocketBase_HourlyUpdate(self, hour)
-        if self:IsRocketLanded()
-            and IsInAnAsteroid(self)
-            and self.Tremualin_ToMarsAndBack
-            and not HasDustStorm(MainMapID)
-            -- We will issue the return command when we are close to a full cargo
-            and self.cargo_capacity - self:CalculatePayloadWeight() <= 5000 then
-            self.target_spot = HomeColonySpot()
-            self:SetCommand("LoadAndLaunch", function() return self.target_spot end)
-        end
-    end
-
-    local Orig_Tremualin_Building_GatherUpgradeSpentResources = Building.GatherUpgradeSpentResources
-    function Building:GatherUpgradeSpentResources()
-        if IsInAnAsteroid(self)
-            and not self:IsKindOf("LanderRocket")
-            and #table.filter(Cities[self:GetMapID()].labels.LanderRocketBase, LanderHasMultipurposeUpgradeStorageFilter) > 0 then
-            return {}
-        end
-        return Orig_Tremualin_Building_GatherUpgradeSpentResources(self)
-    end
-
-    local Orig_Tremualin_LanderRocketBase_OnUpgradeToggled = LanderRocketBase.OnUpgradeToggled
-    function LanderRocketBase:OnUpgradeToggled(upgrade_id, new_state)
-        if upgrade_id == SOLAR_ENERGY_LANDER_UPGRADE_ID then
-            if new_state then
-                if IsInAnAsteroid(self) then
-                    self.launch_fuel = 0
-                    if self.refuel_request then
-                        self.refuel_request:SetAmount(0)
-                    end
-                end
-            else
-                self.launch_fuel = self.base_launch_fuel
-            end
-        end
-        if Orig_Tremualin_LanderRocketBase_OnUpgradeToggled then
-            Orig_Tremualin_LanderRocketBase_OnUpgradeToggled(self, upgrade_id, new_state)
         end
     end
 end
@@ -314,8 +276,9 @@ local function FullyUpgradeAllNonLanderBuildings(city)
     end
 end
 
+-- Apply the effects of the upgrades immediately upon landing
 function OnMsg.AsteroidRocketLanded(lander)
-    if IsInAnAsteroid(lander) then
+    if functions.IsInAnAsteroid(lander) then
         lander.last_asteroid_landing_site_angle = lander.landing_site:GetAngle()
         lander.last_asteroid_landing_site_pos = lander.landing_site:GetPos()
         if lander:HasUpgrade(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID) then
@@ -324,20 +287,59 @@ function OnMsg.AsteroidRocketLanded(lander)
     end
 end
 
+-- Apply the effects of the upgrades immediately upon upgrading
 function OnMsg.BuildingUpgraded(building, upgrade_id)
-    if upgrade_id == MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID and IsInAnAsteroid(building) then
+    if upgrade_id == SOLAR_ENERGY_LANDER_UPGRADE_ID and functions.IsInAnAsteroid(building) then
+        ApplySolarEnergyLanderUpgradeIfPossible(building)
+    end
+    if upgrade_id == MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID and functions.IsInAnAsteroid(building) then
         FullyUpgradeAllNonLanderBuildings(Cities[building:GetMapID()] or empty_table)
     end
 end
 
+-- If there's a lander with the multipurpose upgrade storage; fully upgrade it
 function OnMsg.BuildingInit(bld)
-    if IsInAnAsteroid(bld) then
+    if functions.IsInAnAsteroid(bld) then
         local city = Cities[bld:GetMapID()] or empty_table
         local labels = city.labels or empty_table
         local landerRockets = labels.LanderRocketBase or empty_table
 
         if #table.filter(landerRockets, LanderHasMultipurposeUpgradeStorageFilter) > 0 then
             FullyUpgradeBuilding(bld)
+        end
+    end
+end
+
+function OnMsg.ClassesPostprocess()
+    AddMultipurposeUpgradeStorageUpgrade()
+    AddSolarEnergyLanderUpgrade()
+    AddToMarsAndBackButton()
+    AddAsteroidCleanupButton()
+    AddConvertToAsteroidLandingPadButton()
+
+    local Orig_Tremualin_RocketBase_WaitLaunchOrder = RocketBase.WaitLaunchOrder
+    function LanderRocketBase:WaitLaunchOrder()
+        if self.Tremualin_ToMarsAndBack
+            and self.last_asteroid_visited
+            and UIColony:IsActiveColonyMap(self.last_asteroid_visited.id)
+            and not functions.IsInAnAsteroid(self) then
+            local fuel_needed_to_return = self:IsUpgradeOn(SOLAR_ENERGY_LANDER_UPGRADE_ID) and 0 or (self.launch_fuel / const.ResourceScale)
+            -- Sometimes drones are sent on missions or whatever; take at least 5
+            local return_cargo_request = {Drone = {amount = Max(5, #self.drones), class = Drone, type = Drone}, Fuel = {amount = fuel_needed_to_return, class = Fuel, type = Resource}}
+            local existing_cargo_request = self.cargo or empty_table
+            for key, existing_resource_request in pairs(existing_cargo_request) do
+                local new_resource_request = table.copy(existing_resource_request)
+                local return_resource_request = return_cargo_request[key] or empty_table
+                -- If the player choose more fuel or drones; we'll respect that
+                new_resource_request.amount = Max(new_resource_request.requested or 0, return_resource_request.amount or 0)
+                new_resource_request.requested = nil
+                return_cargo_request[key] = new_resource_request
+            end
+            CargoTransporter.SetCargoRequest(self, return_cargo_request, empty_table)
+            self.target_spot = self.last_asteroid_visited
+            self:SetCommand("LoadAndLaunch", function() return self.target_spot end)
+        else
+            Orig_Tremualin_RocketBase_WaitLaunchOrder(self)
         end
     end
 end
