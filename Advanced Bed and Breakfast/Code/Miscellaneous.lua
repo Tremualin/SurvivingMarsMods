@@ -50,3 +50,36 @@ end
 
 OnMsg.CityStart = AdvancedSignalBoosters
 OnMsg.LoadGame = AdvancedSignalBoosters
+
+local applyAntiFreeze
+
+local function ModOptions(id)
+    if id and id ~= CurrentModId then
+        return
+    end
+
+    applyAntiFreeze = CurrentModOptions:GetProperty("ApplyAntiFreeze")
+end
+
+OnMsg.ModsReloaded = ModOptions
+OnMsg.ApplyModOptions = ModOptions
+
+local Orig_Tremualin_Colonist_DailyUpdate = Colonist.DailyUpdate
+function Colonist:DailyUpdate()
+    if applyAntiFreeze then
+        self.Tremualin_Abandoned_Counter = 0
+    end
+    Orig_Tremualin_Colonist_DailyUpdate(self)
+end
+
+local Orig_Tremualin_Colonist_Abandoned = Colonist.Abandoned
+function Colonist:Abandoned()
+    if applyAntiFreeze then
+        self.Tremualin_Abandoned_Counter = self.Tremualin_Abandoned_Counter or 0
+        self.Tremualin_Abandoned_Counter = self.Tremualin_Abandoned_Counter + 1
+        if (self.Tremualin_Abandoned_Counter > 100) then
+            self:SetCommand("Die")
+        end
+    end
+    Orig_Tremualin_Colonist_Abandoned(self)
+end
