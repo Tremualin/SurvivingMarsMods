@@ -73,7 +73,7 @@ function OnMsg.ClassesPostprocess()
         "__context_of_kind", "Dome",
         "__template", "InfopanelSection",
         "RolloverText", Untranslated("<TremualinAccidentsLogRollover>"),
-        "Title", Untranslated("Accidents which have occurred on this Dome<right><TremualinAccidentsLifetime>"),
+        "Title", Untranslated("Accidents on this Dome<right><TremualinAccidentsLifetime>"),
     "Icon", ACCIDENTS_ICON})
 
     local possibleIndex1 = ui_functions.FindSectionIndexAfterExistingIfPossible(sectionDomeTemplate, "Tremualin_SeniorsLifetime")
