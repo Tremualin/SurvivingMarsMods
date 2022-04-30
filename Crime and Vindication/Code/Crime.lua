@@ -37,7 +37,7 @@ function Dome:Tremualin_CrimeEvents_Protest()
     AddOnScreenNotification("Tremualin_CrimeEvents_Protest", false, {
         dome_name = self:GetDisplayName(),
         protest_text = table.rand(protests_text)}, {
-    self:GetPos()})
+    self:GetPos()}, self:GetMapID())
 end
 
 -- Vandalism fills the maintenance bar of a random building
@@ -60,7 +60,7 @@ function Dome:Tremualin_CrimeEvents_Vandalism()
     if #buildings > 0 then
         AddOnScreenNotification("Tremualin_CrimeEvents_Vandalism", false, {
             dome_name = self:GetDisplayName(),
-        }, vandalized_buildings)
+        }, vandalized_buildings, self:GetMapID())
     end
 end
 
@@ -95,7 +95,7 @@ function Dome:CrimeEvents_StoleResource()
             dome_name = self:GetDisplayName(),
             resource = FormatResource(self, rand_res_amount, stockpile.resource)}, {
             IsValid(stockpile) and stockpile
-        })
+        }, self:GetMapID())
         return true
     elseif IsKindOf(stockpile, "ResourceStockpile") then
         local storable_resource = stockpile.resource
@@ -107,7 +107,7 @@ function Dome:CrimeEvents_StoleResource()
             dome_name = self:GetDisplayName(),
             resource = FormatResource(self, rand_res_amount, storable_resource)}, {
             IsValid(stockpile) and stockpile
-        })
+        }, self:GetMapID())
         return true
     else
         local storable_resources = stockpile.storable_resources
@@ -132,7 +132,7 @@ function Dome:CrimeEvents_StoleResource()
                 dome_name = self:GetDisplayName(),
                 resource = FormatResource(self, rand_res_amount, resorce_type[1])}, {
                 IsValid(stockpile) and stockpile
-            })
+            }, self:GetMapID())
         else
             return false
         end
@@ -162,7 +162,7 @@ function Dome:CrimeEvents_SabotageBuilding()
     if 0 < #sabotaged_buildings then
         AddOnScreenNotification("Tremualin_Renegades_Sabotage_Buildings", false, {
             dome_name = self:GetDisplayName(),
-        }, sabotaged_buildings)
+        }, sabotaged_buildings, self:GetMapID())
     end
     return 0 < #sabotaged_buildings
 end
@@ -175,8 +175,7 @@ function Dome:Tremualin_CrimeEvents_Embezzlement()
     AddOnScreenNotification("Tremualin_CrimeEvents_Embezzlement", false, {
         dome_name = self:GetDisplayName(),
         stolen_amount = stolen_amount
-        }, {
-    self:GetPos()})
+    }, {self:GetPos()}, self:GetMapID())
 end
 
 Tremualin.Configuration.CrimeTable = {
@@ -201,7 +200,7 @@ function Dome:CheckCrimeEvents()
     if self:CanPreventCrimeEvents() then
         AddOnScreenNotification("PreventCrime", false, {
             dome_name = self:GetDisplayName()}, {
-        self:GetPos()})
+        self:GetPos()}, self:GetMapID())
         return
     end
     local total_weight = 0
