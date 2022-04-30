@@ -10,7 +10,7 @@ function Workplace:OnChangeWorkshift(old, new)
     local working = self.working
     if new and working then
         local mentors = {}
-        local workers = self.workers[new]
+        local workers = table.copy(self.workers[new])
         for _, worker in ipairs(workers) do
             worker:SetModifier("performance", modifier_id, 0, 0)
             if worker.traits.Mentor then

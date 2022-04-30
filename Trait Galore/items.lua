@@ -68,8 +68,7 @@ PlaceObj('ModItemTraitPreset', {
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Listener",
 	category = "Negative",
-	daily_update_func = 
-function (colonist, trait)
+	daily_update_func = function (colonist, trait)
             local filter_function = function(another, same) return another.traits.Argumentative end
             local victims = Tremualin.Functions.FindAllOtherColonistsInSameResidence(colonist, filter_function)
 
@@ -93,8 +92,7 @@ end,
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Composed",
 	category = "other",
-	daily_update_func = 
-function (colonist, trait)
+	daily_update_func = function (colonist, trait)
             -- Only fight if you are healthy enough to fight
             if colonist:GetHealth() > 70 then
                 local filter_function = function(another, same) return not another.traits.Child and another:GetHealth() > 70 end
@@ -127,8 +125,7 @@ end,
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Renegade",
 	category = "Negative",
-	daily_update_func = 
-function (colonist, trait)
+	daily_update_func = function (colonist, trait)
             if not colonist.workplace or not IsKindOf(colonist.workplace, "Sanatorium") then
                 -- Chances of committing suicide
                 if not colonist.traits.Religious and colonist:Random(100) < g_Consts.LowSanitySuicideChance then
@@ -206,8 +203,7 @@ PlaceObj('ModItemTraitPreset', {
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Mean",
 	category = "Positive",
-	daily_update_func = 
-function (colonist, trait)
+	daily_update_func = function (colonist, trait)
             local victims = Tremualin.Functions.FindAllOtherColonistsInSameResidence(colonist)
 
             if #victims > 0 then
@@ -227,13 +223,13 @@ end,
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Argumentative",
 	category = "other",
-	daily_update_func = 
-function (colonist, trait)
+	daily_update_func = function (colonist, trait)
             local colonist_with_lowest_sanity = nil
             local residence = colonist.residence
             if residence and residence.colonists then
-                for i = #residence.colonists, 1, -1 do
-                    local victim = residence.colonists[i]
+                local colonists_in_same_residence = table.copy(residence.colonists)
+                for i = #colonists_in_same_residence, 1, -1 do
+                    local victim = colonists_in_same_residence[i]
                     if IsValid(victim) and victim ~= colonist then
                         if not colonist_with_lowest_sanity then
                             colonist_with_lowest_sanity = victim
@@ -261,8 +257,7 @@ end,
 PlaceObj('ModItemTraitPreset', {
 	_incompatible = "Kind",
 	category = "Negative",
-	daily_update_func = 
-function (colonist, trait)
+	daily_update_func = function (colonist, trait)
             local victims = Tremualin.Functions.FindAllOtherColonistsInSameResidence(colonist)
 
             if #victims > 0 then

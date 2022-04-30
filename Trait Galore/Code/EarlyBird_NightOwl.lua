@@ -18,7 +18,7 @@ function OnMsg.ClassesGenerate()
             local dark_bonus = old == 3 or old == 2
             local early_bonus = old == 1 or old == 2
             if dark_bonus or early_bonus then
-                for _, worker in ipairs(self.workers[old] or empty_table) do
+                for _, worker in ipairs(table.copy(self.workers[old] or empty_table)) do
                     if worker.traits.NightOwl then
                         if dark_bonus then
                             worker:ChangeSanity(sanity_increase, night_owl_love_message)

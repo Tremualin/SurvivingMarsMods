@@ -9,7 +9,7 @@ local orig_Workplace_OnChangeWorkshift = Workplace.OnChangeWorkshift
 function Workplace:OnChangeWorkshift(old, new)
     if new then
         local thrifty_workers = 0
-        local workers = self.workers[new]
+        local workers = table.copy(self.workers[new])
         for _, worker in ipairs(workers) do
             if worker.traits.Thrifty then
                 thrifty_workers = thrifty_workers + 1
