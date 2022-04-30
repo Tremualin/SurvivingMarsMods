@@ -51,26 +51,6 @@ end
 OnMsg.LoadGame = FixSchoolAndSanatoriumTraits
 OnMsg.ModsReloaded = FixSchoolAndSanatoriumTraits
 
-local function FixDisasterGameRules()
-    if IsGameRuleActive("WinterIsComing") then
-        ActiveMaps[MainMapID].MapSettings_ColdWave = "ColdWave_GameRule"
-    end
-
-    if IsGameRuleActive("Armageddon") then
-        ActiveMaps[MainMapID].MapSettings_Meteor = "Meteor_GameRule"
-    end
-
-    if IsGameRuleActive("DustInTheWind") then
-        ActiveMaps[MainMapID].MapSettings_DustStorm = "DustStorm_GameRule"
-    end
-
-    if IsGameRuleActive("Twister") then
-        ActiveMaps[MainMapID].MapSettings_DustDevils = "DustDevils_GameRule"
-    end
-end
-OnMsg.CityStart = FixDisasterGameRules
-OnMsg.LoadGame = FixDisasterGameRules
-
 local function FixSpawnColonistDescription()
     SpawnColonist.Description = Untranslated("Receive <Count> <opt(display_name('TraitPresets',Trait1), '', ' ')><opt(display_name('TraitPresets',Trait2), '', ' ')><opt(display_name('TraitPresets',Trait3), '', ' ')><opt(display_name('TraitPresets',Specialization), '', ' ')><opt(display_name('TraitPresets',Age), '', ' ')>")
 end
@@ -86,10 +66,23 @@ function FixNilAddTrait()
     end
 end -- function FixAddNilTrait
 
-OnMsg.ClassesGenerate = FixNilAddTrait()
+OnMsg.ClassesGenerate = FixNilAddTrait
 
-local Orig_Tremualin_Colonist_DetachFromRealm = Colonist.DetachFromRealm
-function Colonist:DetachFromRealm()
-    Orig_Tremualin_Colonist_DetachFromRealm(self)
-    Unit.DetachFromRealm(self)
+local function DebugClass(class)
+    local replaced = {}
+    for i, v in pairs(class) do
+        if type(v) == "function" then
+            replaced[i] = function(...)
+                print(v)
+                FlushLogFile()
+                return v(...)
+            end
+        end
+    end
+    for i, v in pairs(replaced) do
+        class[i] = replaced[i]
+    end
 end
+
+-- If you enable this, your log will explode with information
+--DebugClass(g_Classes.Colonist)
