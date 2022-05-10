@@ -1,6 +1,7 @@
 local functions = Tremualin.Functions
 
 -- Off-Duty Hero
+-- TODO: Remove this; it rarely ever triggers
 local orig_Colonist_Suicide = Colonist.Suicide
 function Colonist:Suicide()
     local saved = false

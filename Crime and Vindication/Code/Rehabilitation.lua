@@ -21,56 +21,51 @@ end
 function OnMsg.NewWorkshift(shift)
     local remove_trait = "Renegade"
     local add_trait = "Vindicated"
-    for _, city in ipairs(Cities) do
-        local domes = city.labels.Dome or empty_table
-        for j = #domes, 1, -1 do
-            local dome = domes[j]
+    for _, dome in ipairs(UIColony.city_labels.labels.Dome or empty_table) do
+        -- determine how many Renegades are in Rehabilitation
+        local renegades_in_rehabilitation = functions.RenegadesInRehabilitation(dome)
+        -- determine how many officers are working in security stations during this shift
+        local officers_in_security_stations = functions.OfficersInSecurityStations(dome)
 
-            -- determine how many Renegades are in Rehabilitation
-            local renegades_in_rehabilitation = functions.RenegadesInRehabilitation(dome)
-            -- determine how many officers are working in security stations during this shift
-            local officers_in_security_stations = functions.OfficersInSecurityStations(dome)
-
-            -- split renegades on groups of MaxRenegadesRehabilitatedPerOfficer
-            -- so they can be treated by a security officer
-            local table_key = 1
-            local renegades_per_officer_table = {}
-            for i = #renegades_in_rehabilitation, 1, -1 do
-                renegades_per_officer_table[table_key] = renegades_per_officer_table[table_key] or {}
-                table.insert(renegades_per_officer_table[table_key], renegades_in_rehabilitation[i])
-                if #renegades_per_officer_table[table_key] >= configuration.MaxRenegadesRehabilitatedPerOfficer then
-                    table_key = table_key + 1
-                end
+        -- split renegades on groups of MaxRenegadesRehabilitatedPerOfficer
+        -- so they can be treated by a security officer
+        local table_key = 1
+        local renegades_per_officer_table = {}
+        for i = #renegades_in_rehabilitation, 1, -1 do
+            renegades_per_officer_table[table_key] = renegades_per_officer_table[table_key] or {}
+            table.insert(renegades_per_officer_table[table_key], renegades_in_rehabilitation[i])
+            if #renegades_per_officer_table[table_key] >= configuration.MaxRenegadesRehabilitatedPerOfficer then
+                table_key = table_key + 1
             end
+        end
 
-            -- for each officer; treat up to MaxRenegadesRehabilitatedPerOfficer renegades
-            table_key = 1
-            for _, officer in pairs(officers_in_security_stations) do
-                for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
-                    local gain_points = MulDivRound(configuration.VindicationPointsAcquiredPerShift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), GetOfficerPerformance(officer), 100)
-                    renegade.training_points = renegade.training_points or {}
-                    renegade.training_points[configuration.VindicationTrainingType] = (renegade.training_points[configuration.VindicationTrainingType] or 0) + gain_points
-                    if renegade.training_points[configuration.VindicationTrainingType] >= configuration.VindicationPointsRequired then
-                        renegade:RemoveTrait(remove_trait)
-                        local residence = renegade.residence
-                        residence.parent_dome.officers_with_benefits_rehabilitated = (residence.parent_dome.officers_with_benefits_rehabilitated or 0) + 1
-                        residence:RemoveResident(renegade)
-                        residence.total_cured = (residence.total_cured or 0) + 1
-                        if officer.workplace:HasUpgrade(securityStationBehavioralMelding) then
-                            local compatible = (FilterCompatibleTraitsWith({add_trait}, renegade.traits))
-                            if 0 < #compatible then
-                                renegade:AddTrait(add_trait)
-                                Msg("ColonistCured", renegade, residence, remove_trait, add_trait)
-                            else
-                                Msg("ColonistCured", renegade, residence, remove_trait, nil)
-                            end
+        -- for each officer; treat up to MaxRenegadesRehabilitatedPerOfficer renegades
+        table_key = 1
+        for _, officer in pairs(officers_in_security_stations) do
+            for _, renegade in pairs(renegades_per_officer_table[table_key] or empty_table) do
+                local gain_points = MulDivRound(configuration.VindicationPointsAcquiredPerShift * renegade.stat_sanity / (100 * const.Scale.Stat) * renegade.stat_comfort / (100 * const.Scale.Stat) * renegade.residence.service_comfort / (100 * const.Scale.Stat), GetOfficerPerformance(officer), 100)
+                renegade.training_points = renegade.training_points or {}
+                renegade.training_points[configuration.VindicationTrainingType] = (renegade.training_points[configuration.VindicationTrainingType] or 0) + gain_points
+                if renegade.training_points[configuration.VindicationTrainingType] >= configuration.VindicationPointsRequired then
+                    renegade:RemoveTrait(remove_trait)
+                    local residence = renegade.residence
+                    residence.parent_dome.officers_with_benefits_rehabilitated = (residence.parent_dome.officers_with_benefits_rehabilitated or 0) + 1
+                    residence:RemoveResident(renegade)
+                    residence.total_cured = (residence.total_cured or 0) + 1
+                    if officer.workplace:HasUpgrade(securityStationBehavioralMelding) then
+                        local compatible = (FilterCompatibleTraitsWith({add_trait}, renegade.traits))
+                        if 0 < #compatible then
+                            renegade:AddTrait(add_trait)
+                            Msg("ColonistCured", renegade, residence, remove_trait, add_trait)
                         else
                             Msg("ColonistCured", renegade, residence, remove_trait, nil)
                         end
+                    else
+                        Msg("ColonistCured", renegade, residence, remove_trait, nil)
                     end
                 end
-                table_key = table_key + 1
             end
+            table_key = table_key + 1
         end
     end
 end

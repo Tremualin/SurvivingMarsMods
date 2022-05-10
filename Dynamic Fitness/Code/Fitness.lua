@@ -219,15 +219,11 @@ end
 
 local function InitMod()
     -- Initializes all colonist fitness variables
-    for _, city in ipairs(Cities) do
-        local colonists = city.labels.Colonist or empty_table
-        for j = #colonists, 1, -1 do
-            local colonist = colonists[j]
-            colonist.Tremualin_stat_fitness = colonist.Tremualin_stat_fitness or max_stat / 2
-            colonist.Tremualin_log_fitness = colonist.Tremualin_log_fitness or {}
-            colonist.Tremualin_Nutrition_Fitness_Bonus = colonist.Tremualin_Nutrition_Fitness_Bonus or 0
-            colonist.Tremualin_daily_exercise = colonist.Tremualin_daily_exercise or false
-        end
+    for _, colonist in ipairs(UIColony.city_labels.labels.Colonist or empty_table) do
+        colonist.Tremualin_stat_fitness = colonist.Tremualin_stat_fitness or max_stat / 2
+        colonist.Tremualin_log_fitness = colonist.Tremualin_log_fitness or {}
+        colonist.Tremualin_Nutrition_Fitness_Bonus = colonist.Tremualin_Nutrition_Fitness_Bonus or 0
+        colonist.Tremualin_daily_exercise = colonist.Tremualin_daily_exercise or false
     end
 
     -- Unlocks the free upgrade "Fitness Coaches" which allows Gyms to work at enhanced performance while requiring workers

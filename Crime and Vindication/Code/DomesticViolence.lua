@@ -13,7 +13,7 @@ local function ReportDomesticAssault(perpetrator)
         perpetrator_name = perpetrator.name
         }, {
         perpetrator
-    })
+    }, perpetrator:GetMapID())
 end
 
 function Colonist:GetTremualin_DomesticViolenceChances()

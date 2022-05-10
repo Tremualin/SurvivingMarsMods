@@ -53,14 +53,11 @@ local function FirstRespondersTest(dome)
 end
 
 local function CrimeAndVindicationTests()
-    for _, city in ipairs(Cities) do
-        for _, dome in ipairs(city.labels.Dome or empty_table) do
-            CrimeTests(dome)
-            DomesticViolenceTests(dome)
-            FirstRespondersTest(dome)
-        end
+    for dome in ipairs(UIColony.city_labels.labels.Dome or empty_table) do
+        CrimeTests(dome)
+        DomesticViolenceTests(dome)
+        FirstRespondersTest(dome)
     end
-
 end
 
 Tremualin.Tests.CrimeTests = CrimeTests
