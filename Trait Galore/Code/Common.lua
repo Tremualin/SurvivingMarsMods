@@ -10,3 +10,20 @@ if print_debug then
         orig_Colonist_ChangeSanity(self, amount, reason)
     end
 end
+
+local function SortTraitPresets()
+    local comparator = function (k1, k2)
+        if k1.display_name and k2.display_name then
+            return _InternalTranslate(k1.display_name) < _InternalTranslate(k2.display_name)
+        else
+            -- Never actually called, but just in case
+            return 0
+        end
+    end
+    table.sort(Presets.TraitPreset.other, comparator)
+    table.sort(Presets.TraitPreset.Negative, comparator)
+    table.sort(Presets.TraitPreset.Positive, comparator)
+end
+
+OnMsg.LoadGame = SortTraitPresets
+OnMsg.CityStart = SortTraitPresets

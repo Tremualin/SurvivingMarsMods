@@ -5,12 +5,12 @@ local mentee_performance_gain = 20
 local mentoring_message = "<green>Being mentored +<amount></color>"
 
 -- Mentors improve the performance of all other colonists in the same workplace
-local orig_Workplace_OnChangeWorkshift = Workplace.OnChangeWorkshift
+local Tremualin_Orig_Workplace_OnChangeWorkshift = Workplace.OnChangeWorkshift
 function Workplace:OnChangeWorkshift(old, new)
     local working = self.working
     if new and working then
         local mentors = {}
-        local workers = table.copy(self.workers[new])
+        local workers = self.workers[new] or empty_table
         for _, worker in ipairs(workers) do
             worker:SetModifier("performance", modifier_id, 0, 0)
             if worker.traits.Mentor then
@@ -39,5 +39,5 @@ function Workplace:OnChangeWorkshift(old, new)
             end
         end
     end
-    orig_Workplace_OnChangeWorkshift(self, old, new)
+    Tremualin_Orig_Workplace_OnChangeWorkshift(self, old, new)
 end
