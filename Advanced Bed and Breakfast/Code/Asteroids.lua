@@ -171,7 +171,7 @@ local Orig_Tremualin_LanderRocketBase_PrepareLanding = LanderRocketBase.PrepareL
 function LanderRocketBase:PrepareLanding(target)
     Orig_Tremualin_LanderRocketBase_PrepareLanding(self, target)
     if target.id == "OurColony" then
-        local asteroidLanderPads = table.copy(Cities[MainMapID].labels.AsteroidLanderPad)
+        local asteroidLanderPads = Cities[MainMapID].labels.AsteroidLanderPad or empty_table
         if asteroidLanderPads and #asteroidLanderPads > 0 then
             for _, landerPad in pairs(asteroidLanderPads) do
                 if landerPad:IsAvailable() then
@@ -267,7 +267,7 @@ end
 local function FullyUpgradeAllNonLanderBuildings(city)
     local labels = city.labels or empty_table
     local buildings = labels.Building or empty_table
-    for _, upgradableBuilding in pairs(table.copy(buildings)) do
+    for _, upgradableBuilding in pairs(buildings) do
         if not upgradableBuilding:IsKindOf("LanderRocket") then
             FullyUpgradeBuilding(upgradableBuilding)
         end
@@ -325,7 +325,7 @@ function OnMsg.ClassesPostprocess()
             local fuel_needed_to_return = self:IsUpgradeOn(SOLAR_ENERGY_LANDER_UPGRADE_ID) and 0 or (self.launch_fuel / const.ResourceScale)
             local return_cargo_request = {Drone = {amount = #self.drones, class = "Drone", type = "Drone"}, Fuel = {amount = fuel_needed_to_return, class = "Fuel", type = "Resource"}}
             local existing_cargo_request = self.cargo or empty_table
-            for key, existing_resource_request in pairs(table.copy(existing_cargo_request)) do
+            for key, existing_resource_request in pairs(existing_cargo_request) do
                 local new_resource_request = table.copy(existing_resource_request)
                 local return_resource_request = return_cargo_request[key] or empty_table
                 -- If the player choose more fuel or drones; we'll respect that

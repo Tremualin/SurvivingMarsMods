@@ -45,6 +45,11 @@ PlaceObj('ModItemOptionToggle', {
 	'Help', "Attempts to kill colonists who are stuck in an infinite loop. Could unfreeze your game.",
 }),
 PlaceObj('ModItemOptionToggle', {
+	'name', "RemoveColonistsFromWrongMap",
+	'DisplayName', "Remove Colonists From Wrong Map",
+	'Help', "If enabled, loading a game will remove colonists from the wrong maps (unless the colonists are stuck; use ApplyAntiFreeze for that)",
+}),
+PlaceObj('ModItemOptionToggle', {
 	'name', "AncientArtifact",
 	'DisplayName', "Ancient Artifact?",
 	'Help', "Do you want the underground contain the Ancient Artifact?",
