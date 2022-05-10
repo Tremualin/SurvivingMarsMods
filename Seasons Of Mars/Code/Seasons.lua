@@ -50,8 +50,6 @@ function Colony:DailyUpdate(day)
     SeasonalDailyUpdate()
 end
 
-local shallowCopy = Tremualin.Functions.ShallowCopy
-
 function OnMsg.ClassesPostprocess()
     local orig_OverrideDisasterDescriptor = OverrideDisasterDescriptor
     function OverrideDisasterDescriptor(original)
