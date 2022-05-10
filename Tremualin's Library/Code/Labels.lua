@@ -1,8 +1,8 @@
 -- Add the Senior and Child label to city
 -- Makes iterating and counting seniors and children easier
-local orig_Colonist_AddTolabels = Colonist.AddToLabels
+local Orig_Tremualin_Colonist_AddTolabels = Colonist.AddToLabels
 function Colonist:AddToLabels()
-    orig_Colonist_AddTolabels(self)
+    Orig_Tremualin_Colonist_AddTolabels(self)
     if self.traits.Senior then
         self.city:AddToLabel("Senior", self)
     end
@@ -11,11 +11,20 @@ function Colonist:AddToLabels()
     end
 end
 
+-- Add the Senior label to the city when they gain the trait
+local Orig_Tremualin_Colonist_AddTrait = Colonist.AddTrait
+function Colonist:AddTrait(trait_id, ...)
+    if trait_id == "Senior" then
+        self.city:AddToLabel("Senior", self)
+    end
+    return Orig_Tremualin_Colonist_AddTrait(self, trait_id, ...)
+end
+
 -- Remove the Senior and Child label from city
 -- Makes iterating and counting seniors and children easier
-local orig_Colonist_RemoveFromLabels = Colonist.RemoveFromLabels
+local Orig_Tremualin_Colonist_RemoveFromLabels = Colonist.RemoveFromLabels
 function Colonist:RemoveFromLabels()
-    orig_Colonist_RemoveFromLabels(self)
+    Orig_Tremualin_Colonist_RemoveFromLabels(self)
     self.city:RemoveFromLabel("Senior", self)
     self.city:RemoveFromLabel("Child", self)
 end

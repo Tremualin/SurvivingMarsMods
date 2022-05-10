@@ -19,9 +19,9 @@ local function FindAllOtherColonistsInSameResidence(colonist, filter)
     local residence = colonist.residence
     local colonists_in_same_residence = {}
     if residence and residence.colonists then
-        colonists_in_same_residence = table.copy(residence.colonists)
+        colonists_in_same_residence = residence.colonists
     elseif dome and dome.labels.Homeless then
-        colonists_in_same_residence = table.copy(dome.labels.Homeless)
+        colonists_in_same_residence = dome.labels.Homeless
     end
     local filtered_colonists = {}
     for i = #colonists_in_same_residence, 1, -1 do

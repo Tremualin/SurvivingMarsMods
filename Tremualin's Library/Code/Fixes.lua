@@ -59,9 +59,9 @@ OnMsg.ClassesPostprocess = FixSpawnColonistDescription
 function FixNilAddTrait()
     -- Prevents nil traits from causing errors
     local Tremualin_Orig_Colonist_AddTrait = Colonist.AddTrait
-    function Colonist:AddTrait(trait_id, init)
+    function Colonist:AddTrait(trait_id, ...)
         if trait_id then
-            return Tremualin_Orig_Colonist_AddTrait(self, trait_id, init)
+            return Tremualin_Orig_Colonist_AddTrait(self, trait_id, ...)
         end -- if trait_id
     end
 end -- function FixAddNilTrait
@@ -86,3 +86,16 @@ end
 
 -- If you enable this, your log will explode with information
 --DebugClass(g_Classes.Colonist)
+
+-- Trade Rockets, Foreign Trade Rockets and Tourist Rockets are automatically unpinned
+--local Orig_Tremualin_RocketBase_ShouldBePinned = RocketBase.ShouldBePinned
+--function RocketBase:ShouldBePinned(...)
+--    if self:IsKindOf("ForeignTradeRocket") or self.AT_enabled or self.TradeAmount then
+--        self:SetPinned(false)
+--        return false
+--    end
+--    return Orig_Tremualin_RocketBase_ShouldBePinned(self, ...)
+--end
+
+--function CursorBuilding:InitHexRanges()
+--end
