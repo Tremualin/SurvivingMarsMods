@@ -20,7 +20,7 @@ function OnMsg.ClassesPostprocess()
     function Colonist:Rest()
         local orig = Tremualin_Orig_Colonist_Rest(self)
         -- ProjectMorpheus grants even more positive traits
-        local wonder = self.city.labels.ProjectMorpheus or empty_table
+        local wonder = UIColony.city_labels.labels.ProjectMorpheus or empty_table
         if not self.traits.Child and #wonder > 0 and wonder[1].working then
             local count = 0
             for id, _ in pairs(self.traits) do
