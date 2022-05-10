@@ -22,11 +22,13 @@ PlaceObj('ModItemEntity', {
 	'import', "Entities/SignAccidented.ent",
 }),
 PlaceObj('ModItemTraitPreset', {
-	apply_func = function (colonist, trait)
+	apply_func = 
+function (colonist, trait)
             colonist:RetrainBasedOnImpairments()
 end,
 	category = "other",
-	daily_update_func = function (colonist, trait)
+	daily_update_func = 
+function (colonist, trait)
             colonist:RetrainBasedOnImpairments()
 end,
 	description = T(630404482146, --[[ModItemTraitPreset IntellectuallyImpaired description]] "Discouraged from working as a Scientist, Officer or Medic."),
@@ -39,11 +41,13 @@ end,
 	weight = 50,
 }),
 PlaceObj('ModItemTraitPreset', {
-	apply_func = function (colonist, trait)
+	apply_func = 
+function (colonist, trait)
             colonist:RetrainBasedOnImpairments()
 end,
 	category = "other",
-	daily_update_func = function (colonist, trait)
+	daily_update_func = 
+function (colonist, trait)
             colonist:RetrainBasedOnImpairments()
 end,
 	description = T(740962527296, --[[ModItemTraitPreset PhysicallyImpaired description]] "Discouraged from working as an Engineer, Geologist, Officer, or in Ranches."),
@@ -58,7 +62,8 @@ end,
 }),
 PlaceObj('ModItemTraitPreset', {
 	category = "other",
-	daily_update_func = function (colonist, trait)
+	daily_update_func = 
+function (colonist, trait)
             local residence = colonist.residence
             if not residence or residence.service_comfort < 65 * const.Scale.Stat then
                 colonist:ChangeSanity(-5 * const.Scale.Stat, "My residence is inadequate for my impairment (Sensory Impaired) ")

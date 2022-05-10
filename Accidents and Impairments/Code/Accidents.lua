@@ -84,11 +84,10 @@ end
 -- Randomly applies accidents and injuries to all workers
 local function GenerateAccidentsAndInjuries(workshift)
     -- Sleep to prevent lag on large colonies
-    Sleep(2000)
     for i, bld in ipairs(UIColony.city_labels.labels.Workplace or empty_table) do
         if IsValid(bld) then
             local AccidentOrInjuryFunction
-            if bld.specialist or (bld.IsKindOf and (bld:IsKindOf("InsidePasture") or bld:IsKindOf("OpenPasture"))) then
+            if bld.specialist ~= "none" or (bld.IsKindOf and (bld:IsKindOf("InsidePasture") or bld:IsKindOf("OpenPasture"))) then
                 AccidentOrInjuryFunction = TryGenerateAccident
             else
                 AccidentOrInjuryFunction = TryGenerateInjury
@@ -105,29 +104,29 @@ end -- function GenerateAccidentsAndInjuries
 GlobalVar("Tremualin_AccidentsThread", false)
 function OnMsg.NewWorkshift(workshift)
     DeleteThread(Tremualin_AccidentsThread)
-    Tremualin_AccidentsThread = CreateGameTimeThread(GenerateAccidentsAndInjuries, workshift)
+    Tremualin_AccidentsThread = CreateRealTimeThread(GenerateAccidentsAndInjuries, workshift)
 end -- function OnMsg.NewWorkshift
 
 local function InitializeAccidentsLog(dome)
-    dome.Tremualin_Accidents_Log = {}
+    dome.Tremualin_Accidents_Log = dome.Tremualin_Accidents_Log or {}
     for _, impairment in pairs(impairments_list) do
-        dome.Tremualin_Accidents_Log[impairment] = 0
+        dome.Tremualin_Accidents_Log[impairment] = dome.Tremualin_Accidents_Log[impairment] or 0
     end
-    dome.Tremualin_Accidents_Log["Injuries"] = 0
-    dome.Tremualin_Accidents_Log["Fatal"] = 0
+    dome.Tremualin_Accidents_Log["Injuries"] = dome.Tremualin_Accidents_Log["Injuries"] or 0
+    dome.Tremualin_Accidents_Log["Fatal"] = dome.Tremualin_Accidents_Log["Fatal"] or 0
 end
 
 -- Initialize the lifetime logs
 function OnMsg.ClassesGenerate()
-    local Tremualin_Orign_Dome_Init = Dome.Init
+    local Tremualin_Origin_Dome_Init = Dome.Init
     function Dome:Init()
-        Tremualin_Orign_Dome_Init(self)
-        self.Tremualin_Accidents_Log = {}
+        Tremualin_Origin_Dome_Init(self)
+        InitializeAccidentsLog(self)
     end
 end
 
-function SavegameFixups.InitializeAccidentsLog()
-    MapForEach("map", "Dome", InitializeAccidentsLog)
+function SavegameFixups.FixInitializeAccidentsLog()
+    table.foreach_value(UIColony.city_labels.labels.Dome or empty_table, InitializeAccidentsLog)
 end
 
 -- Add the new death reason so it appears on the UI
