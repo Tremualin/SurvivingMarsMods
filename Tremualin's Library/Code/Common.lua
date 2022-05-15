@@ -281,6 +281,29 @@ local function IsInAnAsteroid(object)
     return ObjectIsInEnvironment(object, "Asteroid")
 end
 
+local function FindAllTemplatesForNames(templateNames)
+    local templates = {}
+    for _, templateName in pairs(templateNames) do
+        table.insert(templates, BuildingTemplates[templateName])
+        table.insert(templates, ClassTemplates.Building[templateName])
+    end
+    return templates
+end
+
+local function AddFactorToTerraformingPresetIfNotDefinedAlready(preset, newFactor)
+    if not preset.Factors then preset.Factors = {} end
+    local alreadyDefined = false
+    for _, factor in ipairs(preset.Factors or empty_table) do
+        if factor.Id == newFactor.Id then
+            alreadyDefined = true
+            break
+        end
+    end
+    if not alreadyDefined then
+        table.insert(preset.Factors, 1, newFactor)
+    end
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -305,5 +328,7 @@ Tremualin.Functions.HasMedicalSpireOrHospital = HasMedicalSpireOrHospital
 Tremualin.Functions.HasWorkingMedicalBuilding = HasWorkingMedicalBuilding
 Tremualin.Functions.AddIncompatibleTraits = AddIncompatibleTraits
 Tremualin.Functions.IsInAnAsteroid = IsInAnAsteroid
+Tremualin.Functions.FindAllTemplatesForNames = FindAllTemplatesForNames
+Tremualin.Functions.AddFactorToTerraformingPresetIfNotDefinedAlready = AddFactorToTerraformingPresetIfNotDefinedAlready
 
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations
