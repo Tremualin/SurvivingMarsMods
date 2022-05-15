@@ -3,8 +3,8 @@ Tremualin.Debugging.SeniorsWellBeing = false
 local functions = Tremualin.Functions
 local stat_scale = const.Scale.Stat
 
-local seniorWellbeingNegativeMoraleChangePerAge = {Youth = 10, Adult = 20, ['Middle Aged'] = 30}
-local seniorWellbeingPositiveMoraleChangePerAge = {Youth = 5, Adult = 5, ['Middle Aged'] = 15}
+local seniorWellbeingNegativeMoraleChangePerAge = {Child = 0, Senior = 0, Youth = 10, Adult = 20, ['Middle Aged'] = 30}
+local seniorWellbeingPositiveMoraleChangePerAge = {Child = 0, Senior = 0, Youth = 5, Adult = 5, ['Middle Aged'] = 15}
 
 local function TableConcat(t1, t2)
     for i = 1, #t2 do
@@ -55,10 +55,10 @@ end
 -- If Seniors are doing bad, everyone is a little unhappier
 -- The closer one is to becoming a Senior, the more this matters
 -- Unlike comfort, sanity and health, morale resets to base and recalculates from there
-local orig_Colonist_UpdateMorale = Colonist.UpdateMorale
+local Tremualin_Orig_Colonist_UpdateMorale = Colonist.UpdateMorale
 function Colonist:UpdateMorale()
-    orig_Colonist_UpdateMorale(self)
-    if self:IsDead() then
+    Tremualin_Orig_Colonist_UpdateMorale(self)
+    if not IsValid(self) or self:IsDead() then
         return
     end
     local seniors_wellbeing_result = g_Tremualin_Seniors_Wellbeing_Result
@@ -81,9 +81,9 @@ end
 
 -- Senior well being matters, UI update
 -- Since the Morale UI is pretty much hard-coded, I have to update the text
-local orig_Colonist_UiStatUpdate = Colonist.UIStatUpdate
+local Tremualin_Orig_Colonist_UiStatUpdate = Colonist.UIStatUpdate
 function Colonist:UIStatUpdate(win, stat)
-    orig_Colonist_UiStatUpdate(self, win, stat)
+    Tremualin_Orig_Colonist_UiStatUpdate(self, win, stat)
     local orig_win_GetRolloverText = win.GetRolloverText
     win.GetRolloverText = function(self)
         local texts = orig_win_GetRolloverText(self)

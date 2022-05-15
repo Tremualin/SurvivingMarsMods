@@ -11,8 +11,8 @@ local trait_defs = TraitPresets
 -- Violent added for compatibility with Crime and Vindication
 -- Anxious, Argumentative, Mean and Paranoid added for compatibility with Trait Galore
 local flaws_removed_by_senior_traits = {Anxious = {'Composed'}, Argumentative = {'Listener'}, Paranoid = {'Composed'}, Mean = {'Kind'}, Violent = {'Vindicated'}, Coward = {'Composed', 'Survivor'}, Renegade = {'Empath', 'Saint'}, Melancholic = {'Enthusiast'}, Glutton = {'Fit'}, Gambler = {'Fickle', 'Gamer'}, Idiot = {'Mentor', 'Fixer', 'Genius'}, Hypochondriac = {'Nerd'}, Loner = {'Party Animal'}, Alcoholic = {'Religious'}, Whiner = {'Brawler', 'Rugged'}, Lazy = {'Thrifty', 'Workaholic'}}
-local flaw_removed_chance_multipliers_per_age = {Youth = 4, Adult = 2, ['Middle Aged'] = 1}
-local flaw_removed_max_change_per_age = {Youth = 16, Adult = 10, ['Middle Aged'] = 5}
+local flaw_removed_chance_multipliers_per_age = {Child = 0, Senior = 0, Youth = 4, Adult = 2, ['Middle Aged'] = 1}
+local flaw_removed_max_change_per_age = {Child = 0, Senior = 0, Youth = 16, Adult = 10, ['Middle Aged'] = 5}
 local flaw_removed_message = "Senior citizen talked some sense into me (%s was removed) "
 local flaw_removed_sanity_gain = 10 * stat_scale
 
@@ -71,8 +71,8 @@ local function ShareCautionaryTales(colonist)
     local traits = colonist.traits
     if not traits.Child and not traits.Senior and functions.GetSeniorCount(dome) > 0 then
         local ageTrait = colonist.age_trait
-        local chanceMultiplier = flaw_removed_chance_multipliers_per_age[ageTrait]
-        local maxChance = flaw_removed_max_change_per_age[ageTrait]
+        local chanceMultiplier = flaw_removed_chance_multipliers_per_age[ageTrait] or 1
+        local maxChance = flaw_removed_max_change_per_age[ageTrait] or 5
         for negativeTraitId, _ in pairs(traits) do
             local perks = flaws_removed_by_senior_traits[negativeTraitId]
             if perks then
@@ -188,14 +188,13 @@ local function SeniorsBecomeRoleModels(colonist)
 end
 
 -- Activate all the senior effects during the colonist daily update
-local orig_Colonist_DailyUpdate = Colonist.DailyUpdate
+local Tremualin_Orig_Colonist_DailyUpdate = Colonist.DailyUpdate
 function Colonist:DailyUpdate()
-    if self.traits.Tourist then
-        -- tourists literally live in their own world, they don't care about Martian affairs
-    else
+    -- tourists literally live in their own world, they don't care about Martian affairs
+    if IsValid(self) and not self:IsDead() and not self.traits.Tourist then
         SeniorsBecomeRoleModels(self)
         SeniorsHelpOtherSeniors(self)
         ShareCautionaryTales(self)
     end
-    orig_Colonist_DailyUpdate(self)
+    Tremualin_Orig_Colonist_DailyUpdate(self)
 end
