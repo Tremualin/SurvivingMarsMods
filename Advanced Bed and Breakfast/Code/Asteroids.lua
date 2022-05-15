@@ -153,9 +153,12 @@ local function AddConvertToAsteroidLandingPadButton()
         "Icon", "UI/Icons/IPButtons/build.tga"
     })
 
-    local template = XTemplates.customTradePad
-    ui_functions.RemoveXTemplateSections(template, CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID)
-    table.insert(template, #template + 1, converToAsteroidLandingPadButton)
+    local template
+    if IsDlcAvailable("gagarin") then
+        template = XTemplates.customTradePad
+        ui_functions.RemoveXTemplateSections(template, CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID)
+        table.insert(template, #template + 1, converToAsteroidLandingPadButton)
+    end
 
     template = XTemplates.customLandingPad
     ui_functions.RemoveXTemplateSections(template, CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID)
@@ -340,4 +343,28 @@ function OnMsg.ClassesPostprocess()
             Orig_Tremualin_RocketBase_WaitLaunchOrder(self)
         end
     end
+end
+
+-- Required by LandingPad:HasRocket()
+local rocket_on_gnd_cmd = {
+    LandOnMars = true,
+    Unload = true,
+    Refuel = true,
+    WaitLaunchOrder = true,
+    Countdown = true,
+    Takeoff = true,
+    ExpeditionRefuelAndLoad = true
+}
+-- The only change in this function is MainCity instead of UICity
+function LandingPad:HasRocket()
+    if self.rocket_construction then
+        return self.rocket_construction
+    end
+    local rockets = self.city.labels.AllRockets or empty_table
+    for _, rocket in ipairs(rockets) do
+        if rocket.landing_site and rocket.landing_site.landing_pad == self and (rocket_on_gnd_cmd[rocket.command] or rocket:IsLandAutomated()) then
+            return true, rocket
+        end
+    end
+    return false
 end
