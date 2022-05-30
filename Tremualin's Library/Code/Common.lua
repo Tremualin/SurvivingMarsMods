@@ -281,6 +281,14 @@ local function IsInAnAsteroid(object)
     return ObjectIsInEnvironment(object, "Asteroid")
 end
 
+local function IsAsteroidCity(city)
+    if IsKindOf(city, "City") then
+        local map_id = city:GetMapID()
+        return map_id ~= UIColony.underground_map_id and map_id ~= UIColony.surface_map_id
+    end
+    return false
+end
+
 local function FindAllTemplatesForNames(templateNames)
     local templates = {}
     for _, templateName in pairs(templateNames) do
@@ -302,6 +310,10 @@ local function AddFactorToTerraformingPresetIfNotDefinedAlready(preset, newFacto
     if not alreadyDefined then
         table.insert(preset.Factors, 1, newFactor)
     end
+end
+
+local function GetSpaceMirrorsCount()
+    return g_SpecialProjectCompleted and g_SpecialProjectCompleted.LaunchSpaceMirror or 0
 end
 
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
@@ -328,7 +340,9 @@ Tremualin.Functions.HasMedicalSpireOrHospital = HasMedicalSpireOrHospital
 Tremualin.Functions.HasWorkingMedicalBuilding = HasWorkingMedicalBuilding
 Tremualin.Functions.AddIncompatibleTraits = AddIncompatibleTraits
 Tremualin.Functions.IsInAnAsteroid = IsInAnAsteroid
+Tremualin.Functions.IsAsteroidCity = IsAsteroidCity
 Tremualin.Functions.FindAllTemplatesForNames = FindAllTemplatesForNames
 Tremualin.Functions.AddFactorToTerraformingPresetIfNotDefinedAlready = AddFactorToTerraformingPresetIfNotDefinedAlready
+Tremualin.Functions.GetSpaceMirrorsCount = GetSpaceMirrorsCount
 
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations

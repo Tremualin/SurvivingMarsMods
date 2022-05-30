@@ -67,35 +67,3 @@ function FixNilAddTrait()
 end -- function FixAddNilTrait
 
 OnMsg.ClassesGenerate = FixNilAddTrait
-
-local function DebugClass(class)
-    local replaced = {}
-    for i, v in pairs(class) do
-        if type(v) == "function" then
-            replaced[i] = function(...)
-                print(v)
-                FlushLogFile()
-                return v(...)
-            end
-        end
-    end
-    for i, v in pairs(replaced) do
-        class[i] = replaced[i]
-    end
-end
-
--- If you enable this, your log will explode with information
---DebugClass(g_Classes.Colonist)
-
--- Trade Rockets, Foreign Trade Rockets and Tourist Rockets are automatically unpinned
---local Orig_Tremualin_RocketBase_ShouldBePinned = RocketBase.ShouldBePinned
---function RocketBase:ShouldBePinned(...)
---    if self:IsKindOf("ForeignTradeRocket") or self.AT_enabled or self.TradeAmount then
---        self:SetPinned(false)
---        return false
---    end
---    return Orig_Tremualin_RocketBase_ShouldBePinned(self, ...)
---end
-
---function CursorBuilding:InitHexRanges()
---end

@@ -9,10 +9,10 @@ return PlaceObj('ModDef', {
 	'pops_any_uuid', "c6935ae7-5714-41c2-a503-54a162e3d0fb",
 	'author', "Tremualin",
 	'version_major', 1,
-	'version_minor', 13,
-	'version', 76,
+	'version_minor', 14,
+	'version', 79,
 	'lua_revision', 1009413,
-	'saved_with_revision', 1011140,
+	'saved_with_revision', 1011166,
 	'code', {
 		"Code/Common.lua",
 		"Code/CommonUI.lua",
@@ -20,7 +20,7 @@ return PlaceObj('ModDef', {
 		"Code/Labels.lua",
 		"Code/Fixes.lua",
 	},
-	'saved', 1652160297,
+	'saved', 1653893959,
 	'screenshot1', "PrintVisitDurations.jpg",
 	'TagOther', true,
 })

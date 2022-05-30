@@ -8,6 +8,14 @@ local function RemoveXTemplateSections(list, name)
     end
 end
 
+local function RemoveXTemplateSectionsById(list, id)
+    local idx = table.find(list, "id", id)
+    if idx then
+        list[idx]:delete()
+        table.remove(list, idx)
+    end
+end
+
 local function FindSectionIndexAfterExistingIfPossible(baseSection, existsSectionId)
     for index, section in pairs(baseSection) do
         if section[existsSectionId] then
@@ -27,6 +35,7 @@ local function FindSectionIndexBeforeExistingIfPossible(baseSection, existsSecti
 end
 
 Tremualin.UIFunctions.RemoveXTemplateSections = RemoveXTemplateSections
+Tremualin.UIFunctions.RemoveXTemplateSectionsById = RemoveXTemplateSectionsById
 Tremualin.UIFunctions.FindSectionIndexAfterExistingIfPossible = FindSectionIndexAfterExistingIfPossible
 Tremualin.UIFunctions.FindSectionIndexBeforeExistingIfPossible = FindSectionIndexBeforeExistingIfPossible
 

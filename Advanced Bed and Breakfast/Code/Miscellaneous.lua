@@ -1,49 +1,25 @@
-local function SignalBoostersEffect(object)
-    if object.work_radius then
-        return object.work_radius + (UIColony:IsTechResearched("SignalBoosters") and const.SignalBoostersBuff or 0)
-    end
-    print("This object has no work radius", object)
-    return 0
-end
-
--- Apply Signal Boosters to Rockets
-function RocketBase:GetSelectionRadiusScale()
-    return SignalBoostersEffect(self)
-end
-
--- Apply Signal Boosters to RCCommanders
-function RCRover:GetSelectionRadiusScale()
-    if WorkRadiusShownForRover[self] then
-        return SignalBoostersEffect(self)
-    else
-        -- Attack Rovers and other Rovers with hidden areas
-        return 0
-    end
-end
-
--- Apply Signal Boosters to RCCommanders
-function Elevator:GetSelectionRadiusScale()
-    return SignalBoostersEffect(self)
-end
-
 -- Modify Signal Boosters description and update range of Rockets, RCRovers and Elevators when discovered
 local function AdvancedSignalBoosters()
     local tech = Presets.TechPreset.ReconAndExpansion["SignalBoosters"]
     local modified = tech.Tremualin_AdvancedSignalBoosters
 
-    local function BoostSignals(objects)
+    local function BoostSignals(objects, service_area_max)
         local objects = objects or empty_table
         for _, object in ipairs(objects) do
-            object:SetUIWorkRadius(object.base_work_radius)
+            object.service_area_max = service_area_max
+            object:SetUIWorkRadius(object.service_area_max)
         end
     end
 
     if not modified then
         local modifyRadiusOnDiscovery = PlaceObj("Effect_Code", {
             OnApplyEffect = function(self, colony, parent)
-                BoostSignals(colony.city_labels.labels.Elevator)
-                BoostSignals(colony.city_labels.labels.RCRoverAndChildren)
-                BoostSignals(colony.city_labels.labels.AllRockets)
+                Elevator.service_area_max = const.CommandCenterDefaultRadius + const.SignalBoostersBuff
+                RCRover.service_area_max = const.RCRoverMaxRadius + const.SignalBoostersBuff
+                RocketBase.service_area_max = const.CommandCenterDefaultRadius + const.SignalBoostersBuff
+                BoostSignals(colony.city_labels.labels.Elevator, Elevator.service_area_max)
+                BoostSignals(colony.city_labels.labels.RCRoverAndChildren, RCRover.service_area_max)
+                BoostSignals(colony.city_labels.labels.AllRockets, RocketBase.service_area_max)
             end
         })
 
@@ -62,7 +38,7 @@ OnMsg.CityStart = AdvancedSignalBoosters
 OnMsg.LoadGame = AdvancedSignalBoosters
 
 -- Accidentally applied the signal booster effect too many times before; let's start over
-function SavegameFixups.TremualinFixSignalBoosters()
+function SavegameFixups.TremualinFixSignalBoosters2()
     Presets.TechPreset.ReconAndExpansion["SignalBoosters"].Tremualin_AdvancedSignalBoosters = false
 end
 
@@ -101,11 +77,32 @@ function Colonist:Abandoned()
     Orig_Tremualin_Colonist_Abandoned(self)
 end
 
+local function RemoveFromLabelsInAnotherCity(colonist, city)
+    city:RemoveFromLabel(colonist.gender == "OtherGender" and "ColonistOther" or colonist.gender == "Male" and "ColonistMale" or "ColonistFemale", colonist)
+    city:RemoveFromLabel("Colonist", colonist)
+    city:RemoveFromLabel(colonist.specialist, colonist)
+    city:RemoveFromLabel("Homeless", colonist)
+    city:RemoveFromLabel("Unemployed", colonist)
+    city:RemoveFromLabel("Senior", colonist)
+    city:RemoveFromLabel("Child", colonist)
+    for _, dome in pairs(city.labels.Dome or empty_table) do
+        if IsValid(dome) then
+            dome:RemoveFromLabel("Colonist", colonist)
+            dome:RemoveFromLabel("Homeless", colonist)
+            dome:RemoveFromLabel("Unemployed", colonist)
+        end
+        for trait_id, _ in pairs(colonist.traits) do
+            if IsValid(dome) then
+                dome:RemoveFromLabel(trait_id, colonist)
+            end
+        end
+    end
+end
+
 -- Colonists who are on a dome on one city but also appear on another city will be removed from the wrong city
-local function FixColonistsInWrongCity()
+local function FixColonistsInWrongCity(colonists)
     if removeColonistsFromWrongMap then
-        local colonists = UIColony.city_labels.labels.Colonist or empty_table
-        for _, colonist in ipairs(colonists) do
+        for _, colonist in pairs(colonists) do
             local city = colonist.city
             local dome = colonist.dome
             if city and dome and dome:GetMapID() ~= city:GetMapID() then
@@ -116,9 +113,24 @@ local function FixColonistsInWrongCity()
                 colonist:SetDome(false)
                 colonist:SetDome(dome)
             end
+            if city then
+                for _, anotherCity in pairs(Cities) do
+                    if anotherCity:GetMapID() ~= city:GetMapID() then
+                        RemoveFromLabelsInAnotherCity(colonist, anotherCity)
+                    end
+                end
+            end
             colonist:AddToLabels()
         end
     end
 end
 
-OnMsg.LoadGame = FixColonistsInWrongCity
+local function FixAllPossibleColonistsInWrongCity()
+    FixColonistsInWrongCity(UIColony.city_labels.labels.Colonist or empty_table)
+    for _, city in pairs(Cities) do
+        FixColonistsInWrongCity(city.labels.Homeless or empty_table)
+        FixColonistsInWrongCity(city.labels.Unemployed or empty_table)
+    end
+end
+
+OnMsg.LoadGame = FixAllPossibleColonistsInWrongCity
