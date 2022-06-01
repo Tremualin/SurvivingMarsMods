@@ -1,3 +1,5 @@
+-- This entire file makes Vegetation required for Dust Storms to stop
+-- 0% Atmosphere is required for Dust Storms to Stop.
 local function ChangeDustStormStopForAtmosphere(preset)
     for key, threshold in ipairs(preset.Threshold or empty_table) do
         if threshold.Id == "DustStormStop" then
@@ -7,6 +9,7 @@ local function ChangeDustStormStopForAtmosphere(preset)
     end
 end
 
+-- 30% Vegetation stops Dust Storms
 local function ChangeDustStormStopForVegetation(preset)
     local dustStormStopDefined = false
     for key, threshold in ipairs(preset.Threshold or empty_table) do
@@ -24,6 +27,7 @@ local function ChangeDustStormStopForVegetation(preset)
     end
 end
 
+-- 50% Vegetation is required for Open Domes
 local function ChangeAtmosphereBreathableForVegetation(preset)
     local atmosphereBreathableDefined = false
     for key, threshold in ipairs(preset.Threshold or empty_table) do
@@ -41,24 +45,19 @@ local function ChangeAtmosphereBreathableForVegetation(preset)
     end
 end
 
--- A vegetation of 30% is now necessary to stop dust storms
--- Also adds 30% to breathable atmosphere; we don't want dust storms on our open domes
 local function DustStormsVegetationRequired()
-    for _, preset in ipairs(Presets.TerraformingParam.Default or empty_table) do
-        if preset.id == "Atmosphere" then
-            ChangeDustStormStopForAtmosphere(preset)
-        end
-        if preset.id == "Vegetation" then
-            ChangeDustStormStopForVegetation(preset)
-            ChangeAtmosphereBreathableForVegetation(preset)
-        end
-    end
+    ChangeDustStormStopForAtmosphere(Presets.TerraformingParam.Default.Atmosphere)
+    local vegetation = Presets.TerraformingParam.Default.Vegetation
+    ChangeDustStormStopForVegetation(vegetation)
+    ChangeAtmosphereBreathableForVegetation(vegetation)
 end
 
 OnMsg.LoadGame = DustStormsVegetationRequired
 OnMsg.CityStart = DustStormsVegetationRequired
 
 -- necessary because these settings are hard-coded in the game
+-- and I needed to make MapSettings_DustStorm.param=Vegetation
+-- and MapSettings_DustDevils.param=Vegetation
 local disaster_terraforming_params = {
     MapSettings_Meteor = {
         param = "Atmosphere",

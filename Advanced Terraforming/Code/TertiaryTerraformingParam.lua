@@ -12,16 +12,6 @@ DefineClass.TertiaryTerraformingParam = {
             editor = "choice",
             default = "",
         items = PresetsCombo("TerraformingParam")},
-        {
-            template = true,
-            category = "Terraforming",
-            name = Untranslated("Tertiary Terraforming Boost (%/sol)"),
-            id = "tertiary_terraforming_boost_sol",
-            editor = "number",
-            default = 0,
-            scale = "Terraforming",
-            modifiable = true
-        },
     },
     building_update_time = const.HourDuration,
 }
@@ -35,8 +25,9 @@ function TertiaryTerraformingParam:GetTertiaryTerraformingProgress()
     -- Original method works for any param; just give it the right one
     return Clamp(Terraforming[self.tertiary_terraforming_param], 0, MaxTerraformingValue)
 end
+-- Value should scale with terraforming_boost_sol (so all modifiers which affect it also affect secondary values)
 function TertiaryTerraformingParam:GetTertiaryTerraformingBoostSol()
-    return self.tertiary_terraforming_boost_sol
+    return self.terraforming_boost_sol
 end
 function TertiaryTerraformingParam:GetTertiaryTerraformingBoost(delta)
     if not self:IsTerraformingActive() then
@@ -73,4 +64,41 @@ function GetTerraformingBoostSum(terraforming_param)
         end
     end
     return sum + Orig_Tremualin_GetTerraformingBoostSum(terraforming_param)
+end
+
+function TertiaryTerraformingParam:GetTertiaryParameterInfoPanelIconName()
+    return self.tertiary_terraforming_param .. const.TerraformingParamSuffix
+end
+
+function TertiaryTerraformingParam:GetTertiaryTerraformingProgress()
+    return Clamp(Terraforming[self.tertiary_terraforming_param], 0, MaxTerraformingValue)
+end
+
+local RemoveXTemplateSectionsById = Tremualin.UIFunctions.RemoveXTemplateSectionsById
+local TERTIARY_TERRAFORMING_SECTION_ID = "Tremualin_sectionTertiaryTerraforming"
+function OnMsg.ClassesPostprocess()
+    RemoveXTemplateSectionsById(XTemplates, TERTIARY_TERRAFORMING_SECTION_ID)
+    PlaceObj("XTemplate", {
+        group = "Infopanel Sections",
+        id = TERTIARY_TERRAFORMING_SECTION_ID,
+        save_in = "armstrong",
+        PlaceObj("XTemplateTemplate", {
+            "__context_of_kind", "TertiaryTerraformingParam",
+            "__template", "InfopanelText",
+        "Text", Untranslated("Change per sol<right><resource(TertiaryTerraformingBoostSol,TertiaryParameterInfoPanelIconName)>")}),
+        PlaceObj("XTemplateTemplate", {
+            "__context_of_kind", "TertiaryTerraformingParam",
+            "__template", "InfopanelText",
+        "Text", Untranslated("From all working buildings<right><resource(TertiaryTerraformingBoostSum,TertiaryParameterInfoPanelIconName)>")}),
+        PlaceObj("XTemplateTemplate", {
+            "__context_of_kind", "TertiaryTerraformingParam",
+            "__template", "InfopanelText",
+        "Text", Untranslated("Current progress<right><resource(TertiaryTerraformingProgress,TertiaryParameterInfoPanelIconName)>")});
+    });
+
+    RemoveXTemplateSectionsById(XTemplates.sectionTerraforming[1], TERTIARY_TERRAFORMING_SECTION_ID)
+    table.insert(XTemplates.sectionTerraforming[1], PlaceObj('XTemplateTemplate', {
+        '__template', TERTIARY_TERRAFORMING_SECTION_ID,
+        "id", TERTIARY_TERRAFORMING_SECTION_ID
+    }))
 end
