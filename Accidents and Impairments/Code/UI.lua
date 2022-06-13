@@ -15,7 +15,7 @@ function OnMsg.ClassesPostprocess()
         return self.status_effects.StatusEffect_TemporarilyImpaired or Tremualin_Orig_Colonist_IsTemporaryIll(self)
     end -- function Colonist:IsTemporaryIll
 
-    if PopupNotificationPreset.FirstStatusEffect_Tremualin_Accident then
+    if PopupNotificationPresets.FirstStatusEffect_Tremualin_Accident then
         return
     end
 

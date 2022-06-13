@@ -38,6 +38,11 @@ This mod modifies Community:CalcBirths; but it returns the original when births 
             'title', "Fix Emigration Issues",
         }),
         PlaceObj('ModDependency', {
+            'id', "qtdif4S",
+            'title', "Incubator",
+            'required', false
+        }),
+        PlaceObj('ModDependency', {
             'id', "Tremualin_Library",
             'title', "Tremualin's Library",
         }),

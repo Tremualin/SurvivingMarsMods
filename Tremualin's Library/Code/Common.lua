@@ -75,7 +75,8 @@ end
 local function TraitsByCategory(traits)
     local traits_by_category = {
         Positive = 0,
-        Negative = 0
+        Negative = 0,
+        other = 0
     }
     for trait_id, _ in pairs(traits) do
         if not IsNoneTrait(trait_id) then
@@ -152,7 +153,7 @@ local function TemporarilyModifyProperty(prop_to_modify, object_to_modify, unsca
     -- Prevents the same thread from being assigned to the same modifier id again
     object_to_modify.Tremualin_Threads = object_to_modify.Tremualin_Threads or empty_table
     if IsValidThread(object_to_modify.Tremualin_Threads[modifier_id]) then
-        DeleteThread(temporarilyModifyMorale.Tremualin_Threads[modifier_id])
+        DeleteThread(object_to_modify.Tremualin_Threads[modifier_id])
     end
     object_to_modify:SetModifier(prop_to_modify, modifier_id, amount, percent, T({
         11887,

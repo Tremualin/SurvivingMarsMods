@@ -248,7 +248,7 @@ function AddWildfires()
     if not Presets.POI.Default.Tremualin_WildfireDisaster then
         PlaceObj("POI", {
             PrerequisiteToCreate = function(self)
-                return GetTerraformParamPct("Atmosphere") > 50 and GetTerraformParamPct("Temperature") > 50 and GetTerraformParamPct("Water") < 120
+                return GetTerraformParamPct("Atmosphere") > 50 and GetTerraformParamPct("Temperature") > 50 and GetTerraformParamPct("Water") < 80
             end,
             description = Untranslated("Wildfires consume 0.3% Vegetation per sol until put out. Our Rocket will drop concrete around the area to limit the spread of the fire."),
             display_icon = CurrentModPath .. "UI/wildfire.dds",

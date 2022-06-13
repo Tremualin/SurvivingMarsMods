@@ -11,26 +11,25 @@ local function AdvancedSignalBoosters()
         end
     end
 
-    if not modified then
-        local modifyRadiusOnDiscovery = PlaceObj("Effect_Code", {
-            OnApplyEffect = function(self, colony, parent)
-                Elevator.service_area_max = const.CommandCenterDefaultRadius + const.SignalBoostersBuff
-                RCRover.service_area_max = const.RCRoverMaxRadius + const.SignalBoostersBuff
-                RocketBase.service_area_max = const.CommandCenterDefaultRadius + const.SignalBoostersBuff
-                BoostSignals(colony.city_labels.labels.Elevator, Elevator.service_area_max)
-                BoostSignals(colony.city_labels.labels.RCRoverAndChildren, RCRover.service_area_max)
-                BoostSignals(colony.city_labels.labels.AllRockets, RocketBase.service_area_max)
-            end
-        })
+    local modifyRadiusOnDiscovery = PlaceObj("Effect_Code", {
+        OnApplyEffect = function(self, colony, parent)
+            Elevator.service_area_max = const.CommandCenterDefaultRadius + const.SignalBoostersBuff
+            RCRover.service_area_max = const.RCRoverMaxRadius + const.SignalBoostersBuff
+            RocketBase.service_area_max = const.CommandCenterDefaultRadius + const.SignalBoostersBuff
+            BoostSignals(colony.city_labels.labels.Elevator, Elevator.service_area_max)
+            BoostSignals(colony.city_labels.labels.RCRoverAndChildren, RCRover.service_area_max)
+            BoostSignals(colony.city_labels.labels.AllRockets, RocketBase.service_area_max)
+        end
+    })
 
+    if not modified then
         tech.description = Untranslated("Increases the service range on <em>all drone controllers</em> by <param1> hexes.\n\n<grey>\226\128\156In the new era, thought itself will be transmitted by radio.\226\128\157\n<right>Guglielmo Marconi</grey><left>")
         table.insert(tech, #tech + 1, modifyRadiusOnDiscovery)
-
         tech.Tremualin_AdvancedSignalBoosters = true
-        -- If this happens, tech was already researched; we must manually execute the effects
-        if UIColony:IsTechResearched("SignalBoosters") then
-            modifyRadiusOnDiscovery:OnApplyEffect(UIColony, nil)
-        end
+    end
+    -- We need to apply the effect every time we load; they're not permanent
+    if UIColony:IsTechResearched("SignalBoosters") then
+        modifyRadiusOnDiscovery:OnApplyEffect(UIColony, nil)
     end
 end
 

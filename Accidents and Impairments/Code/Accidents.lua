@@ -104,7 +104,7 @@ end -- function GenerateAccidentsAndInjuries
 GlobalVar("Tremualin_AccidentsThread", false)
 function OnMsg.NewWorkshift(workshift)
     DeleteThread(Tremualin_AccidentsThread)
-    Tremualin_AccidentsThread = CreateRealTimeThread(GenerateAccidentsAndInjuries, workshift)
+    Tremualin_AccidentsThread = CreateGameTimeThread(GenerateAccidentsAndInjuries, workshift)
 end -- function OnMsg.NewWorkshift
 
 local function InitializeAccidentsLog(dome)
