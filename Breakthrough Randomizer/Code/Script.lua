@@ -1,14 +1,23 @@
-Tremualin.Configuration.RandomBreakthroughChoices = 4
+local randomBreakthroughChoices
 
-local configuration = Tremualin.Configuration
+local function ModOptions(id)
+    if id and id ~= CurrentModId then
+        return
+    end
+
+    randomBreakthroughChoices = CurrentModOptions:GetProperty("BreakthroughChoices")
+end
+
+OnMsg.ModsReloaded = ModOptions
+OnMsg.ApplyModOptions = ModOptions
 
 local function GetRandomUnregisteredBreakthroughs(first_breakthrough)
     local colony = UIColony
-    local choices = configuration.RandomBreakthroughChoices
+    local choices = randomBreakthroughChoices
     local unregistered_breakthroughs = colony:GetUnregisteredBreakthroughs()
-    local random_breakthroughts = {}
+    local breakthroughs = {}
     if first_breakthrough and not colony:IsTechDiscovered(first_breakthrough.id) and colony:TechAvailableCondition(first_breakthrough) then
-        table.insert(random_breakthroughts, first_breakthrough)
+        table.insert(breakthroughs, first_breakthrough)
         for i = 1, #unregistered_breakthroughs do
             if unregistered_breakthroughs[i] == first_breakthrough.id then
                 table.remove(unregistered_breakthroughs, i)
@@ -19,9 +28,9 @@ local function GetRandomUnregisteredBreakthroughs(first_breakthrough)
     end
     StableShuffle(unregistered_breakthroughs, AsyncRand, 100)
     for i = 1, choices do
-        table.insert(random_breakthroughts, TechDef[unregistered_breakthroughs[i]])
+        table.insert(breakthroughs, TechDef[unregistered_breakthroughs[i]])
     end
-    return random_breakthroughts
+    return breakthroughs
 end
 
 local GetUUID = function()
@@ -40,7 +49,7 @@ local function ShowCherryPickingPopup(first_breakthrough, map_id, notification_t
             local params = {
                 id = GetUUID(),
                 title = Untranslated("Available Breakthroughs"),
-                text = Untranslated("Our scientists believe that the recent findings will reveal never before seen technologies. But the experts can't agree on which path to pursue. Would you kindly help them choose a possible practical application of the discovery?"),
+                text = Untranslated("Our Rover has found a specimen like none we have ever seen before. Scientists, Engineers, Botanists, Medics, Geologists and even Officers believe they can gather crucial information from the samples, and have some ideas of what we might find if we analyze them. There's a catch...the analysis will alter the specimen permanently. We might not get any more useful data from it after the experiment. As the commander of the Colony, the choice is yours to make."),
                 minimized_notification_priority = "CriticalBlue",
                 image = "UI/Messages/Events/03_discussion.tga",
                 start_minimized = false,
@@ -48,35 +57,51 @@ local function ShowCherryPickingPopup(first_breakthrough, map_id, notification_t
             }
 
             local choices = {}
-            local random_breakthroughts = GetRandomUnregisteredBreakthroughs(first_breakthrough)
-            for i, breakthrought in ipairs(random_breakthroughts) do
-                choices[i] = breakthrought
-                params["choice" .. i] = breakthrought.display_name
+            local breakthroughs = GetRandomUnregisteredBreakthroughs(first_breakthrough)
+            for i, breakthrough in ipairs(breakthroughs) do
+                choices[i] = breakthrough
+                params["choice" .. i] = breakthrough.display_name
+                params["choice" .. i .. "_rollover_title"] = "<image " .. breakthrough.icon .. " 400>" .. breakthrough.display_name
+                params["choice" .. i .. "_rollover"] = _InternalTranslate(breakthrough.description, breakthrough)
             end
-            if #random_breakthroughts > 0 then
-                local choice = choices[WaitPopupNotification(false, params)]
-                -- Is the chosen tech is already choice we had a bit of a race condition; try again
-                if colony:IsTechResearched(choice.id) then
-                    ShowCherryPickingPopup(first_breakthrough, map_id, notification_type, research_instead_of_discover)
-                    return
-                end
+            if #breakthroughs > 0 then
+                local confirmationParams = {
+                    id = GetUUID(),
+                    title = Untranslated("Are you sure?"),
+                    minimized_notification_priority = "CriticalBlue",
+                    image = "UI/Messages/Events/03_discussion.tga",
+                    start_minimized = false,
+                    dismissable = false
+                }
+                local confirmedChoice = false
+                while not confirmedChoice do
+                    local choice = choices[WaitPopupNotification(false, params)]
+                    confirmedChoice = "ok" == WaitQuestion(terminal.desktop, Untranslated("<image " .. choice.icon .. " 400>" .. choice.display_name), Untranslated("Commander, you've chosen to unlock " .. choice.display_name .. ". Are you sure about that?"), Untranslated("Yes, unlock " .. choice.display_name), Untranslated("Um, Actually...No"))
+                    if confirmedChoice then
+                        -- Is the chosen tech is already chosen we had a bit of a race condition; try again
+                        if colony:IsTechResearched(choice.id) then
+                            ShowCherryPickingPopup(first_breakthrough, map_id, notification_type, research_instead_of_discover)
+                            return
+                        end
 
-                -- Omega telescope will research instead of discover
-                if research_instead_of_discover then colony:SetTechResearched(choice.id) else colony:SetTechDiscovered(choice.id) end
-                if map_id then
-                    AddOnScreenNotification(notification_type, OpenResearchDialog, {
-                        name = choice.display_name,
-                        context = choice,
-                        rollover_title = choice.display_name,
-                        rollover_text = choice.description
-                    }, nil, map_id)
-                else
-                    AddOnScreenNotification(notification_type, OpenResearchDialog, {
-                        name = choice.display_name,
-                        context = choice,
-                        rollover_title = choice.display_name,
-                        rollover_text = choice.description
-                    })
+                        -- Omega telescope will research instead of discover
+                        if research_instead_of_discover then colony:SetTechResearched(choice.id) else colony:SetTechDiscovered(choice.id) end
+                        if map_id then
+                            AddOnScreenNotification(notification_type, OpenResearchDialog, {
+                                name = choice.display_name,
+                                context = choice,
+                                rollover_title = choice.display_name,
+                                rollover_text = choice.description
+                            }, nil, map_id)
+                        else
+                            AddOnScreenNotification(notification_type, OpenResearchDialog, {
+                                name = choice.display_name,
+                                context = choice,
+                                rollover_title = choice.display_name,
+                                rollover_text = choice.description
+                            })
+                        end
+                    end
                 end
             end
         end) -- CreateRealTimeThread
