@@ -1,9 +1,9 @@
-local ui_functions = Tremualin.UIFunctions
+local RemoveXTemplateSections = Tremualin.UIFunctions.RemoveXTemplateSections
 
 -- Initialize the removed_traits_log and lifetime cures to 0 when the Dome is built
-local orig_Dome_Init = Dome.Init
+local Tremualin_Orig_Dome_Init = Dome.Init
 function Dome:Init()
-    orig_Dome_Init(self)
+    Tremualin_Orig_Dome_Init(self)
     self.tremualin_removed_traits_log = {}
     self.tremualin_lifetime = 0
 end
@@ -34,7 +34,7 @@ end
 -- A panel that shows how many conversions have happened in the dome since it was built
 function OnMsg.ClassesPostprocess()
     local template = XTemplates.sectionDome
-    ui_functions.RemoveXTemplateSections(template, "Tremualin_SeniorsLifetime")
+    RemoveXTemplateSections(template, "Tremualin_SeniorsLifetime")
     local tremualin_SeniorsLifetime = PlaceObj("XTemplateTemplate", {
         "Tremualin_SeniorsLifetime", true,
         "__context_of_kind", "Dome",

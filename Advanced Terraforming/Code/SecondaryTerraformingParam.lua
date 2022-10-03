@@ -96,8 +96,9 @@ function OnMsg.ClassesPostprocess()
         "Text", Untranslated("Current progress<right><resource(SecondaryTerraformingProgress,SecondaryParameterInfoPanelIconName)>")});
     });
 
-    RemoveXTemplateSectionsById(XTemplates.sectionTerraforming[1], SECONDARY_TERRAFORMING_SECTION_ID)
-    table.insert(XTemplates.sectionTerraforming[1], PlaceObj('XTemplateTemplate', {
+    local sectionTerraforming = XTemplates.sectionTerraforming[1]
+    RemoveXTemplateSectionsById(sectionTerraforming, SECONDARY_TERRAFORMING_SECTION_ID)
+    table.insert(sectionTerraforming, PlaceObj('XTemplateTemplate', {
         '__template', SECONDARY_TERRAFORMING_SECTION_ID,
         "id", SECONDARY_TERRAFORMING_SECTION_ID
     }))

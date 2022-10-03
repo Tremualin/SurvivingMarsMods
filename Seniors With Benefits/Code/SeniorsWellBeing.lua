@@ -1,10 +1,10 @@
-Tremualin.Debugging.SeniorsWellBeing = false
-
 local functions = Tremualin.Functions
 local stat_scale = const.Scale.Stat
 
-local seniorWellbeingNegativeMoraleChangePerAge = {Child = 0, Senior = 0, Youth = 10, Adult = 20, ['Middle Aged'] = 30}
-local seniorWellbeingPositiveMoraleChangePerAge = {Child = 0, Senior = 0, Youth = 5, Adult = 5, ['Middle Aged'] = 15}
+local SENIOR_WELLBEING_ID = "Tremualin_SeniorWellbeing_"
+local seniorWellbeingAges = {'Youth', 'Adult', 'Middle Aged'}
+local seniorWellbeingNegativeMoraleChangePerAge = {Youth = -10, Adult = -20, ['Middle Aged'] = -30}
+local seniorWellbeingPositiveMoraleChangePerAge = {Youth = 5, Adult = 10, ['Middle Aged'] = 15}
 
 local function TableConcat(t1, t2)
     for i = 1, #t2 do
@@ -14,9 +14,10 @@ local function TableConcat(t1, t2)
 end
 
 -- How are our seniors doing across the city?
+-- -1 = bad, 0 = neutral, 1 = good
 -- bad if at least 10% of senior are unhappy, good if at least 95% of seniors are happy, otherwise neutral
-local function SeniorsWellbeing()
-    local result = 'neutral'
+local function CalculateSeniorsWellbeingAcrossAllCities()
+    local result = 0
     local seniors = {}
     for _, city in ipairs(Cities) do
         seniors = TableConcat(seniors, functions.GetSeniors(city))
@@ -33,90 +34,49 @@ local function SeniorsWellbeing()
             end
         end
         if MulDivRound(unhappySeniors, 100, totalSeniors) > 0.1 then
-            result = 'bad'
+            result = -1
         elseif MulDivRound(happySeniors, 100, totalSeniors) > 0.95 then
-            result = 'good'
+            result = 1
         end
     end
     return result
 end
 
--- Calculate the Seniors Well-being only once a day
-GlobalVar("g_Tremualin_Seniors_Wellbeing_Result", 'neutral')
-local orig_Colony_DailyUpdate = Colony.DailyUpdate
-function Colony:DailyUpdate(day)
-    orig_Colony_DailyUpdate(self, day)
-    g_Tremualin_Seniors_Wellbeing_Result = SeniorsWellbeing()
-    if Tremualin.Debugging.SeniorsWellBeing then print(string.format("Seniors are %s", g_Tremualin_Seniors_Wellbeing_Result)) end
-end
-
 -- Senior well being matters, morale update
 -- If Seniors are doing good, everyone is a little happier
 -- If Seniors are doing bad, everyone is a little unhappier
--- The closer one is to becoming a Senior, the more this matters
--- Unlike comfort, sanity and health, morale resets to base and recalculates from there
-local Tremualin_Orig_Colonist_UpdateMorale = Colonist.UpdateMorale
-function Colonist:UpdateMorale()
-    Tremualin_Orig_Colonist_UpdateMorale(self)
-    if not IsValid(self) or self:IsDead() then
-        return
-    end
-    local seniors_wellbeing_result = g_Tremualin_Seniors_Wellbeing_Result
-    if self.traits.Renegade or self.traits.Child or self.traits.Senior or self.traits.Tourist then
-        -- Renegades don't have morale you silly goose
-        -- Children don't keep up with the news
-        -- Seniors are already happy/unhappy
-    else
-        if seniors_wellbeing_result == "good" then
-            local amount = seniorWellbeingPositiveMoraleChangePerAge[self.age_trait]
-            self.stat_morale = self.stat_morale + amount * stat_scale
-            Msg("MoraleChanged", self)
-        elseif seniors_wellbeing_result == "bad" then
-            local amount = seniorWellbeingNegativeMoraleChangePerAge[self.age_trait]
-            self.stat_morale = self.stat_morale - amount * stat_scale
-            Msg("MoraleChanged", self)
+-- The closer one is to becoming a Senior, the more they care
+local function SeniorsWellbeing()
+    local seniors_wellbeing_result = CalculateSeniorsWellbeingAcrossAllCities()
+    for _, age in pairs(seniorWellbeingAges) do
+        local id = SENIOR_WELLBEING_ID .. age
+        if seniors_wellbeing_result == 0 then
+            for _, community in pairs(UIColony.city_labels.labels.Community or empty_table) do
+                -- Remove the label modifier
+                local old_mod = table.find_value(community.modifications, "id", id)
+                if old_mod then
+                    community:UpdateModifier("remove", old_mod, 0, 0)
+                end
+            end
+        else
+            local amount = seniorWellbeingNegativeMoraleChangePerAge[age] * stat_scale
+            local display_text = Untranslated("<red>Too many senior citizens are miserable <amount></color>")
+            if seniors_wellbeing_result > 0 then
+                amount = seniorWellbeingPositiveMoraleChangePerAge[age] * stat_scale
+                display_text = Untranslated("<green>Most senior citizens seem to be happy +<amount></color>")
+            end
+            for _, community in pairs(UIColony.city_labels.labels.Community) do
+                community:SetLabelModifier(age, id, Modifier:new({
+                    prop = "base_morale",
+                    amount = amount,
+                    id = id,
+                    display_text = display_text,
+                }))
+            end
         end
     end
 end
 
--- Senior well being matters, UI update
--- Since the Morale UI is pretty much hard-coded, I have to update the text
-local Tremualin_Orig_Colonist_UiStatUpdate = Colonist.UIStatUpdate
-function Colonist:UIStatUpdate(win, stat)
-    Tremualin_Orig_Colonist_UiStatUpdate(self, win, stat)
-    local orig_win_GetRolloverText = win.GetRolloverText
-    win.GetRolloverText = function(self)
-        local texts = orig_win_GetRolloverText(self)
-        local colonist = self.context
-        if colonist.traits.Renegade or colonist.traits.Child or colonist.traits.Senior or colonist.traits.Tourist then
-            -- Renegades don't have morale you silly goose
-            -- Children don't keep up with the news about Seniors
-            -- Seniors are already happy/unhappy about their situation
-        elseif stat == "Morale" then
-            local seniorsWellbeingResult = g_Tremualin_Seniors_Wellbeing_Result
-            if seniorsWellbeingResult ~= "neutral" then
-                texts = texts .. "\n"
-                if seniorsWellbeingResult == "good" then
-                    local amount = seniorWellbeingPositiveMoraleChangePerAge[colonist.age_trait]
-                    local clr = (TLookupTag("<green>"))
-                    texts = texts .. (T({
-                        6936,
-                        "<clr><reason></color>",
-                        reason = Untranslated("Most senior citizens seem to be happy +" .. amount),
-                        clr = clr,
-                    }))
-                elseif seniorsWellbeingResult == "bad" then
-                    local amount = seniorWellbeingNegativeMoraleChangePerAge[colonist.age_trait]
-                    local clr = (TLookupTag("<red>"))
-                    texts = texts .. (T({
-                        6936,
-                        "<clr><reason></color>",
-                        reason = Untranslated("Too many senior citizens are miserable -" .. amount),
-                        clr = clr,
-                    }))
-                end
-            end
-        end
-        return texts .. "\n"
-    end
+function OnMsg.NewDay()
+    SeniorsWellbeing()
 end

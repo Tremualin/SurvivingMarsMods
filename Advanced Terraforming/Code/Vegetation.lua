@@ -108,9 +108,10 @@ local function Tremualin_TrySpawnTechAnomalyNearObject(object, radius)
 end
 
 function OnMsg.NewHour(hour)
-    if GetTerraformParamPct("Vegetation") < 100 then
+    local vegetationPct = GetTerraformParamPct("Vegetation")
+    if vegetationPct < 100 then
         for _, foresation_plant in ipairs(UIColony.city_labels.labels.ForestationPlant or empty_table) do
-            if foresation_plant.working and 1 >= foresation_plant:Random(1000) then
+            if foresation_plant.working and 0 == foresation_plant:Random(MulDivRound(1000, 100 - vegetationPct, 100)) then
                 Tremualin_TrySpawnTechAnomalyNearObject(foresation_plant, foresation_plant.UIRange * const.GridSpacing)
             end
         end
@@ -119,8 +120,8 @@ end
 -- End Forestation Plants Spawn Tech Anomalies
 
 -- Start Vegetation Produces Breakthroughs
-local MUTATION_IDS = {VegetationMutates1 = true, VegetationMutates2 = true,
-VegetationMutates3 = true, VegetationMutates4 = true, VegetationMutates5 = true}
+GlobalVar("Tremualin_VegetationMutations", {VegetationMutates1 = true, VegetationMutates2 = true,
+VegetationMutates3 = true, VegetationMutates4 = true, VegetationMutates5 = true})
 local function AddVegetationBreakthroughs()
     local vegetation_mutates_defined = false
     local vegetation_thresholds = Presets.TerraformingParam.Default.Vegetation.Threshold or empty_table
@@ -156,10 +157,9 @@ function Tremualin_TrySpawnBreakthroughAnomaly()
 end
 
 function OnMsg.TerraformThresholdPassed(id, fully_passed)
-    if MUTATION_IDS[id] and fully_passed then
+    if Tremualin_VegetationMutations[id] and fully_passed then
         Tremualin_TrySpawnBreakthroughAnomaly()
-        -- TODO: fix exploit where you can get multiple breakthroughs
-        MUTATION_IDS[id] = false
+        Tremualin_VegetationMutations[id] = false
     end
 end
 
@@ -248,7 +248,7 @@ function AddWildfires()
     if not Presets.POI.Default.Tremualin_WildfireDisaster then
         PlaceObj("POI", {
             PrerequisiteToCreate = function(self)
-                return GetTerraformParamPct("Atmosphere") > 50 and GetTerraformParamPct("Temperature") > 50 and GetTerraformParamPct("Water") < 80
+                return GetTerraformParamPct("Atmosphere") > 50 and GetTerraformParamPct("Temperature") > 50 and GetTerraformParamPct("Water") < 80 and GetTerraformParamPct("Vegetation") > 20
             end,
             description = Untranslated("Wildfires consume 0.3% Vegetation per sol until put out. Our Rocket will drop concrete around the area to limit the spread of the fire."),
             display_icon = CurrentModPath .. "UI/wildfire.dds",
@@ -276,11 +276,9 @@ end
 OnMsg.LoadGame = AddWildfires
 OnMsg.NewDay = AddWildfires
 function OnMsg.RainDisasterStart(map_id, rain_type)
-    if rain_type == "normal" then
-        for _, wildfire in pairs(GetWildfires()) do
-            print("Stopping wildfire")
-            MarsSpecialProject.OnCompletion(wildfire, MainCity)
-        end
+    for _, wildfire in pairs(GetWildfires()) do
+        print("Stopping wildfire")
+        MarsSpecialProject.OnCompletion(wildfire, MainCity)
     end
 end
 local function AddWildfireStartThreshold(thresholds, hysteresis)

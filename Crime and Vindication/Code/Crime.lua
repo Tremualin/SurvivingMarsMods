@@ -1,4 +1,4 @@
-local functions = Tremualin.Functions
+local TemporarilyModifyMorale = Tremualin.Functions.TemporarilyModifyMorale
 
 local protests_text = {
     "Bring back the McRib",
@@ -30,7 +30,7 @@ local configuration = Tremualin.Configuration
 function Dome:Tremualin_CrimeEvents_Protest()
     for _, colonist in pairs(self.labels.Colonist or empty_table) do
         if not colonist.traits.Renegade then
-            functions.TemporarilyModifyMorale(colonist, -self:GetAdjustedRenegades(), 0, 3, "Tremualin_CrimeEvents_Protest", "Annoying protesters ")
+            TemporarilyModifyMorale(colonist, -self:GetAdjustedRenegades(), 0, 3, "Tremualin_CrimeEvents_Protest", "Annoying protesters ")
         end
     end
 

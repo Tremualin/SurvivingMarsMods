@@ -1,3 +1,5 @@
+local AddOnScreenNotification = AddOnScreenNotification
+
 local ProgressPointsPerResearchSteal = 1000000
 local MaxResearchStealCollaborationLoss = 50
 
@@ -87,13 +89,13 @@ function ResearchStealer:StealResearch()
             local tech = table.rand(techs)
             if tech then
                 GrantTech(tech)
-                AddOnScreenNotification("CovertOpSuccess_Tech", nil, {
+                AddOnScreenNotification("Tremualin_ReverseEngineering_Tech", nil, {
                     tech_name = TechDef[tech].display_name
                 }, nil, city.map_id)
             else
                 local research = Max(1000, target_player.resources.research_production * 5)
                 city.colony:AddResearchPoints(research)
-                AddOnScreenNotification("CovertOpSuccess_Research", nil, {number = research}, nil, city.map_id)
+                AddOnScreenNotification("Tremualin_ReverseEngineering_Research", nil, {number = research}, nil, city.map_id)
             end
         end
     end
@@ -108,4 +110,85 @@ function ResearchStealer:GetCollaborationLoss()
         end
     end
     return Min(MaxResearchStealCollaborationLoss, (count - 1) * 10)
+end
+
+local RemoveXTemplateSectionsById = Tremualin.UIFunctions.RemoveXTemplateSectionsById
+local RESEARCH_STEALER_SECTION_ID = "Tremualin_sectionResearchStealer"
+local function AddReverseEngineeringSection()
+    RemoveXTemplateSectionsById(XTemplates, RESEARCH_STEALER_SECTION_ID)
+    if IsChinaSponsor() then
+        PlaceObj("XTemplate", {
+            group = "Infopanel Sections",
+            id = RESEARCH_STEALER_SECTION_ID,
+            PlaceObj("XTemplateTemplate", {
+                "__context_of_kind",
+                "SecurityStation",
+                "__template",
+                "InfopanelSection",
+                "RolloverText",
+                Untranslated([[The following stats are summary of the expected <em>Reverse Engineering</em> progress for the current Sol. However, reverse engineering tends to be unpredictable, so take them with a grain of salt.
+ 
+Base reverse engineering progress per Sol<right><EstimatedDailyTotal>
+<left>Reverse engineering progress per Sol<right><EstimatedDailyProduction>
+<left>Collaboration loss<right><EstimatedDailyLoss>
+ 
+<left>Lifetime reverse engineering progress<right><lifetime_research_steal_progress>]]), 
+                "RolloverTitle",
+                Untranslated("Reverse engineering progress <percent(ResearchStealProgress)>"),
+                "Title", Untranslated("Reverse Engineering"),
+                "Icon",
+                "UI/Icons/Sections/research_1.tga"
+                }, {
+                PlaceObj("XTemplateTemplate", {
+                    "__template",
+                    "InfopanelProgress",
+                    "BindTo",
+                    "ResearchStealProgress"
+                }),
+                PlaceObj("XTemplateTemplate", {
+                    "__template",
+                    "InfopanelText",
+                    "Text",
+                    Untranslated("Reverse engineering progress per Sol<right><EstimatedDailyProduction>");
+                });
+            });
+        })
+
+        -- Added into the upgrades section so it appears right after them
+        local upgradesSection = XTemplates.sectionUpgrades
+        RemoveXTemplateSectionsById(upgradesSection, RESEARCH_STEALER_SECTION_ID)
+        table.insert(upgradesSection, PlaceObj('XTemplateTemplate', {
+            '__template', RESEARCH_STEALER_SECTION_ID,
+            "id", RESEARCH_STEALER_SECTION_ID
+        }))
+    end
+end
+
+OnMsg.LoadGame = AddReverseEngineeringSection
+OnMsg.NewGame = AddReverseEngineeringSection
+
+function OnMsg.ClassesPostprocess()
+    if OnScreenNotificationPresets.Tremualin_ReverseEngineering_Tech then
+        return
+    end
+    PlaceObj("OnScreenNotificationPreset", {
+        group = "Rival Colonies",
+        id = "Tremualin_ReverseEngineering_Tech",
+        image = "UI/Icons/Notifications/research.tga",
+        save_in = "gagarin",
+        text = Untranslated("Reverse Engineered Tech: <tech_name>"),
+    title = Untranslated("Successful Reverse Engineering")})
+end
+
+function OnMsg.ClassesPostprocess()
+    if OnScreenNotificationPresets.Tremualin_ReverseEngineering_Research then
+        return
+    end
+    PlaceObj("OnScreenNotificationPreset", {
+        group = "Rival Colonies",
+        id = "Tremualin_ReverseEngineering_Research",
+        image = "UI/Icons/Notifications/New/research.tga",
+        save_in = "gagarin",
+        text = Untranslated("Reverse engineering advancements: <research(number)>"),
+    title = Untranslated("Successful Reverse Engineering")})
 end

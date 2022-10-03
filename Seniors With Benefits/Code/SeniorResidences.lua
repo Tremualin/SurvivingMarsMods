@@ -1,10 +1,10 @@
-local ui_functions = Tremualin.UIFunctions
+local RemoveXTemplateSections = Tremualin.UIFunctions.RemoveXTemplateSections
 
 -- A button that turns a residence into a seniors only residence
 -- Useful for those that don't have the new DLC
 function OnMsg.ClassesPostprocess()
     local template = XTemplates.sectionResidence
-    ui_functions.RemoveXTemplateSections(template, "Tremualin_SeniorsAllowed")
+    RemoveXTemplateSections(template, "Tremualin_SeniorsAllowed")
     local seniorsInfo = PlaceObj("XTemplateTemplate", {
         "Tremualin_SeniorsAllowed", true,
         "__template", "InfopanelButton",

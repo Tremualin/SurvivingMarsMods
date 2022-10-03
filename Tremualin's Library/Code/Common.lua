@@ -151,7 +151,10 @@ local function TemporarilyModifyProperty(prop_to_modify, object_to_modify, unsca
     local scale = ModifiablePropScale[prop_to_modify]
     local amount = unscaled_amount * scale
     -- Prevents the same thread from being assigned to the same modifier id again
-    object_to_modify.Tremualin_Threads = object_to_modify.Tremualin_Threads or empty_table
+    if object_to_modify.Tremualin_Threads == empty_table then
+        object_to_modify.Tremualin_Threads = {}
+    end
+    object_to_modify.Tremualin_Threads = object_to_modify.Tremualin_Threads or {}
     if IsValidThread(object_to_modify.Tremualin_Threads[modifier_id]) then
         DeleteThread(object_to_modify.Tremualin_Threads[modifier_id])
     end
@@ -165,15 +168,16 @@ local function TemporarilyModifyProperty(prop_to_modify, object_to_modify, unsca
             percent = percent
         });
     }))
-    if (amount ~= 0 or percent ~= 0) and 0 < duration_in_sols then
-        object_to_modify.Tremualin_Threads[modifier_id] = CreateGameTimeThread(function()
+    if (unscaled_amount ~= 0 or percent ~= 0) and 0 < duration_in_sols then
+        local expiration_thread = CreateGameTimeThread(function(object_to_modify, prop_to_modify, modifier_id, duration_in_sols)
             -- 1 sol = 720000
             Sleep(duration_in_sols * 720000)
             -- If the colonist died; Let it go! Let it go! You'll never see me cry
             if IsValid(object_to_modify) then
                 object_to_modify:SetModifier(prop_to_modify, modifier_id, 0, 0)
             end
-        end)
+        end, object_to_modify, prop_to_modify, modifier_id, duration_in_sols)
+        object_to_modify.Tremualin_Threads[modifier_id] = expiration_thread
     end
 end
 

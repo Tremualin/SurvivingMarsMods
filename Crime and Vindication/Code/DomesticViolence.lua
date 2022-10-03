@@ -39,10 +39,10 @@ end
 -- Domestic Violence
 local report_chances = 33
 local report_violent_chances = 11
-local orig_Colonist_DailyUpdate = Colonist.DailyUpdate
+local Tremualin_Orig_Colonist_DailyUpdate = Colonist.DailyUpdate
 function Colonist:DailyUpdate()
     local dome = self.dome
-    orig_Colonist_DailyUpdate(self)
+    Tremualin_Orig_Colonist_DailyUpdate(self)
     local domesticViolenceChances = self:GetTremualin_DomesticViolenceChances()
     if self:Random(1, 100) <= domesticViolenceChances then
         local victims = {}
