@@ -116,10 +116,10 @@ function ModifyMoistureVaporators()
     local MoistureVaporatorBuildingTemplate = BuildingTemplates.MoistureVaporator
 
     MoistureVaporatorBuildingTemplate.terraforming_param = "Water"
-    MoistureVaporatorBuildingTemplate.terraforming_boost_sol = -5
+    MoistureVaporatorBuildingTemplate.terraforming_boost_sol = -20
 
     ct.MoistureVaporator.terraforming_param = "Water"
-    ct.MoistureVaporator.terraforming_boost_sol = -5
+    ct.MoistureVaporator.terraforming_boost_sol = -20
 
     local tech = Presets.TechPreset.Biotech["MoistureFarming"]
     local modified = tech.Tremualin_MoistureConsumption
