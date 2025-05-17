@@ -1,56 +1,164 @@
+local ui_functions = Tremualin.UIFunctions
+
+-- Holds and persists all configurations
 GlobalVar("SeasonsOfMars", {})
-local function ModifyDisaster(disasterType, activeSeason, difficultyMultiplier)
-    local durationDifficulty = SeasonsOfMars.DurationDifficulty * difficultyMultiplier
-    local frequencyDifficulty = SeasonsOfMars.FrequencyDifficulty * difficultyMultiplier
 
-    local disasterConfiguration = SeasonsOfMars[disasterType]
-    local seasonalDisasterConfiguration = activeSeason[disasterType]
-    if seasonalDisasterConfiguration then
-        local longer = seasonalDisasterConfiguration.Longer
-        local shorter = seasonalDisasterConfiguration.Shorter
-        local moreFrequent = seasonalDisasterConfiguration.MoreFrequent
-        local lessFrequent = seasonalDisasterConfiguration.LessFrequent
-        -- Duration should go up when becoming more difficult
-        if longer then
-            disasterConfiguration.DurationPercentage = disasterConfiguration.DurationPercentage + durationDifficulty
-        elseif shorter then
-            disasterConfiguration.DurationPercentage = Max(disasterConfiguration.DurationPercentage - durationDifficulty, 100)
-        end
+-- Modifies a given disaster type (DustStorm, ColdWave), making it longer or shorter, and more frequent or less frequent
+local function ModifyDisaster(disasterType, activeSeasonConfiguration, difficultyMultiplier)
+    local seasonsOfMars = SeasonsOfMars
 
-        -- Spawntime should go down then becoming more difficult
-        if moreFrequent then
-            disasterConfiguration.SpawntimePercentage = Max(disasterConfiguration.SpawntimePercentage - frequencyDifficulty, 0)
-        elseif lessFrequent then
-            disasterConfiguration.SpawntimePercentage = Min(disasterConfiguration.SpawntimePercentage + frequencyDifficulty, 100)
-        end
+    -- Players can choose to make seasons more or less difficult by playing with these settings
+    local durationDifficulty = seasonsOfMars.DurationDifficulty * difficultyMultiplier
+    local frequencyDifficulty = seasonsOfMars.FrequencyDifficulty * difficultyMultiplier
+
+    -- Holds the multipliers (DurationPercentage, and SpawntimePercentage) for current disaster type
+    local disasterConfiguration = seasonsOfMars[disasterType]
+    -- Holds the configuration (longer, shorter, moreFrequent, lessFrequent) for the current season
+    local seasonalDisasterConfiguration = activeSeasonConfiguration[disasterType]
+
+    local longer = seasonalDisasterConfiguration.Longer
+    local shorter = seasonalDisasterConfiguration.Shorter
+    -- Duration should go up when becoming more difficult
+    if longer then
+        disasterConfiguration.DurationPercentage = disasterConfiguration.DurationPercentage + durationDifficulty
+    elseif shorter then
+        disasterConfiguration.DurationPercentage = Max(disasterConfiguration.DurationPercentage - durationDifficulty, 100)
     end
+
+    local moreFrequent = seasonalDisasterConfiguration.MoreFrequent
+    local lessFrequent = seasonalDisasterConfiguration.LessFrequent
+    -- Spawntime should go down when becoming more difficult
+    if moreFrequent then
+        disasterConfiguration.SpawntimePercentage = Max(disasterConfiguration.SpawntimePercentage - frequencyDifficulty, 0)
+    elseif lessFrequent then
+        disasterConfiguration.SpawntimePercentage = Min(disasterConfiguration.SpawntimePercentage + frequencyDifficulty, 100)
+    end
+end
+
+local function IsSouthernHemisphere()
+    return MarsScreenMapParams.latitude >= 0
 end
 
 local function SeasonalDailyUpdate()
     local seasonsOfMars = SeasonsOfMars
     local activeSeasonId = seasonsOfMars.ActiveSeason
-    local activeSeason = seasonsOfMars[activeSeasonId]
-    if seasonsOfMars.ActiveSeasonDuration >= activeSeason.Duration / seasonsOfMars.DurationDivider then
-        seasonsOfMars.ActiveSeason = activeSeason.NextSeason
+    local activeSeasonConfiguration = seasonsOfMars[activeSeasonId]
+    -- If the season has run it's course; change to the next one
+    -- Otherwise, increase the ActiveSeasonDuration and ActivePhaseDuration
+    -- Finally, update all disaster configurations
+    if seasonsOfMars.ActiveSeasonDuration >= activeSeasonConfiguration.Duration / seasonsOfMars.DurationDivider then
+        seasonsOfMars.ActiveSeason = activeSeasonConfiguration.NextSeason
+        if seasonsOfMars.ActiveSeason == "Autumn" or seasonsOfMars.ActiveSeason == "Spring" then
+            seasonsOfMars.ActivePhaseDuration = 1
+        end
         seasonsOfMars.ActiveSeasonDuration = 1
         activeSeasonId = seasonsOfMars.ActiveSeason
-        activeSeason = seasonsOfMars[activeSeasonId]
+        activeSeasonConfiguration = seasonsOfMars[activeSeasonId]
         Msg("SeasonsOfMars_SeasonChange", activeSeasonId)
     else
         seasonsOfMars.ActiveSeasonDuration = seasonsOfMars.ActiveSeasonDuration + 1
+        seasonsOfMars.ActivePhaseDuration = seasonsOfMars.ActivePhaseDuration + 1
     end
 
-    ModifyDisaster("MapSettings_DustStorm", activeSeason, 1)
-    ModifyDisaster("MapSettings_ColdWave", activeSeason, 1)
+    -- Update disaster settings for this moment of the season
+    ModifyDisaster("MapSettings_DustStorm", activeSeasonConfiguration, 1)
+    ModifyDisaster("MapSettings_ColdWave", activeSeasonConfiguration, 1)
 end
 
-local orig_Colony_DailyUpdate = Colony.DailyUpdate
-function Colony:DailyUpdate(day)
-    orig_Colony_DailyUpdate(self, day)
-    SeasonalDailyUpdate()
+-- Update seasons settings each Sol
+OnMsg.NewDay = SeasonalDailyUpdate
+
+-- fired when settings are changed/init
+local function ModOptions()
+    local seasonsOfMars = SeasonsOfMars
+    if seasonsOfMars then
+        local options = CurrentModOptions
+        seasonsOfMars.DurationDivider = options:GetProperty("DurationDivider")
+        seasonsOfMars.FrequencyDifficulty = options:GetProperty("FrequencyDifficulty") / 10.0
+        seasonsOfMars.DurationDifficulty = options:GetProperty("DurationDifficulty") / 10.0
+        seasonsOfMars.ChangeColors = options:GetProperty("ChangeColors")
+        if not seasonsOfMars.ChangeColors and SeasonsOfMars_ChangeColors then
+            SeasonsOfMars_ChangeColors(seasonsOfMars.ActiveSeason, true)
+        end
+
+        if IsSouthernHemisphere() then
+            -- Aphelion is the farthest point from the sun
+            seasonsOfMars.ClosestToAphelion = (seasonsOfMars.Autumn.Duration + seasonsOfMars.Winter.Duration) / seasonsOfMars.DurationDivider
+            -- Perihelion is the closest point from the sun
+            seasonsOfMars.ClosestToPerihelion = (seasonsOfMars.Spring.Duration + seasonsOfMars.Summer.Duration) / seasonsOfMars.DurationDivider
+        else
+            -- Aphelion is the farthest point from the sun
+            seasonsOfMars.ClosestToAphelion = (seasonsOfMars.Summer.Duration + seasonsOfMars.Spring.Duration) / seasonsOfMars.DurationDivider
+            -- Perihelion is the closest point from the sun
+            seasonsOfMars.ClosestToPerihelion = (seasonsOfMars.Autumn.Duration + seasonsOfMars.Winter.Duration) / seasonsOfMars.DurationDivider
+        end
+    end
 end
+
+-- fired when Mod Options>Apply button is clicked
+function OnMsg.ApplyModOptions(id)
+    if id == CurrentModId then
+        ModOptions()
+    end
+end
+
+OnMsg.ModsReloaded = ModOptions
+
+local function InitSeasonsOfMars()
+    local seasonsOfMars = SeasonsOfMars
+    -- Export functions that will be used by other modules
+    seasonsOfMars.IsSouthernHemisphere = IsSouthernHemisphere
+    if not seasonsOfMars.ActiveSeason then
+        if IsSouthernHemisphere() then
+            seasonsOfMars.Spring = {Duration = 142,
+                MapSettings_ColdWave = {Shorter = true, LessFrequent = true},
+                MapSettings_DustStorm = {Longer = true},
+            NextSeason = "Summer"}
+            seasonsOfMars.Summer = {Duration = 154,
+                MapSettings_ColdWave = {Shorter = true, LessFrequent = true},
+                MapSettings_DustStorm = {MoreFrequent = true},
+            NextSeason = "Autumn"}
+            seasonsOfMars.Autumn = {Duration = 194,
+                MapSettings_DustStorm = {Shorter = true, LessFrequent = true},
+                MapSettings_ColdWave = {Longer = true},
+            NextSeason = "Winter"}
+            seasonsOfMars.Winter = {Duration = 178,
+                MapSettings_DustStorm = {Shorter = true, LessFrequent = true},
+                MapSettings_ColdWave = {MoreFrequent = true},
+            NextSeason = "Spring"}
+        else
+            seasonsOfMars.Spring = {Duration = 194,
+                MapSettings_ColdWave = {Shorter = true, LessFrequent = true},
+                MapSettings_DustStorm = {Shorter = true, LessFrequent = true},
+            NextSeason = "Summer"}
+            seasonsOfMars.Summer = {Duration = 178,
+                MapSettings_ColdWave = {Shorter = true, LessFrequent = true},
+                MapSettings_DustStorm = {Shorter = true, LessFrequent = true},
+            NextSeason = "Autumn"}
+            seasonsOfMars.Autumn = {Duration = 142,
+                MapSettings_DustStorm = {Longer = true},
+                MapSettings_ColdWave = {Longer = true},
+            NextSeason = "Winter"}
+            seasonsOfMars.Winter = {Duration = 154,
+                MapSettings_DustStorm = {MoreFrequent = true},
+                MapSettings_ColdWave = {MoreFrequent = true},
+            NextSeason = "Spring"}
+        end
+        seasonsOfMars.ActiveSeason = "Spring"
+        seasonsOfMars.ActiveSeasonDuration = 0
+        seasonsOfMars.MapSettings_DustStorm = {SpawntimePercentage = 100, DurationPercentage = 100}
+        seasonsOfMars.MapSettings_ColdWave = {SpawntimePercentage = 100, DurationPercentage = 100}
+    end
+    ModOptions()
+    -- Helper used during Unit Tests
+    seasonsOfMars.DailyUpdate = SeasonalDailyUpdate
+end
+
+OnMsg.LoadGame = InitSeasonsOfMars
+OnMsg.CityStart = InitSeasonsOfMars
 
 function OnMsg.ClassesPostprocess()
+    -- Need to override the disaster descriptors so we can inject Seasons Of Mars
     local orig_OverrideDisasterDescriptor = OverrideDisasterDescriptor
     function OverrideDisasterDescriptor(original)
         if not original or original.forbidden then
@@ -94,45 +202,3 @@ function OnMsg.ClassesPostprocess()
         return overriden
     end
 end
-
--- fired when settings are changed/init
-local function ModOptions()
-    local seasonsOfMars = SeasonsOfMars
-    if seasonsOfMars then
-        local options = CurrentModOptions
-        seasonsOfMars.DurationDivider = options:GetProperty("DurationDivider")
-        seasonsOfMars.FrequencyDifficulty = options:GetProperty("FrequencyDifficulty") / 10.0
-        seasonsOfMars.DurationDifficulty = options:GetProperty("DurationDifficulty") / 10.0
-        seasonsOfMars.ChangeColors = options:GetProperty("ChangeColors")
-        if not seasonsOfMars.ChangeColors and SeasonsOfMars_ChangeColors then
-            SeasonsOfMars_ChangeColors("Spring", true)
-        end
-    end
-end
-
--- fired when Mod Options>Apply button is clicked
-function OnMsg.ApplyModOptions(id)
-    if id == CurrentModId then
-        ModOptions()
-    end
-end
-
-OnMsg.ModsReloaded = ModOptions
-
-local function InitSeasonsOfMars()
-    if not SeasonsOfMars.ActiveSeason then
-        SeasonsOfMars.Spring = {Duration = 194, MapSettings_ColdWave = {Shorter = true, LessFrequent = true}, MapSettings_DustStorm = {Longer = true}, NextSeason = "Summer"}
-        SeasonsOfMars.Summer = {Duration = 178, MapSettings_ColdWave = {Shorter = true, LessFrequent = true}, MapSettings_DustStorm = {MoreFrequent = true}, NextSeason = "Autumn"}
-        SeasonsOfMars.Autumn = {Duration = 142, MapSettings_DustStorm = {Shorter = true, LessFrequent = true}, MapSettings_ColdWave = {Longer = true}, NextSeason = "Winter"}
-        SeasonsOfMars.Winter = {Duration = 154, MapSettings_DustStorm = {Shorter = true, LessFrequent = true}, MapSettings_ColdWave = {MoreFrequent = true}, NextSeason = "Spring"}
-        SeasonsOfMars.ActiveSeason = "Spring"
-        SeasonsOfMars.ActiveSeasonDuration = 0
-        SeasonsOfMars.MapSettings_DustStorm = {SpawntimePercentage = 100, DurationPercentage = 100}
-        SeasonsOfMars.MapSettings_ColdWave = {SpawntimePercentage = 100, DurationPercentage = 100}
-    end
-    ModOptions()
-    SeasonsOfMars.DailyUpdate = SeasonalDailyUpdate
-end
-
-OnMsg.LoadGame = InitSeasonsOfMars
-OnMsg.CityStart = InitSeasonsOfMars

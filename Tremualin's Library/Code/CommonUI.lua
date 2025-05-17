@@ -56,3 +56,17 @@ function SelectionArrowAdd(obj)
     end
     return orig
 end
+
+-- Adds a new category in the encyclopedia, dedicated to my mods
+local function AddTremualinToEncyclopedia()
+    PlaceObj('EncyclopediaArticle', {
+        SortKey = 10000,
+        category_id = "Tremualin",
+        group = "Tremualin",
+        id = "CATEGORY: Tremualin",
+        text = Untranslated("Here you will find more detailed explanations for my mods"),
+        title_text = Untranslated("Tremualin's Mods"),
+        title_text_upper = Untranslated("TREMUALIN'S MODS"),
+    })
+end
+OnMsg.ClassesPostprocess = AddTremualinToEncyclopedia

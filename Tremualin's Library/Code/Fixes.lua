@@ -65,5 +65,3 @@ function FixNilAddTrait()
         end -- if trait_id
     end
 end -- function FixAddNilTrait
-
-OnMsg.ClassesGenerate = FixNilAddTrait
