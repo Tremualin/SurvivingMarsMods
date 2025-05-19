@@ -16,6 +16,10 @@ return {
         'FileName', "Code/SolarIrradiance.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "WindSpeed",
+        'FileName', "Code/WindSpeed.lua",
+    }),
+    PlaceObj('ModItemCode', {
         'name', "Encyclopedia",
         'FileName', "Code/Encyclopedia.lua",
     }),

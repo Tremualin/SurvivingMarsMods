@@ -8,18 +8,37 @@ end
 function GetSeasonalEffectsText()
     -- Southern Hemisphere
     local seasonsOfMars = SeasonsOfMars
-    local dustStormModifiers = Untranslated(string.format("<em>Dust Storm</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", seasonsOfMars.MapSettings_DustStorm.DurationPercentage, seasonsOfMars.MapSettings_DustStorm.SpawntimePercentage))
-    local coldWaveModifiers = Untranslated(string.format("<em>Cold Wave</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", seasonsOfMars.MapSettings_ColdWave.DurationPercentage, seasonsOfMars.MapSettings_ColdWave.SpawntimePercentage))
-    local solarIrradianceTrend = Untranslated(string.format("<em>Solar Irradiance</em>: (Current: %+.1f%%, Trend: %+.1f%%)", seasonsOfMars.GetSolarIrrandianceBonus(seasonsOfMars.ActivePhaseDuration), seasonsOfMars.GetSolarIrrandianceBonus(seasonsOfMars.ActivePhaseDuration + 1) - seasonsOfMars.GetSolarIrrandianceBonus(seasonsOfMars.ActivePhaseDuration)))
+
+    local dustStormSettings = seasonsOfMars.MapSettings_DustStorm
+    local dustStormModifiers = Untranslated(string.format("<em>Dust Storm</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", dustStormSettings.DurationPercentage, dustStormSettings.SpawntimePercentage))
+
+    local coldWaveSettinngs = seasonsOfMars.MapSettings_ColdWave
+    local coldWaveModifiers = Untranslated(string.format("<em>Cold Wave</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", coldWaveSettinngs.DurationPercentage, coldWaveSettinngs.SpawntimePercentage))
+
+    local currentSolarIrradiance = seasonsOfMars.GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration)
+    local nextSolarIrradiance = seasonsOfMars.GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration + 1)
+    local solarIrradianceTrend = Untranslated(string.format("<em>Solar Irradiance</em>: (Current: %+.1f%%, Trend: %+.1f%%)", currentSolarIrradiance, nextSolarIrradiance - currentSolarIrradiance))
+    local solarIrradianceSS = Untranslated(string.format("<em>Solar Irradiance</em> will vary from %+.1f%% to %+.1f%% (Spring, Summer)", seasonsOfMars.FromSolarIrradianceSS, seasonsOfMars.ToSolarIrradianceSS))
+    local solarIrradianceAW = Untranslated(string.format("<em>Solar Irradiance</em> will vary from %+.1f%% to %+.1f%% (Autumn, Winter)", seasonsOfMars.FromSolarIrradianceAW, seasonsOfMars.ToSolarIrradianceAW))
+
+    local currentWindSpeed = seasonsOfMars.GetWindSpeedBoostWindTurbines(currentSolarIrradiance)
+    local nextWindSpeed = seasonsOfMars.GetWindSpeedBoostWindTurbines(nextSolarIrradiance)
+    local windSpeedTrend = Untranslated(string.format("<em>Wind Speed</em>: (Current: %+.1f%%, Trend: %+.1f%%)", currentWindSpeed, nextWindSpeed - currentWindSpeed))
+    local windSpeedSS = Untranslated(string.format("<em>Wind Speed</em> will vary from %+.1f%% to %+.1f%% (Spring, Summer)", seasonsOfMars.FromWindSpeedSS, seasonsOfMars.ToWindSpeedSS))
+    local windSpeedAW = Untranslated(string.format("<em>Wind Speed</em> will vary from %+.1f%% to %+.1f%% (Autumn, Winter)", seasonsOfMars.FromWindSpeedAW, seasonsOfMars.ToWindSpeedAW))
 
     if functions.IsSouthernHemisphere() then
         return table.concat({
             dustStormModifiers,
             coldWaveModifiers,
-            solarIrradianceTrend,
             Untranslated("< newline >"),
-            Untranslated(string.format("<em>Solar Irradiance</em> will vary from %.1f%% to %.1f%% (Spring, Summer)", seasonsOfMars.GetSolarIrradianceBonusCloseToMars(0, 1), seasonsOfMars.GetSolarIrradianceBonusCloseToMars(seasonsOfMars.ClosestToPerihelion / 2, 1))),
-            Untranslated(string.format("<em>Solar Irradiance</em> will vary from %.1f%% to %.1f%% (Autumn, Winter)", seasonsOfMars.GetSolarIrradianceBonusFarFromMars(0, -1), seasonsOfMars.GetSolarIrradianceBonusFarFromMars(seasonsOfMars.ClosestToAphelion / 2, -1))),
+            solarIrradianceTrend,
+            solarIrradianceSS,
+            solarIrradianceAW,
+            Untranslated("< newline >"),
+            windSpeedTrend,
+            windSpeedSS,
+            windSpeedAW,
             Untranslated("< newline >"),
             Untranslated(string.format("During <em>Spring</em> (%d sols), <em>Dust Storms</em> become %.1f%% longer each sol and <em>Cold Waves</em> slowly normalize.", GetSeasonDuration("Spring"), seasonsOfMars.DurationDifficulty)),
             Untranslated(string.format("During <em>Summer</em> (%d sols), <em>Dust Storms</em> appear %.1f%% faster each sol.", GetSeasonDuration("Summer"), seasonsOfMars.FrequencyDifficulty)),
@@ -33,8 +52,13 @@ function GetSeasonalEffectsText()
             coldWaveModifiers,
             solarIrradianceTrend,
             Untranslated("< newline >"),
-            Untranslated(string.format("<em>Solar Irradiance</em> will vary from %.1f%% to %.1f%% (Spring, Summer)", seasonsOfMars.GetSolarIrradianceBonusFarFromMars(0, 1), seasonsOfMars.GetSolarIrradianceBonusFarFromMars(seasonsOfMars.ClosestToAphelion / 2, 1))),
-            Untranslated(string.format("<em>Solar Irradiance</em> will vary from %.1f%% to %.1f%% (Autumn, Winter)", seasonsOfMars.GetSolarIrradianceBonusCloseToMars(0, -1), seasonsOfMars.GetSolarIrradianceBonusCloseToMars(seasonsOfMars.ClosestToPerihelion / 2, -1))),
+            solarIrradianceTrend,
+            solarIrradianceSS,
+            solarIrradianceAW,
+            Untranslated("< newline >"),
+            windSpeedTrend,
+            windSpeedSS,
+            windSpeedAW,
             Untranslated("< newline >"),
             Untranslated(string.format("During <em>Spring</em> (%d sols), <em>Dust Storms</em> and <em>Cold Waves</em> slowly normalize.", GetSeasonDuration("Spring"))),
             Untranslated(string.format("During <em>Summer</em> (%d sols), <em>Dust Storms</em> and <em>Cold Waves</em> slowly normalize", GetSeasonDuration("Summer"))),

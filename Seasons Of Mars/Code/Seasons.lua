@@ -154,13 +154,13 @@ OnMsg.CityStart = InitSeasonsOfMars
 
 function OnMsg.ClassesPostprocess()
     -- Need to override the disaster descriptors so we can inject Seasons Of Mars
-    local orig_OverrideDisasterDescriptor = OverrideDisasterDescriptor
+    local Tremualin_Orig_OverrideDisasterDescriptor = OverrideDisasterDescriptor
     function OverrideDisasterDescriptor(original)
         if not original or original.forbidden then
             return original
         end
 
-        local overriden = orig_OverrideDisasterDescriptor(original)
+        local overriden = Tremualin_Orig_OverrideDisasterDescriptor(original)
         if not overriden then
             return
         end

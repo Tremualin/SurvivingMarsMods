@@ -23,6 +23,7 @@ return PlaceObj('ModDef', {
         "Code/Color.lua",
         "Code/Seasons.lua",
         "Code/SolarIrradiance.lua",
+        "Code/WindSpeed.lua",
         "Code/Notifications.lua",
         "Code/Encyclopedia.lua",
         "Code/UnitTests.lua",

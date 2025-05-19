@@ -56,7 +56,7 @@ end
 
 -- Southern Hemisphere is close to Mars on Spring/Summer
 -- Northern Hemisphere is close to Mars on Autumn/Winter
-local function GetSolarIrrandianceBonus(activePhaseDuration)
+local function GetSolarIrradianceBonus(activePhaseDuration)
     local seasonsOfMars = SeasonsOfMars
     if seasonsOfMars.ActiveSeason == "Spring" or seasonsOfMars.ActiveSeason == "Summer" then
         -- Sun grows during Spring and Summer
@@ -140,10 +140,11 @@ local function ApplySolarIrradianceBoosts(solarIrradiancePercent)
     SolarIrradianceBoostsSolarPanels(solarIrradiancePercent)
     SolarIrradianceBoostsForestationPlants(solarIrradiancePercent / 2)
     SolarIrradianceBoostsFarms(solarIrradiancePercent / 2)
+    Msg("SolarIrrandianceChanged", solarIrradiancePercent)
 end
 
 local function SolarIrradianceDailyUpdate(activePhaseDuration)
-    ApplySolarIrradianceBoosts(GetSolarIrrandianceBonus(activePhaseDuration))
+    ApplySolarIrradianceBoosts(GetSolarIrradianceBonus(activePhaseDuration))
 end
 
 function OnMsg.DustStorm(...)
@@ -172,9 +173,7 @@ end
 local function InitSolarIrradiance()
     local seasonsOfMars = SeasonsOfMars
     -- Export functions that will be used by notifications
-    seasonsOfMars.GetSolarIrrandianceBonus = GetSolarIrrandianceBonus
-    seasonsOfMars.GetSolarIrradianceBonusCloseToMars = GetSolarIrradianceBonusCloseToMars
-    seasonsOfMars.GetSolarIrradianceBonusFarFromMars = GetSolarIrradianceBonusFarFromMars
+    seasonsOfMars.GetSolarIrradianceBonus = GetSolarIrradianceBonus
 
     if not seasonsOfMars.ActivePhaseDuration then
         -- Make sure the current tilt is set to 0
@@ -185,15 +184,22 @@ local function InitSolarIrradiance()
     if functions.IsSouthernHemisphere() then
         seasonsOfMars.AConst = latitude + 35
         seasonsOfMars.DConst = MulDivRound(latitude, -725, 1000) + 137
+        seasonsOfMars.FromSolarIrradianceSS = GetSolarIrradianceBonusCloseToMars(0, 1)
+        seasonsOfMars.ToSolarIrradianceSS = GetSolarIrradianceBonusCloseToMars(seasonsOfMars.ClosestToPerihelion / 2, 1)
+        seasonsOfMars.FromSolarIrradianceAW = GetSolarIrradianceBonusFarFromMars(0, -1)
+        seasonsOfMars.ToSolarIrradianceAW = GetSolarIrradianceBonusFarFromMars(seasonsOfMars.ClosestToAphelion / 2, -1)
     else
-        -- latitude is negative on the north
+        -- latitude is negative on the nor
         seasonsOfMars.AConst = MulDivRound(-latitude, 675, 1000) + 26
         seasonsOfMars.DConst = MulDivRound(latitude, 1120, 1000) + 138
+        seasonsOfMars.FromSolarIrradianceSS = GetSolarIrradianceBonusFarFromMars(0, 1)
+        seasonsOfMars.ToSolarIrradianceSS = GetSolarIrradianceBonusFarFromMars(seasonsOfMars.ClosestToPerihelion / 2, 1)
+        seasonsOfMars.FromSolarIrradianceAW = GetSolarIrradianceBonusCloseToMars(0, -1)
+        seasonsOfMars.ToSolarIrradianceAW = GetSolarIrradianceBonusCloseToMars(seasonsOfMars.ClosestToAphelion / 2, -1)
     end
-
+    Msg("SolarIrrandianceInitialized")
     -- Make sure Solar Irradiance is there from the start
     SolarIrradianceDailyUpdate(seasonsOfMars.ActivePhaseDuration)
-
 end
 
 OnMsg.LoadGame = InitSolarIrradiance
@@ -208,7 +214,7 @@ function OnMsg.ClassesPostprocess()
         SECTION_SOLAR_IRRADIANCE_ID, true,
         "__context_of_kind", "SolarPanelBase",
         '__template', "InfopanelText",
-        'Text', Untranslated("Solar Irradiance: <right><modifier_percent('electricity_production', '" .. SOLAR_IRRADIANCE_SOLAR_PANELS_MODIFIER_ID .. "')>"),
+        'Text', Untranslated("Solar Irradiance <right><modifier_percent('electricity_production', '" .. SOLAR_IRRADIANCE_SOLAR_PANELS_MODIFIER_ID .. "')>"),
     })
     table.insert(sectionPowerProduction, #sectionPowerProduction + 1, sectionSolarIrradation)
 end
