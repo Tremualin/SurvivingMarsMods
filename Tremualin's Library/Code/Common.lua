@@ -321,6 +321,10 @@ local function GetSpaceMirrorsCount()
     return g_SpecialProjectCompleted and g_SpecialProjectCompleted.LaunchSpaceMirror or 0
 end
 
+local function IsSouthernHemisphere()
+    return g_CurrentMapParams.latitude >= 0
+end
+
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence
 Tremualin.Functions.AddTraitToSanityBreakdownTraits = AddTraitToSanityBreakdownTraits
 Tremualin.Functions.IsUnhappy = IsUnhappy
@@ -349,5 +353,6 @@ Tremualin.Functions.IsAsteroidCity = IsAsteroidCity
 Tremualin.Functions.FindAllTemplatesForNames = FindAllTemplatesForNames
 Tremualin.Functions.AddFactorToTerraformingPresetIfNotDefinedAlready = AddFactorToTerraformingPresetIfNotDefinedAlready
 Tremualin.Functions.GetSpaceMirrorsCount = GetSpaceMirrorsCount
+Tremualin.Functions.IsSouthernHemisphere = IsSouthernHemisphere
 
 Tremualin.Utilities.PrintVisitDurations = PrintVisitDurations

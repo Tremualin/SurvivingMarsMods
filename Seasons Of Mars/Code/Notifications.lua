@@ -1,3 +1,5 @@
+local functions = Tremualin.Functions
+
 local function GetSeasonDuration(season)
     local seasonsOfMars = SeasonsOfMars
     return MulDivRound(seasonsOfMars[season].Duration, 1, seasonsOfMars.DurationDivider)
@@ -7,10 +9,10 @@ function GetSeasonalEffectsText()
     -- Southern Hemisphere
     local seasonsOfMars = SeasonsOfMars
     local dustStormModifiers = Untranslated(string.format("<em>Dust Storm</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", seasonsOfMars.MapSettings_DustStorm.DurationPercentage, seasonsOfMars.MapSettings_DustStorm.SpawntimePercentage))
-    local coldWaveModifiers = Untranslated(string.format("<em>Cold Wave</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", seasonsOfMars.MapSettings_ColdWave.DurationPercentage, seasonsOfMars.MapSettings_DustStorm.SpawntimePercentage))
+    local coldWaveModifiers = Untranslated(string.format("<em>Cold Wave</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", seasonsOfMars.MapSettings_ColdWave.DurationPercentage, seasonsOfMars.MapSettings_ColdWave.SpawntimePercentage))
     local solarIrradianceTrend = Untranslated(string.format("<em>Solar Irradiance</em>: (Current: %+.1f%%, Trend: %+.1f%%)", seasonsOfMars.GetSolarIrrandianceBonus(seasonsOfMars.ActivePhaseDuration), seasonsOfMars.GetSolarIrrandianceBonus(seasonsOfMars.ActivePhaseDuration + 1) - seasonsOfMars.GetSolarIrrandianceBonus(seasonsOfMars.ActivePhaseDuration)))
 
-    if seasonsOfMars.IsSouthernHemisphere() then
+    if functions.IsSouthernHemisphere() then
         return table.concat({
             dustStormModifiers,
             coldWaveModifiers,

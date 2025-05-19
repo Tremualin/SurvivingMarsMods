@@ -1,4 +1,5 @@
 local ui_functions = Tremualin.UIFunctions
+local functions = Tremualin.Functions
 local pi = 3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214
 
 -- Game sin function must be converted from radiasn to degrees
@@ -59,14 +60,14 @@ local function GetSolarIrrandianceBonus(activePhaseDuration)
     local seasonsOfMars = SeasonsOfMars
     if seasonsOfMars.ActiveSeason == "Spring" or seasonsOfMars.ActiveSeason == "Summer" then
         -- Sun grows during Spring and Summer
-        if seasonsOfMars.IsSouthernHemisphere() then
+        if functions.IsSouthernHemisphere() then
             return GetSolarIrradianceBonusCloseToMars(activePhaseDuration, 1)
         else
             return GetSolarIrradianceBonusFarFromMars(activePhaseDuration, 1)
         end
     else
         -- Sun shrinks during Autumn and Winter
-        if seasonsOfMars.IsSouthernHemisphere() then
+        if functions.IsSouthernHemisphere() then
             return GetSolarIrradianceBonusFarFromMars(activePhaseDuration, -1)
         else
             return GetSolarIrradianceBonusCloseToMars(activePhaseDuration, -1)
@@ -180,8 +181,8 @@ local function InitSolarIrradiance()
         seasonsOfMars.ActivePhaseDuration = 0
     end
 
-    local latitude = MarsScreenMapParams.latitude
-    if seasonsOfMars.IsSouthernHemisphere() then
+    local latitude = g_CurrentMapParams.latitude
+    if functions.IsSouthernHemisphere() then
         seasonsOfMars.AConst = latitude + 35
         seasonsOfMars.DConst = MulDivRound(latitude, -725, 1000) + 137
     else

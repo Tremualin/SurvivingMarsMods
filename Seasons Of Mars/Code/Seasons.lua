@@ -1,4 +1,5 @@
 local ui_functions = Tremualin.UIFunctions
+local functions = Tremualin.Functions
 
 -- Holds and persists all configurations
 GlobalVar("SeasonsOfMars", {})
@@ -33,10 +34,6 @@ local function ModifyDisaster(disasterType, activeSeasonConfiguration, difficult
     elseif lessFrequent then
         disasterConfiguration.SpawntimePercentage = Min(disasterConfiguration.SpawntimePercentage + frequencyDifficulty, 100)
     end
-end
-
-local function IsSouthernHemisphere()
-    return MarsScreenMapParams.latitude >= 0
 end
 
 local function SeasonalDailyUpdate()
@@ -81,7 +78,7 @@ local function ModOptions()
             SeasonsOfMars_ChangeColors(seasonsOfMars.ActiveSeason, true)
         end
 
-        if IsSouthernHemisphere() then
+        if functions.IsSouthernHemisphere() then
             -- Aphelion is the farthest point from the sun
             seasonsOfMars.ClosestToAphelion = (seasonsOfMars.Autumn.Duration + seasonsOfMars.Winter.Duration) / seasonsOfMars.DurationDivider
             -- Perihelion is the closest point from the sun
@@ -106,10 +103,8 @@ OnMsg.ModsReloaded = ModOptions
 
 local function InitSeasonsOfMars()
     local seasonsOfMars = SeasonsOfMars
-    -- Export functions that will be used by other modules
-    seasonsOfMars.IsSouthernHemisphere = IsSouthernHemisphere
     if not seasonsOfMars.ActiveSeason then
-        if IsSouthernHemisphere() then
+        if functions.IsSouthernHemisphere() then
             seasonsOfMars.Spring = {Duration = 142,
                 MapSettings_ColdWave = {Shorter = true, LessFrequent = true},
                 MapSettings_DustStorm = {Longer = true},
