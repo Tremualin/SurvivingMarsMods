@@ -1,6 +1,30 @@
 return PlaceObj('ModDef', {
-    'title', "Seasons of Mars (Difficulty Mod)",
-    'description', "Seasons of Mars aims to fulfill 2 goals: \n[list]\n[*]If you have Green Planet; make Terraforming much more important in the early to mid game.\n[*]If you have Below and Beyond; make Underground colonization and Asteroid mining much more important in the early to mid game.\n[/list]\n\nYou have a choice to make: Terraform as fast as possible, move your domes into the Underground, or weather the Weather?\n\nSeasons represent actual Martian Seasons (although their duration in game is 1/4 of the duration in real life by default), with each Season having unique effects, most of which are no longer relevant after Terraforming. This is a difficulty mod.\n\nThe game begins on Spring, the moment you enable the mod for the first time.\n\nThis mod also adds a new Solar Irradiance mechanic, which boosts power production of Solar Panels depending on the Season\n\n[b]Seasons[/b]\n[list]\n    [*]Summer (45 sols): Dust Storms appear 0.5% faster each sol and Solar Irradiance slowly moves from 100% to 50% each sol\n    [*]Autumn (36 sols): Cold Waves are 2.5% longer each sol. Dust Storms slowly normalize, and Solar Irradiance slowly moves from 50% to 0% each sol\n    [*]Winter (39 sols): Cold Waves appear 0.5% faster each sol and Solar Irradiance slowly moves from 0% to 50% each sol\n    [*]Spring (49 sols): Dust Storms are 2.5% longer each sol. Cold Waves slowly normalize and Solar Irradiance slowly moves from 50% to 100% each sol\n[/list]\nHint: Each Season applies a color filter to vegetation. You can disable the filter in the Mod Options\nHint: You can change duration, frequency and difficulty of Seasons in the Mod Options.\n\n[b]Notes[/b] \nI'm not sure if this works without Green Planet; let me know in the comments.\nEffects are loosely based on Science. There isn't much information to go around on Martian Seasons. Choices are mostly gameplay\n\n[url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588828764]Steam[/url]\n[url=https://mods.paradoxplaza.com/authors/Tremualin]Paradox[/url]\n[url=https://github.com/Tremualin/SurvivingMarsMods]Github[/url]",
+    'title', "Seasons of Mars",
+    'description', [[
+    Seasons of Mars extends Surviving Mars with new seasonal effects and game mechanics.
+    Vegetation will change colors as <white>Seasons</white> change (requires Green Planet)
+ 
+    Dust Storms and Cold Waves will be longer and more frequent in certain Seasons.
+    Northern hemisphere colonies will experience difference Seasons than southern hemisphere.
+    Difficulty can be adjusted in mod options.
+    
+    Solar Irradiance will vary across Seasons and Latitudes
+    Solar Irradiance will modify the performance of Farms, Solar Panels and Forestation Plants.
+    Solar Irradiance can be disabled in mod options.
+ 
+    Wind Speed will vary across Seasons and Latitudes
+    Wind Speed will modify the performance of Wind Turbines.
+    Wind Speed can be disabled in mod options.
+ 
+    Detailed descriptions of each effect are included in the game's Encyclopedia.
+ 
+    Will you Terraform your way out of the problem?
+    Will you find refuge Below and Beyond instead?
+    Or will you adapt and endure the Seasons?
+ 
+    [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588828764]Steam[/url]
+    [url=https://mods.paradoxplaza.com/authors/Tremualin]Paradox[/url]\n[url=https://github.com/Tremualin/SurvivingMarsMods]Github[/url]
+]], 
     'image', "Preview.jpg",
     'last_changes', "Scripts are applied on MainCity only now",
     'dependencies', {
@@ -14,17 +38,18 @@ return PlaceObj('ModDef', {
     'pops_desktop_uuid', "395c7ade-b619-4528-8ae1-5752cdd09d3b",
     'pops_any_uuid', "a8229293-1d25-41d5-b9da-9b5b0220fb34",
     'author', "Tremualin",
-    'version_major', 1,
-    'version_minor', 6,
+    'version_major', 2,
+    'version_minor', 0,
     'version', 48,
     'lua_revision', 1009413,
     'saved_with_revision', 1011140,
     'code', {
         "Code/Color.lua",
         "Code/Seasons.lua",
+        "Code/ModOptions.lua",
         "Code/SolarIrradiance.lua",
         "Code/WindSpeed.lua",
-        "Code/Notifications.lua",
+        "Code/UI.lua",
         "Code/Encyclopedia.lua",
         "Code/UnitTests.lua",
     },

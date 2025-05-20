@@ -75,22 +75,24 @@ local function GetSolarIrradianceBonus(activePhaseDuration)
     end
 end
 
+local function GetSolarIrradianceDisplayText(solarIrradiancePercent)
+    if floatfloor(solarIrradiancePercent) >= 0 then
+        return Untranslated("<green>Solar Irradiance +<percent(percent)></green>")
+    else
+        return Untranslated("<red>Solar Irradiance <percent(percent)></red>")
+    end
+end
+
 -- Solar Irradiance modifies the output of Forestation Plants
 local SOLAR_IRRADIANCE_FORESTATION_PLANTS_MODIFIER_ID = "Tremualin_SolarIrradiance_ForestationPlants"
 local function SolarIrradianceBoostsForestationPlants(solarIrradiancePercent)
-    local solarIrrandianceDisplayText
-    if floatfloor(solarIrradiancePercent) >= 0 then
-        solarIrrandianceDisplayText = Untranslated("<green>Solar Irradiance +<percent(percent)></green>")
-    else
-        solarIrrandianceDisplayText = Untranslated("<red>Solar Irradiance <percent(percent)></red>")
-    end
-
+    local floatFloorSolarIrradiance = floatfloor(solarIrradiancePercent)
     -- Modify all solar panels production
     MainCity:SetLabelModifier("ForestationPlant", SOLAR_IRRADIANCE_FORESTATION_PLANTS_MODIFIER_ID, Modifier:new({
         prop = "electricity_production",
-        percent = floatfloor(solarIrradiancePercent),
+        percent = floatFloorSolarIrradiance,
         id = SOLAR_IRRADIANCE_FORESTATION_PLANTS_MODIFIER_ID,
-        display_text = solarIrrandianceDisplayText,
+        display_text = GetSolarIrradianceDisplayText(floatFloorSolarIrradiance),
     }))
 end
 
@@ -98,19 +100,13 @@ end
 local SOLAR_IRRADIANCE_FARMS_MODIFIER_ID = "Tremualin_SolarIrradiance_Farms"
 local SOLAR_IRRADIANCE_OPEN_FARMS_MODIFIER_ID = "Tremualin_SolarIrradiance_OpenFarms"
 local function SolarIrradianceBoostsFarms(solarIrradiancePercent)
-    local solarIrrandianceDisplayText
-    if floatfloor(solarIrradiancePercent) >= 0 then
-        solarIrrandianceDisplayText = Untranslated("<green>Solar Irradiance +<percent(percent)></green>")
-    else
-        solarIrrandianceDisplayText = Untranslated("<red>Solar Irradiance <percent(percent)></red>")
-    end
-
+    local floatFloorSolarIrradiance = floatfloor(solarIrradiancePercent)
     -- Modify all farms production
     MainCity:SetLabelModifier("Farm", SOLAR_IRRADIANCE_FARMS_MODIFIER_ID, Modifier:new({
         prop = "performance",
-        percent = floatfloor(solarIrradiancePercent),
+        percent = floatFloorSolarIrradiance,
         id = SOLAR_IRRADIANCE_FARMS_MODIFIER_ID,
-        display_text = solarIrrandianceDisplayText,
+        display_text = GetSolarIrradianceDisplayText(floatFloorSolarIrradiance),
     }))
 
     -- TODO: figure out how to do this
@@ -120,55 +116,44 @@ end
 -- Solar Irradiance improves the effect of Solar Panels
 local SOLAR_IRRADIANCE_SOLAR_PANELS_MODIFIER_ID = "Tremualin_SolarIrradiance_SolarPanels"
 local function SolarIrradianceBoostsSolarPanels(solarIrradiancePercent)
-    local solarIrrandianceDisplayText
-    if floatfloor(solarIrradiancePercent) >= 0 then
-        solarIrrandianceDisplayText = Untranslated("<green>Solar Irradiance +<percent(percent)></green>")
-    else
-        solarIrrandianceDisplayText = Untranslated("<red>Solar Irradiance <percent(percent)></red>")
-    end
-
+    local floatFloorSolarIrradiance = floatfloor(solarIrradiancePercent)
     -- Modify all solar panels production
     MainCity:SetLabelModifier("SolarPanelBase", SOLAR_IRRADIANCE_SOLAR_PANELS_MODIFIER_ID, Modifier:new({
         prop = "electricity_production",
-        percent = floatfloor(solarIrradiancePercent),
+        percent = floatFloorSolarIrradiance,
         id = SOLAR_IRRADIANCE_SOLAR_PANELS_MODIFIER_ID,
-        display_text = solarIrrandianceDisplayText,
+        display_text = GetSolarIrradianceDisplayText(floatFloorSolarIrradiance),
     }))
 end
 
 local function ApplySolarIrradianceBoosts(solarIrradiancePercent)
     SolarIrradianceBoostsSolarPanels(solarIrradiancePercent)
-    SolarIrradianceBoostsForestationPlants(solarIrradiancePercent / 2)
+    if IsDlcAvailable("armstrong") then
+        SolarIrradianceBoostsForestationPlants(solarIrradiancePercent / 2)
+    end
     SolarIrradianceBoostsFarms(solarIrradiancePercent / 2)
-    Msg("SolarIrrandianceChanged", solarIrradiancePercent)
 end
 
-local function SolarIrradianceDailyUpdate(activePhaseDuration)
-    ApplySolarIrradianceBoosts(GetSolarIrradianceBonus(activePhaseDuration))
-end
-
-function OnMsg.DustStorm(...)
-    -- Dust Storms completely disable Solar Irradiance
-    ApplySolarIrradianceBoosts(0)
-end
-
-function OnMsg.SunChange(...)
+local function SolarIrradianceUpdate()
+    local seasonsOfMars = SeasonsOfMars
+    -- If SolarIrradiance is enabled
     -- Update solar irradiance if the sun is out
     -- Unless we are in the middle of a dust storm
-    if SunAboveHorizon and not HasDustStorm() then
-        SolarIrradianceDailyUpdate(SeasonsOfMars.ActivePhaseDuration)
+    local expectedSolarIrradiance = GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration)
+    if seasonsOfMars.SolarIrradianceEnabled and SunAboveHorizon and not HasDustStorm() then
+        ApplySolarIrradianceBoosts(expectedSolarIrradiance)
     else
         ApplySolarIrradianceBoosts(0)
     end
+
+    -- Wind speed depends on the expected Solar Irradiance; so we should let it know
+    Msg("Tremualin_SeasonsOfMars_ExpectedSolarIrrandianceChanged", expectedSolarIrradiance)
 end
 
-function OnMsg.DustStormEnded(...)
-    -- Re-enable Solar Irradiance after the end of the dust storm
-    -- But only if the Sun is out
-    if SunAboveHorizon then
-        SolarIrradianceDailyUpdate(SeasonsOfMars.ActivePhaseDuration)
-    end
-end
+OnMsg.Tremualin_SeasonsOfMars_SolarIrradianceEnabled = SolarIrradianceUpdate
+OnMsg.DustStorm = SolarIrradianceUpdate
+OnMsg.SunChange = SolarIrradianceUpdate
+OnMsg.DustStormEnded = SolarIrradianceUpdate
 
 local function InitSolarIrradiance()
     local seasonsOfMars = SeasonsOfMars
@@ -180,7 +165,8 @@ local function InitSolarIrradiance()
         seasonsOfMars.ActivePhaseDuration = 0
     end
 
-    local latitude = g_CurrentMapParams.latitude
+    -- ModEditor latitude is nil
+    local latitude = g_CurrentMapParams.latitude or 0
     if functions.IsSouthernHemisphere() then
         seasonsOfMars.AConst = latitude + 35
         seasonsOfMars.DConst = MulDivRound(latitude, -725, 1000) + 137
@@ -197,9 +183,9 @@ local function InitSolarIrradiance()
         seasonsOfMars.FromSolarIrradianceAW = GetSolarIrradianceBonusCloseToMars(0, -1)
         seasonsOfMars.ToSolarIrradianceAW = GetSolarIrradianceBonusCloseToMars(seasonsOfMars.ClosestToAphelion / 2, -1)
     end
-    Msg("SolarIrrandianceInitialized")
+    Msg("Tremualin_SeasonsOfMars_SolarIrrandianceInitialized")
     -- Make sure Solar Irradiance is there from the start
-    SolarIrradianceDailyUpdate(seasonsOfMars.ActivePhaseDuration)
+    SolarIrradianceUpdate()
 end
 
 OnMsg.LoadGame = InitSolarIrradiance
@@ -210,11 +196,12 @@ function OnMsg.ClassesPostprocess()
     local SECTION_SOLAR_IRRADIANCE_ID = "Tremualin_SectionSolarIrradiance"
     local sectionPowerProduction = XTemplates.sectionPowerProduction[1]
     ui_functions.RemoveXTemplateSections(sectionPowerProduction, SECTION_SOLAR_IRRADIANCE_ID)
-    local sectionSolarIrradation = PlaceObj("XTemplateTemplate", {
+    local sectionSolarIrradiation = PlaceObj("XTemplateTemplate", {
         SECTION_SOLAR_IRRADIANCE_ID, true,
         "__context_of_kind", "SolarPanelBase",
+        '__condition', function (parent, context) return SeasonsOfMars.SolarIrradianceEnabled end,
         '__template', "InfopanelText",
         'Text', Untranslated("Solar Irradiance <right><modifier_percent('electricity_production', '" .. SOLAR_IRRADIANCE_SOLAR_PANELS_MODIFIER_ID .. "')>"),
     })
-    table.insert(sectionPowerProduction, #sectionPowerProduction + 1, sectionSolarIrradation)
+    table.insert(sectionPowerProduction, #sectionPowerProduction + 1, sectionSolarIrradiation)
 end

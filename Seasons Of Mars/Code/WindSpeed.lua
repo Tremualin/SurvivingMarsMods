@@ -11,20 +11,18 @@ local function SetWindSpeedBoostWindTurbines(solarIrradiancePercent)
 end
 
 -- Update Wind Speed anytime Solar Irradiance changes
-function OnMsg.SolarIrrandianceChanged(solarIrradiancePercent)
+function OnMsg.Tremualin_SeasonsOfMars_ExpectedSolarIrrandianceChanged(expectedSolarIrradiancePercent)
     -- If dust storm, set to 0
+    -- Dust Storm bonuses take priority
     if HasDustStorm() then
         SetWindSpeedBoostWindTurbines(0)
     else
         -- Otherwise update, but only if the sun is shining
-        -- To avoid setting WindPower to 0 at night
-        if SunAboveHorizon then
-            SetWindSpeedBoostWindTurbines(solarIrradiancePercent)
-        end
+        SetWindSpeedBoostWindTurbines(expectedSolarIrradiancePercent)
     end
 end
 
-function OnMsg.SolarIrrandianceInitialized()
+function OnMsg.Tremualin_SeasonsOfMars_SolarIrrandianceInitialized()
     local seasonsOfMars = SeasonsOfMars
     seasonsOfMars.FromWindSpeedSS = GetWindSpeedBoostWindTurbines(seasonsOfMars.FromSolarIrradianceSS)
     seasonsOfMars.ToWindSpeedSS = GetWindSpeedBoostWindTurbines(seasonsOfMars.ToSolarIrradianceSS)
@@ -49,7 +47,12 @@ function WindTurbine:CalcProduction()
 end
 
 function WindTurbine:GetWindSpeed()
-    return SeasonsOfMars.WindSpeedBoost
+    local seasonsOfMars = SeasonsOfMars
+    if seasonsOfMars.WindSpeedEnabled then
+        return seasonsOfMars.WindSpeedBoost
+    else
+        return 0
+    end
 end
 
 function OnMsg.ClassesPostprocess()
@@ -60,6 +63,7 @@ function OnMsg.ClassesPostprocess()
     local sectionWindPower = PlaceObj("XTemplateTemplate", {
         SECTION_WIND_POWER_ID, true,
         "__context_of_kind", "WindTurbine",
+        '__condition', function (parent, context) return SeasonsOfMars.WindSpeedEnabled end,
         '__template', "InfopanelText",
         'Text', Untranslated("Wind Speed boost <right><percent(WindSpeed)>"),
     })
