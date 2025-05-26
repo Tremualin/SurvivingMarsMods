@@ -96,6 +96,19 @@ end
 -- Update the HUD each new day
 OnMsg.NewDay = UpdateSeasonalRolloverText
 
+-- Necessary override to call ApplyModOptions
+-- Courtesy of Choggi
+local Tremualin_Origin_GetDialogModeParam = GetDialogModeParam
+function GetDialogModeParam(id_or_win, ...)
+    -- Fake it till you make it
+    local mod = Mods[id_or_win]
+    if mod then
+        return mod
+    end
+
+    return Tremualin_Origin_GetDialogModeParam(id_or_win, ...)
+end
+
 -- Let players know that there are changes to sun and wind so they can disable it if they don't want them
 local function ShowSunAndWindUpdateMessage()
     if not CurrentModOptions:GetProperty("ReadSunAndWindUpdate") then
@@ -115,6 +128,7 @@ local function ShowSunAndWindUpdateMessage()
             local choice = WaitPopupNotification(false, params)
             if choice == 2 then
                 CurrentModOptions:SetProperty("ReadSunAndWindUpdate", true)
+                ApplyModOptions(CurrentModId)
             end
         end) -- CreateRealTimeThread
     end

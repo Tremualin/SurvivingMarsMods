@@ -1,7 +1,7 @@
 local ui_functions = Tremualin.UIFunctions
 
 local function GetWindSpeedBoostWindTurbines(solarIrradiancePercent)
-    return - (MulDivRound(floatfloor(solarIrradiancePercent), 75, 100))
+    return Max(-100, -(MulDivRound(floatfloor(solarIrradiancePercent), 75, 100)))
 end
 
 -- Wind Speed increase or decreases the effect of Wind Turbines
@@ -17,7 +17,6 @@ function OnMsg.Tremualin_SeasonsOfMars_ExpectedSolarIrrandianceChanged(expectedS
     if HasDustStorm() then
         SetWindSpeedBoostWindTurbines(0)
     else
-        -- Otherwise update, but only if the sun is shining
         SetWindSpeedBoostWindTurbines(expectedSolarIrradiancePercent)
     end
 end

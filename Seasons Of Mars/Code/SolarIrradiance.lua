@@ -136,18 +136,21 @@ end
 
 local function SolarIrradianceUpdate()
     local seasonsOfMars = SeasonsOfMars
-    -- If SolarIrradiance is enabled
-    -- Update solar irradiance if the sun is out
-    -- Unless we are in the middle of a dust storm
-    local expectedSolarIrradiance = GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration)
-    if seasonsOfMars.SolarIrradianceEnabled and SunAboveHorizon and not HasDustStorm() then
-        ApplySolarIrradianceBoosts(expectedSolarIrradiance)
-    else
-        ApplySolarIrradianceBoosts(0)
-    end
+    -- The function might be called before an ActivePhaseDuration has been decided
+    if seasonsOfMars.ActivePhaseDuration then
+        -- If SolarIrradiance is enabled
+        -- Update solar irradiance if the sun is out
+        -- Unless we are in the middle of a dust storm
+        local expectedSolarIrradiance = GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration)
+        if seasonsOfMars.SolarIrradianceEnabled and SunAboveHorizon and not HasDustStorm() then
+            ApplySolarIrradianceBoosts(expectedSolarIrradiance)
+        else
+            ApplySolarIrradianceBoosts(0)
+        end
 
-    -- Wind speed depends on the expected Solar Irradiance; so we should let it know
-    Msg("Tremualin_SeasonsOfMars_ExpectedSolarIrrandianceChanged", expectedSolarIrradiance)
+        -- Wind speed depends on the expected Solar Irradiance; so we should let it know
+        Msg("Tremualin_SeasonsOfMars_ExpectedSolarIrrandianceChanged", expectedSolarIrradiance)
+    end
 end
 
 OnMsg.Tremualin_SeasonsOfMars_SolarIrradianceEnabled = SolarIrradianceUpdate
@@ -161,8 +164,13 @@ local function InitSolarIrradiance()
     seasonsOfMars.GetSolarIrradianceBonus = GetSolarIrradianceBonus
 
     if not seasonsOfMars.ActivePhaseDuration then
-        -- Make sure the current tilt is set to 0
-        seasonsOfMars.ActivePhaseDuration = 0
+        if seasonsOfMars.ActiveSeason == "Spring" or seasonsOfMars.ActiveSeason == "Autumn" then
+            seasonsOfMars.ActivePhaseDuration = seasonsOfMars.ActiveSeasonDuration
+        elseif seasonsOfMars.ActiveSeason == "Summer" then
+            seasonsOfMars.ActivePhaseDuration = seasonsOfMars.ActiveSeasonDuration + MulDivRound(seasonsOfMars["Spring"].Duration, 1, seasonsOfMars.DurationDivider)
+        elseif seasonsOfMars.ActiveSeason == "Winter" then
+            seasonsOfMars.ActivePhaseDuration = seasonsOfMars.ActiveSeasonDuration + MulDivRound(seasonsOfMars["Autumn"].Duration, 1, seasonsOfMars.DurationDivider)
+        end
     end
 
     -- ModEditor latitude is nil
