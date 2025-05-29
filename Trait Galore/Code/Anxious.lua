@@ -8,9 +8,9 @@ function OnMsg.ClassesPostprocess()
 end
 
 -- Anxious colonists lose sanity whenever they try to visit some place and they can't
-local orig_Colonist_TryVisit = Colonist.TryVisit
+local Orig_Tremualin_Colonist_TryVisit = Colonist.TryVisit
 function Colonist:TryVisit(need, ...)
-    local fail = orig_Colonist_TryVisit(self, need, ...)
+    local fail = Orig_Tremualin_Colonist_TryVisit(self, need, ...)
     if fail and self.traits.Anxious then
         self:ChangeSanity(anxious_sanity_loss, anxious_sanity_loss_message)
     end
