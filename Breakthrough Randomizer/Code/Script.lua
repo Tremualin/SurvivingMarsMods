@@ -41,6 +41,8 @@ local GetUUID = function()
     end)
 end
 
+local UNDECIDED_CHOICE = Untranslated("Wait, let me see the choices again")
+
 local function ShowCherryPickingPopup(first_breakthrough, map_id, notification_type, research_instead_of_discover)
     local colony = UIColony
     local unregistered_breakthroughs = colony:GetUnregisteredBreakthroughs()
@@ -48,39 +50,44 @@ local function ShowCherryPickingPopup(first_breakthrough, map_id, notification_t
         CreateRealTimeThread(function()
             local params = {
                 id = GetUUID(),
-                title = Untranslated("Available Breakthroughs"),
-                text = Untranslated("Our Rover has found a specimen like none we have ever seen before. Scientists, Engineers, Botanists, Medics, Geologists and even Officers believe they can gather crucial information from the samples, and have some ideas of what we might find if we analyze them. There's a catch...the analysis will alter the specimen permanently. We might not get any more useful data from it after the experiment. As the commander of the Colony, the choice is yours to make."),
+                title = Untranslated("Breakthrough Discovered!"),
+                text = Untranslated("Commander, it appears that the file containing our last breakthrough was accidentally deleted. Our experts believe they can restore the file from a backup, but the process would be faster if they had the name of the Breakthrough. Do you remember which of these it was?"),
                 minimized_notification_priority = "CriticalBlue",
-                image = "UI/Messages/Events/03_discussion.tga",
+                image = "UI/Messages/hints.tga",
                 start_minimized = false,
                 dismissable = false
             }
 
             local choices = {}
             local breakthroughs = GetRandomUnregisteredBreakthroughs(first_breakthrough)
-            for i, breakthrough in ipairs(breakthroughs) do
-                choices[i] = breakthrough
-                params["choice" .. i] = breakthrough.display_name
-                params["choice" .. i .. "_rollover_title"] = "<image " .. breakthrough.icon .. " 400>" .. breakthrough.display_name
-                params["choice" .. i .. "_rollover"] = _InternalTranslate(breakthrough.description, breakthrough)
-            end
+
             if #breakthroughs > 0 then
-                local confirmationParams = {
-                    id = GetUUID(),
-                    title = Untranslated("Are you sure?"),
-                    minimized_notification_priority = "CriticalBlue",
-                    image = "UI/Messages/Events/03_discussion.tga",
-                    start_minimized = false,
-                    dismissable = false
-                }
+                for i, breakthrough in ipairs(breakthroughs) do
+                    choices[i] = breakthrough
+                    params["choice" .. i] = breakthrough.display_name
+                    params["choice" .. i .. "_rollover_title"] = "<image " .. breakthrough.icon .. " 400>" .. breakthrough.display_name
+                    params["choice" .. i .. "_rollover"] = _InternalTranslate(breakthrough.description, breakthrough)
+                end
+
+                local noneOfTheAbove = #choices + 1
+                choices[noneOfTheAbove] = "NoneOfTheAbove"
+                params["choice" .. noneOfTheAbove] = "None of the above"
+                params["choice" .. noneOfTheAbove .. "_rollover"] = Untranslated("It wasn't any of those")
+
                 local confirmedChoice = false
                 while not confirmedChoice do
                     local choice = choices[WaitPopupNotification(false, params)]
-                    confirmedChoice = "ok" == WaitQuestion(terminal.desktop, Untranslated("<image " .. choice.icon .. " 400>" .. choice.display_name), Untranslated("Commander, you've chosen to unlock " .. choice.display_name .. ". Are you sure about that?"), Untranslated("Yes, unlock " .. choice.display_name), Untranslated("Um, Actually...No"))
+                    if choice == "NoneOfTheAbove" then
+                        confirmedChoice = "ok" == WaitQuestion(terminal.desktop, Untranslated("None of the above, try again"), Untranslated("Commander, you think the breakthrough is <em>none of the above</em> and we should try again. Are you sure about that?"), Untranslated("Yes, the breakthrough was none of the above, try again"), UNDECIDED_CHOICE)
+                    else
+                        confirmedChoice = "ok" == WaitQuestion(terminal.desktop, Untranslated("<image " .. choice.icon .. " 400>" .. choice.display_name), Untranslated("Commander, you've chosen " .. choice.display_name .. ". Are you sure about that?"), Untranslated("Yes, " .. choice.display_name), UNDECIDED_CHOICE)
+                    end
                     if confirmedChoice then
-                        -- Is the chosen tech is already chosen we had a bit of a race condition; try again
-                        if colony:IsTechResearched(choice.id) then
-                            ShowCherryPickingPopup(first_breakthrough, map_id, notification_type, research_instead_of_discover)
+                        -- If NoneOfTheAbove was chosen, try again
+                        -- If the chosen tech was already chosen, we had a bit of a race condition; try again
+                        if choice == "NoneOfTheAbove" or colony:IsTechResearched(choice.id) then
+                            -- Do not pass the first one again, since it wasn't chosen
+                            ShowCherryPickingPopup(nil, map_id, notification_type, research_instead_of_discover)
                             return
                         end
 
@@ -153,5 +160,34 @@ function Research:UnlockBreakthroughs(count, name, map_id)
             ShowCherryPickingPopup(nil, map_id, "BreakthroughDiscovered", true)
             unlocked = unlocked + 1
         end
+    end
+end
+
+local Orig_Tremualin_DiscoverTech_Execute = DiscoverTech.Execute
+function DiscoverTech:Execute(map_id, obj, context)
+    local tech_id = self.Tech
+    if tech_id == "" and self.Field == "Breakthroughs" then
+        ShowCherryPickingPopup(nil, map_id, "BreakthroughDiscovered")
+    else
+        Orig_Tremualin_DiscoverTech_Execute(self, map_id, obj, context)
+    end
+end
+
+local Orig_Tremualin_SA_RevealTech_Exec = SA_RevealTech.Exec
+function SA_RevealTech:Exec(seq_player, ip, seq, registers)
+    local tech_id = self.tech
+    if tech_id == "" then
+        ShowCherryPickingPopup(nil, nil, "BreakthroughDiscovered")
+    else
+        Orig_Tremualin_SA_RevealTech_Exec(self, seq_player, ip, seq, registers)
+    end
+end
+
+local Orig_Tremualin_RewardTech_Execute = RewardTech.Execute
+function RewardTech:Execute(map_id, obj, context)
+    if self.Field == "Breakthroughs" and self.Research == "random" then
+        ShowCherryPickingPopup(nil, map_id, "BreakthroughDiscovered")
+    else
+        Orig_Tremualin_RewardTech_Execute(self, map_id, obj, context, true)
     end
 end
