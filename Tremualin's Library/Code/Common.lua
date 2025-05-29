@@ -322,7 +322,8 @@ local function GetSpaceMirrorsCount()
 end
 
 local function IsSouthernHemisphere()
-    return g_CurrentMapParams.latitude >= 0
+    -- latitude is nil in ModEditor
+    return (g_CurrentMapParams.latitude or 0) >= 0
 end
 
 Tremualin.Functions.FindAllOtherColonistsInSameResidence = FindAllOtherColonistsInSameResidence

@@ -90,7 +90,7 @@ local function ImproveSupportiveCommunity()
     local tech = Presets.TechPreset.Social["SupportiveCommunity"]
     local modified = tech.Tremualin_SensoryImpairment
     if not modified then
-        tech.description = Untranslated("Removes the -20 morale penalty from <em>Sensory Impaired Colonists</em>\n") .. tech.description
+        tech.description = Untranslated("<em>Sensory Impaired</em> colonists morale penalty eliminated\n") .. tech.description
         tech.Tremualin_SensoryImpairment = true
     end
 end
