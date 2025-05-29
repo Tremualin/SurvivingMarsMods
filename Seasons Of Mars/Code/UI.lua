@@ -15,9 +15,15 @@ function GetSeasonalEffectsText()
 
     local dustStormSettings = seasonsOfMars.MapSettings_DustStorm
     local dustStormModifiers = Untranslated(string.format("<em>Dust Storm</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", dustStormSettings.DurationPercentage, dustStormSettings.SpawntimePercentage))
+    if DustStormsDisabled then
+        dustStormModifiers = Untranslated("<em>Dust Storms</em> disabled thanks to <em>Terraforming</em>")
+    end
 
     local coldWaveSettinngs = seasonsOfMars.MapSettings_ColdWave
     local coldWaveModifiers = Untranslated(string.format("<em>Cold Wave</em> amplifiers: (Duration: %.1f%%, Cooldown: %.1f%%)", coldWaveSettinngs.DurationPercentage, coldWaveSettinngs.SpawntimePercentage))
+    if ColdWavesDisabled then
+        coldWaveModifiers = Untranslated("<em>Cold Waves</em> disabled thanks to <em>Terraforming</em>")
+    end
 
     local sharedSeasonalEffects = table.concat({
         currentSeasonDescription,
@@ -54,6 +60,15 @@ function GetSeasonalEffectsText()
             windSpeedTrend,
             windSpeedSS,
             windSpeedAW,
+        }, "< newline >")
+    end
+
+    if DustStormsDisabled and ColdWavesDisabled then
+        return table.concat({
+            sharedSeasonalEffects,
+            Untranslated("< newline >"),
+            Untranslated("Seasonal <em>Dust Storm</em> and <em>Cold Wave</em> effects disabled thanks to <em>Terraforming</em>"),
+            Untranslated("< newline >< newline >"),
         }, "< newline >")
     end
 
