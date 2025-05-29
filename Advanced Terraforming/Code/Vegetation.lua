@@ -107,11 +107,17 @@ local function Tremualin_TrySpawnTechAnomalyNearObject(object, radius)
     marker:PlaceDeposit()
 end
 
+local VegetationPct = 0
+local ForestationPlants = empty_table
+function OnMsg.NewDay(...)
+    VegetationPct = GetTerraformParamPct("Vegetation")
+    ForestationPlants = UIColony.city_labels.labels.ForestationPlant or empty_table
+end
+
 function OnMsg.NewHour(hour)
-    local vegetationPct = GetTerraformParamPct("Vegetation")
-    if vegetationPct < 100 then
-        for _, foresation_plant in ipairs(UIColony.city_labels.labels.ForestationPlant or empty_table) do
-            if foresation_plant.working and 0 == foresation_plant:Random(MulDivRound(1000, 100 - vegetationPct, 100)) then
+    if VegetationPct < 100 then
+        for _, foresation_plant in ipairs(ForestationPlants) do
+            if foresation_plant.working and 0 == foresation_plant:Random(MulDivRound(1000, 100 - VegetationPct, 100)) then
                 Tremualin_TrySpawnTechAnomalyNearObject(foresation_plant, foresation_plant.UIRange * const.GridSpacing)
             end
         end

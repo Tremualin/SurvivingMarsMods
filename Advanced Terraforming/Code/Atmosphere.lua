@@ -33,6 +33,7 @@ local function ApplySkiesMorale(blueSkies)
             display_text = Untranslated("Nothing but blue skies from now on"),
         }))
     else
+        -- Remove the blue skies modifier if the sky is no longer blue
         local old_mod = table.find_value(MainCity.modifications, "id", BLUE_SKIES_MORALE_ID)
         if old_mod then
             MainCity:UpdateModifier("remove", old_mod, 0, 0)
