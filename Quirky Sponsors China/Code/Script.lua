@@ -3,20 +3,22 @@ local RAT_RACE_PENALTY = -10
 local LOSING_FACE_FLAW_PENALTY = -4
 
 -- TODO: Add alternative Tai Chi garden description for Dynamic Fitness mod
-local China_Description = [[Research per Sol: <research(SponsorResearch)>
+local China_Description = [[
+Research per Sol: <research(SponsorResearch)>
 Rare Metals price: $<ExportPricePreciousMetals> M
  
 <green>RC Generator</green> - RC Commander that can generate power as a solar panel
 <green>Tai-chi Garden</green> - Small exercising garden where visitors may become Fit
 <green>Compact Rockets</green> - Passenger Rockets carry 10 additional Colonists
 <green>Most Populous Country</green> - Applicants are generated twice as fast
-<green>Reverse Engineering</green> -  Security Stations generate Science through <em>Reverse Engineering</em> operations on Rivals
+<green>Reverse Engineering</green> - Security Stations generate Science through <em>Reverse Engineering</em> operations on Rivals
 <green>Personal Space Efficiency</green> - Residences house 50% more Colonists and Services have 50% more capacity
-<white>Social Credit System</white> - Colonists (except Renegades) exponentially gain/lose morale based on their perks/flaws
+<white>Fighting for Face</white> - Colonists (except Renegades) exponentially gain/lose morale based on their perks/flaws
 <red>Losing Face</red> - Colonists (except Renegades) lose 4 sanity for each flaw and 2 sanity for each quirk they have.
-<red>Educational Rat Race</red> - Students lose 10 Health and Sanity in Schools and Universities each Sol
+<red>College Entrance Examination</red> - Students lose 10 Health and Sanity in Schools and Universities each Sol
+<red>Electronic Drugs Prohibition</red> - Casinos and Electronic Stores cannot be built
 <red>Academic Paper Mills</red> - Research Labs and Hawking Institutes work at 30% performance
-<red>Electronic Drugs Prohibition</red> - Casinos and Electronic Stores cannot be built]]
+]]
 -- imports
 local stat_scale = const.Scale.Stat
 local AddParentToClass = Tremualin.Functions.AddParentToClass
