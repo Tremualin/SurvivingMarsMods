@@ -94,7 +94,7 @@ OnMsg.LoadGame = modifyBreakthroughs
 OnMsg.CityStart = modifyBreakthroughs
 
 -- Allows good vibrations to restore health
-local orig_Colonist_Rest = Colonist.Rest
+local Orig_Tremualin_Colonist_Rest = Colonist.Rest
 function Colonist:Rest()
     local residence = self.residence
     if residence and residence.working then
@@ -103,7 +103,7 @@ function Colonist:Rest()
             self:ChangeHealth(2500, "dome")
         end
     end
-    orig_Colonist_Rest(self)
+    Orig_Tremualin_Colonist_Rest(self)
 end
 
 function OnMsg.ColonistDie(colonist, ...)
