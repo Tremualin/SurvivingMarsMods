@@ -15,7 +15,6 @@ local function VerifyDisasterProgression(season, disasterType, originalDisasterC
     elseif seasonalConfiguration.MoreFrequent then
         assert(Max(0, originalDisasterConfiguration.SpawntimePercentage - seasonDuration * SeasonsOfMars.SpawntimePercentage) == modifiedDisasterConfiguration.DurationPercentage, "Modified disaster duration should be equal to the original spawntime percentage minus the season duration multiplied by the difficulty modifier")
     end
-
 end
 
 local deepCopy = Tremualin.Functions.DeepCopy

@@ -43,7 +43,7 @@ local function SeasonalDailyUpdate()
     -- If the season has run it's course; change to the next one
     -- Otherwise, increase the ActiveSeasonDuration and ActivePhaseDuration
     -- Finally, update all disaster configurations
-    if seasonsOfMars.ActiveSeasonDuration >= activeSeasonConfiguration.Duration / seasonsOfMars.DurationDivider then
+    if seasonsOfMars.ActiveSeasonDuration > activeSeasonConfiguration.Duration / seasonsOfMars.DurationDivider then
         seasonsOfMars.ActiveSeason = activeSeasonConfiguration.NextSeason
         if seasonsOfMars.ActiveSeason == "Autumn" or seasonsOfMars.ActiveSeason == "Spring" then
             seasonsOfMars.ActivePhaseDuration = 1

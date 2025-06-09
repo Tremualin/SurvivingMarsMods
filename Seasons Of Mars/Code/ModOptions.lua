@@ -15,11 +15,6 @@ local function ModOptions()
             Msg("Tremualin_SeasonsOfMars_ColorsDisabled")
         end
 
-        seasonsOfMars.SolarIrradianceEnabled = options:GetProperty("SolarIrradianceEnabled")
-        Msg("Tremualin_SeasonsOfMars_SolarIrradianceEnabled")
-        seasonsOfMars.WindSpeedEnabled = options:GetProperty("WindSpeedEnabled")
-        Msg("Tremualin_SeasonsOfMars_WindSpeedEnabled")
-
         if functions.IsSouthernHemisphere() then
             -- Aphelion is the farthest point from the sun
             seasonsOfMars.ClosestToAphelion = (seasonsOfMars.Autumn.Duration + seasonsOfMars.Winter.Duration) / seasonsOfMars.DurationDivider
@@ -31,6 +26,12 @@ local function ModOptions()
             -- Perihelion is the closest point from the sun
             seasonsOfMars.ClosestToPerihelion = (seasonsOfMars.Autumn.Duration + seasonsOfMars.Winter.Duration) / seasonsOfMars.DurationDivider
         end
+
+        seasonsOfMars.BaseSolarIrradiance = options:GetProperty("BaseSolarIrradiance")
+        seasonsOfMars.SolarIrradianceEnabled = options:GetProperty("SolarIrradianceEnabled")
+        Msg("Tremualin_SeasonsOfMars_SolarIrradianceEnabled")
+        seasonsOfMars.WindSpeedEnabled = options:GetProperty("WindSpeedEnabled")
+        Msg("Tremualin_SeasonsOfMars_WindSpeedEnabled")
     end
 end
 

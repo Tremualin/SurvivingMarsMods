@@ -69,6 +69,14 @@ return {
         'Help', "If enabled, Solar Irradiance boosts will be applied to Solar Panels, Farms and Forestation Plants (Green Planet required)",
         'DefaultValue', true,
     }),
+    PlaceObj('ModItemOptionNumber', {
+        'name', "BaseSolarIrradiance",
+        'DisplayName', "Base Solar Irradiance",
+        'Help', "Increase this number for less solar power bonuses (and even negative solar power) and more wind power bonuses. Decrease it for higher solar power bonuses and less wind power.",
+        'DefaultValue', 52,
+        'MinValue', 1,
+        'MaxValue', 200,
+    }),
     PlaceObj('ModItemOptionToggle', {
         'name', "WindSpeedEnabled",
         'DisplayName', "Enable Wind Speed",
