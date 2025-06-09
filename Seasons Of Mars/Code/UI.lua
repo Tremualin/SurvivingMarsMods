@@ -33,36 +33,40 @@ function GetSeasonalEffectsText()
         coldWaveModifiers,
     }, "<newline>")
 
-    local currentSolarIrradiance = seasonsOfMars.GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration)
-    local nextSolarIrradiance = seasonsOfMars.GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration + 1)
-    if seasonsOfMars.SolarIrradianceEnabled then
-        local solarIrradianceTrend = Untranslated(string.format("<em>Solar Irradiance</em>: (Current: %+.1f%%, Trend: %+.1f%%)", currentSolarIrradiance, nextSolarIrradiance - currentSolarIrradiance))
-        local solarIrradianceSS = Untranslated(string.format("<em>Solar Irradiance</em> will vary from %+.1f%% to %+.1f%% (Spring, Summer)", seasonsOfMars.FromSolarIrradianceSS, seasonsOfMars.ToSolarIrradianceSS))
-        local solarIrradianceAW = Untranslated(string.format("<em>Solar Irradiance</em> will vary from %+.1f%% to %+.1f%% (Autumn, Winter)", seasonsOfMars.FromSolarIrradianceAW, seasonsOfMars.ToSolarIrradianceAW))
+    -- It might not have been initialized yet
+    if seasonsOfMars.GetSolarIrradianceBonus then
+        local currentSolarIrradiance = seasonsOfMars.GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration)
+        local nextSolarIrradiance = seasonsOfMars.GetSolarIrradianceBonus(seasonsOfMars.ActivePhaseDuration + 1)
+        if seasonsOfMars.SolarIrradianceEnabled then
+            local solarIrradianceTrend = Untranslated(string.format("<em>Solar Irradiance</em>: (Current: %+.1f%%, Trend: %+.1f%%)", currentSolarIrradiance, nextSolarIrradiance - currentSolarIrradiance))
+            local solarIrradianceSS = Untranslated(string.format("<em>Solar Irradiance</em> will vary from %+.1f%% to %+.1f%% (Spring, Summer)", seasonsOfMars.FromSolarIrradianceSS, seasonsOfMars.ToSolarIrradianceSS))
+            local solarIrradianceAW = Untranslated(string.format("<em>Solar Irradiance</em> will vary from %+.1f%% to %+.1f%% (Autumn, Winter)", seasonsOfMars.FromSolarIrradianceAW, seasonsOfMars.ToSolarIrradianceAW))
 
-        sharedSeasonalEffects = table.concat({
-            sharedSeasonalEffects,
-            Untranslated("<newline>"),
-            solarIrradianceTrend,
-            solarIrradianceSS,
-            solarIrradianceAW,
-        }, "<newline>")
-    end
+            sharedSeasonalEffects = table.concat({
+                sharedSeasonalEffects,
+                Untranslated("<newline>"),
+                solarIrradianceTrend,
+                solarIrradianceSS,
+                solarIrradianceAW,
+            }, "<newline>")
+        end
 
-    if seasonsOfMars.WindSpeedEnabled then
-        local currentWindSpeed = seasonsOfMars.GetWindSpeedBoostWindTurbines(currentSolarIrradiance)
-        local nextWindSpeed = seasonsOfMars.GetWindSpeedBoostWindTurbines(nextSolarIrradiance)
-        local windSpeedTrend = Untranslated(string.format("<em>Wind Speed</em>: (Current: %+.1f%%, Trend: %+.1f%%)", currentWindSpeed, nextWindSpeed - currentWindSpeed))
-        local windSpeedSS = Untranslated(string.format("<em>Wind Speed</em> will vary from %+.1f%% to %+.1f%% (Spring, Summer)", seasonsOfMars.FromWindSpeedSS, seasonsOfMars.ToWindSpeedSS))
-        local windSpeedAW = Untranslated(string.format("<em>Wind Speed</em> will vary from %+.1f%% to %+.1f%% (Autumn, Winter)", seasonsOfMars.FromWindSpeedAW, seasonsOfMars.ToWindSpeedAW))
+        -- seasonsOfMars might not be initialized yet
+        if seasonsOfMars.WindSpeedEnabled and seasonsOfMars.GetWindSpeedBoostWindTurbines then
+            local currentWindSpeed = seasonsOfMars.GetWindSpeedBoostWindTurbines(currentSolarIrradiance)
+            local nextWindSpeed = seasonsOfMars.GetWindSpeedBoostWindTurbines(nextSolarIrradiance)
+            local windSpeedTrend = Untranslated(string.format("<em>Wind Speed</em>: (Current: %+.1f%%, Trend: %+.1f%%)", currentWindSpeed, nextWindSpeed - currentWindSpeed))
+            local windSpeedSS = Untranslated(string.format("<em>Wind Speed</em> will vary from %+.1f%% to %+.1f%% (Spring, Summer)", seasonsOfMars.FromWindSpeedSS, seasonsOfMars.ToWindSpeedSS))
+            local windSpeedAW = Untranslated(string.format("<em>Wind Speed</em> will vary from %+.1f%% to %+.1f%% (Autumn, Winter)", seasonsOfMars.FromWindSpeedAW, seasonsOfMars.ToWindSpeedAW))
 
-        sharedSeasonalEffects = table.concat({
-            sharedSeasonalEffects,
-            Untranslated("<newline>"),
-            windSpeedTrend,
-            windSpeedSS,
-            windSpeedAW,
-        }, "<newline>")
+            sharedSeasonalEffects = table.concat({
+                sharedSeasonalEffects,
+                Untranslated("<newline>"),
+                windSpeedTrend,
+                windSpeedSS,
+                windSpeedAW,
+            }, "<newline>")
+        end
     end
 
     if DustStormsDisabled and ColdWavesDisabled then
