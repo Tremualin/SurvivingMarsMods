@@ -11,13 +11,13 @@ local function ImproveDustRepulsion()
         -- Solar Panels no longer require maintenance
         table.insert(tech, #tech + 1, PlaceObj('Effect_ModifyLabel', {
             Amount = 1,
-            Label = "SolarPanelBase",
+            Label = "SolarPanelBuilding",
             Prop = "disable_maintenance",
         }))
         -- And no longer accumulate dust
         table.insert(tech, #tech + 1, PlaceObj('Effect_ModifyLabel', {
             Amount = 0,
-            Label = "SolarPanelBase",
+            Label = "SolarPanelBuilding",
             Prop = "accumulate_dust",
         }))
         tech.Tremualin_ImprovedDustRepulsion = true
@@ -28,7 +28,7 @@ end
 -- This will fix it upon loading a new game
 local function FixExceptionalCircumstances()
     if UIColony:IsTechResearched("DustRepulsion") then
-        MapForEach(true, "SolarPanelBase", function(o)
+        MapForEach(true, "SolarPanelBuilding", function(o)
             o:DisableMaintenance()
         end)
     end
