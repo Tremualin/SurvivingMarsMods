@@ -1,3 +1,7 @@
+local HasDustStorm = HasDustStorm
+local HomeColonySpot = HomeColonySpot
+local CargoTransporter = CargoTransporter
+
 local IsInAnAsteroid = Tremualin.Functions.IsInAnAsteroid
 local IsAsteroidCity = Tremualin.Functions.IsAsteroidCity
 local RemoveXTemplateSections = Tremualin.UIFunctions.RemoveXTemplateSections
@@ -6,10 +10,14 @@ local TO_MARS_AND_BACK_BUTTON = "Tremualin_ToMarsAndBackButton"
 local ASTEROID_CLEAN_UP_BUTTON_ID = "Tremualin_AsteroidCleanUpButton"
 local CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID = "Tremualin_AsteroidLandingPadButton"
 local SOLAR_ENERGY_LANDER_UPGRADE_ID = "Tremualin_SolarEnergyLanderUpgrade"
+-- Shorter description, which will show up on top of the upgrade
 local SOLAR_ENERGY_LANDER_DESCRIPTION = Untranslated("Asteroid Landers will use solar energy to navigate space, no longer needing fuel when moving between Asteroids or back to Mars. Asteroid Landers will still need fuel when departing from Mars.")
 local MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID = "Tremualin_MultipurposeUpgradeStorageUpgrade"
+-- Shorter description, which will show up on top of the upgrade
 local MULTIPURPOSE_UPGRADE_STORAGE_DESCRIPTION = Untranslated("Asteroid Landers can store copies of the most common mining upgrades on a special compartment, which means buildings built on Asteroids can be upgraded for free. You won't get the upgrade resources back when dismantling the buildings, however.")
 
+-- Add MultipurposeUpgradeStorage to ExtendedCargoModules
+-- Don't forget to modify the tech description
 local function AddMultipurposeUpgradeStorageUpgrade()
     local function AddMultipurposeUpgradeStorageUpgradeToObject(obj)
         obj.upgrade3_id = MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID
@@ -25,6 +33,7 @@ local function AddMultipurposeUpgradeStorageUpgrade()
     local tech = Presets.TechPreset.ReconAndExpansion.ExtendedCargoModules
     local modified = tech.Tremualin_MultipurposeUpgradeStorage
     if not modified then
+        -- Longer description, to be shown on top of the tech description
         tech.description = Untranslated("Asteroid Lander Upgrade (<em>Multipurpose Upgrade Storage</em>) - ") .. MULTIPURPOSE_UPGRADE_STORAGE_DESCRIPTION .. "\n" .. tech.description
         table.insert(tech, #tech + 1, PlaceObj("Effect_UnlockUpgrade", {
             Upgrade = MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID
@@ -33,14 +42,16 @@ local function AddMultipurposeUpgradeStorageUpgrade()
     end
 end
 
-local function UnlockMultipurposeUpgradeStorageUpgrade()
-    if UIColony:IsTechResearched("ExtendedCargoModules") and not UIColony:IsUpgradeUnlocked(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID) then
+-- If the game wasn't started with this mod on; will unlock the upgrade
+function SavegameFixups.Tremualin_UnlockMultipurposeUpgradeStorageUpgrade()
+    if UIColony:IsTechResearched("ExtendedCargoModules") and
+        not UIColony:IsUpgradeUnlocked(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID) then
         UnlockUpgrade(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID, MainCity)
     end
 end
 
-OnMsg.LoadGame = UnlockMultipurposeUpgradeStorageUpgrade
-
+-- Add SolarEnergyLanderUpgrade to Mineral Applications
+-- Don't forget to modify the tech description
 local function AddSolarEnergyLanderUpgrade()
     local function AddSolarEnergyLanderUpgradeToObject(obj)
         obj.upgrade2_id = SOLAR_ENERGY_LANDER_UPGRADE_ID
@@ -56,6 +67,7 @@ local function AddSolarEnergyLanderUpgrade()
     local tech = Presets.TechPreset.ReconAndExpansion.MineralApplications
     local modified = tech.Tremualin_SolarEnergyLanders
     if not modified then
+        -- Longer description, to be shown on top of the tech description
         tech.description = Untranslated("Asteroid Lander Upgrade (<em>Solar Energy Landers</em>) - ") .. SOLAR_ENERGY_LANDER_DESCRIPTION .. "\n" .. tech.description
         table.insert(tech, #tech + 1, PlaceObj("Effect_UnlockUpgrade", {
             Upgrade = SOLAR_ENERGY_LANDER_UPGRADE_ID
@@ -64,14 +76,16 @@ local function AddSolarEnergyLanderUpgrade()
     end
 end
 
-local function UnlockSolarEnergyLandersUpgrade()
-    if UIColony:IsTechResearched("MineralApplications") and not UIColony:IsUpgradeUnlocked(SOLAR_ENERGY_LANDER_UPGRADE_ID) then
+-- Make sure Solar Energy Lander is unlocked for old save games
+function SavegameFixups.UnlockSolarEnergyLandersUpgrade()
+    if UIColony:IsTechResearched("MineralApplications")
+        and not UIColony:IsUpgradeUnlocked(SOLAR_ENERGY_LANDER_UPGRADE_ID) then
         UnlockUpgrade(SOLAR_ENERGY_LANDER_UPGRADE_ID, MainCity)
     end
 end
 
-OnMsg.LoadGame = UnlockSolarEnergyLandersUpgrade
-
+-- Add a ToMarsAndBack button to the Asteroid Lander
+-- It makes the Lander go back to Mars, then return to the Asteroid
 local function AddToMarsAndBackButton()
     local template = XTemplates.customLanderRocket
     RemoveXTemplateSections(template, TO_MARS_AND_BACK_BUTTON)
@@ -98,6 +112,8 @@ local function AddToMarsAndBackButton()
     table.insert(template, #template + 1, toMarsAndBackbutton)
 end
 
+-- Add a button that refabbs/destroys (if it cannot be refabbed) everything in the Asteroid
+-- Useful for cleaning up after we are done with the Asteroid
 local function AddAsteroidCleanupButton()
     local template = XTemplates.customLanderRocket
     RemoveXTemplateSections(template, ASTEROID_CLEAN_UP_BUTTON_ID)
@@ -135,6 +151,9 @@ local function AddAsteroidCleanupButton()
     table.insert(template, #template + 1, asteroidCleanUpbutton)
 end
 
+-- Add a button to transform a Landing Pad into an Asteroid Lander Pad
+-- If Space Race (gagarin) is installed, then also apply it to Trade Pads
+-- So that the Asteroid Landers can automatically use them
 local function AddConvertToAsteroidLandingPadButton()
     local converToAsteroidLandingPadButton = PlaceObj("XTemplateTemplate", {
         CONVERT_TO_ASTEROID_LANDING_PAD_BUTTON_ID, true,
@@ -172,20 +191,38 @@ local function LanderHasMultipurposeUpgradeStorageFilter(key, value)
     return value:HasUpgrade(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID)
 end
 
+-- Makes the Asteroid Lander land in Mars if there's an Asteroid Lander Pad
+-- Makes the Asteroid Lander land in the Asteroid, in the same place where it was before
 local Orig_Tremualin_LanderRocketBase_PrepareLanding = LanderRocketBase.PrepareLanding
 function LanderRocketBase:PrepareLanding(target)
     Orig_Tremualin_LanderRocketBase_PrepareLanding(self, target)
     if target.id == "OurColony" then
-        local asteroidLanderPads = Cities[MainMapID].labels.AsteroidLanderPad or empty_table
-        if asteroidLanderPads and #asteroidLanderPads > 0 then
-            for _, landerPad in pairs(asteroidLanderPads) do
-                if landerPad:IsAvailable() then
-                    self.landing_site = PlaceBuildingIn("RocketLandingSite", landerPad:GetMapID())
-                    self.landing_site:SetAngle(landerPad:GetAngle())
-                    self.landing_site:SetPos(landerPad:GetPos())
-                    self.landing_site.landing_pad = landerPad
-                    self:SetCommand("LandOnMars", self.landing_site)
-                    break
+        if HasDustStorm(MainMapID) then
+            WaitMsg("DustStormEnded")
+        end
+        local padFound = false
+        -- Try landing until a pad is found, the rocket lands manually, or it somehow goes to an asteroid
+        while not padFound or self:IsRocketLanded() or IsInAnAsteroid(self) do
+            local asteroidLanderPads = Cities[MainMapID].labels.AsteroidLanderPad or empty_table
+            if #asteroidLanderPads == 0 then
+                -- There are no asteroid lander pads
+                -- Most likely, the rocket will be landed manually
+                WaitMsg("RocketLanded")
+            else
+                for _, landerPad in pairs(asteroidLanderPads) do
+                    if landerPad:IsAvailable() then
+                        self.landing_site = PlaceBuildingIn("RocketLandingSite", landerPad:GetMapID())
+                        self.landing_site:SetAngle(landerPad:GetAngle())
+                        self.landing_site:SetPos(landerPad:GetPos())
+                        self.landing_site.landing_pad = landerPad
+                        self:SetCommand("LandOnMars", self.landing_site)
+                        padFound = true
+                        break
+                    end
+                end
+                if not padFound then
+                    -- If none of the pads is available, we wait for another rocket to launch and make some space
+                    WaitMsg("RocketLanded")
                 end
             end
         end
@@ -201,6 +238,8 @@ function LanderRocketBase:PrepareLanding(target)
     end
 end
 
+-- The Solar Energy Lander upgrade is applies only if the lander is in an Asteroid
+-- And sets the lander fuel cost to 0
 local function ApplySolarEnergyLanderUpgradeIfPossible(lander)
     if lander:IsUpgradeOn(SOLAR_ENERGY_LANDER_UPGRADE_ID) then
         lander:SetModifier("launch_fuel", SOLAR_ENERGY_LANDER_UPGRADE_ID, 0, -1000)
@@ -210,6 +249,8 @@ local function ApplySolarEnergyLanderUpgradeIfPossible(lander)
     end
 end
 
+-- If landing in an asteroid, see if the Solar Energy Lander upgrade can be applied
+-- IF landing on Mars, then remove the Solar Energy Lander discount; it only applies on Asteroids
 local Orig_Tremualin_LanderRocketBase_OnLanded = LanderRocketBase.OnLanded
 function LanderRocketBase:OnLanded()
     if IsInAnAsteroid(self) then
@@ -221,20 +262,29 @@ function LanderRocketBase:OnLanded()
     Orig_Tremualin_LanderRocketBase_OnLanded(self)
 end
 
+-- Check every hour if we need to go back to Mars
+-- Which happens if we are landed on an Asteroid, the main city doesn't have a dust storm
+-- And we are close to full cargo
 local Orig_Tremualin_LanderRocketBase_HourlyUpdate = LanderRocketBase.HourlyUpdate
 function LanderRocketBase:HourlyUpdate(hour)
-    Orig_Tremualin_LanderRocketBase_HourlyUpdate(self, hour)
+    -- Slow down the rate at which the payload is recalculated
+    -- But keep doing it anyway, because drones tend to get silly
+    if hour == 4 or hour == 12 or hour == 20 then
+        Orig_Tremualin_LanderRocketBase_HourlyUpdate(self, hour)
+    end
+
     if self:IsRocketLanded()
         and self.Tremualin_ToMarsAndBack
         and IsInAnAsteroid(self)
         and not HasDustStorm(MainMapID)
-        -- We will issue the return command when we are close to a full cargo
+        -- We will issue the return command when we are close to a full cargo, to avoid empty departures
         and self.cargo_capacity - self:CalculatePayloadWeight() <= 5000 then
         self.target_spot = HomeColonySpot()
         self:SetCommand("LoadAndLaunch", function() return self.target_spot end)
     end
 end
 
+-- Prevents the user from destroying buildings that have been upgraded for free in Asteroids
 local Orig_Tremualin_Building_GatherUpgradeSpentResources = Building.GatherUpgradeSpentResources
 function Building:GatherUpgradeSpentResources()
     if IsInAnAsteroid(self)
@@ -245,6 +295,7 @@ function Building:GatherUpgradeSpentResources()
     return Orig_Tremualin_Building_GatherUpgradeSpentResources(self)
 end
 
+-- If we enable/disable the Solar Energy Lander Upgrade, we should update the required fuel accordingly
 function LanderRocketBase:OnUpgradeToggled(upgrade_id, new_state)
     if upgrade_id == SOLAR_ENERGY_LANDER_UPGRADE_ID then
         if new_state and IsInAnAsteroid(self) then
@@ -255,31 +306,36 @@ function LanderRocketBase:OnUpgradeToggled(upgrade_id, new_state)
     end
 end
 
-local function FullyUpgradeBuilding(upgradableBuilding)
-    if upgradableBuilding:IsKindOf("UpgradableBuilding") then
-        if UIColony:IsUpgradeUnlocked(upgradableBuilding:GetUpgradeID(1)) then
-            upgradableBuilding:CheatUpgrade1()
+-- Try to fully upgrade all upgradable buildings (except ConstructionSites)
+-- Called by the MultipurposeStorage Upgrade, in Asteroids
+local function FullyUpgradeBuildingIfPossible(bld)
+    if bld:IsKindOf("UpgradableBuilding")
+        and not bld:IsKindOf("ConstructionSite") then
+        if UIColony:IsUpgradeUnlocked(bld:GetUpgradeID(1)) then
+            bld:CheatUpgrade1()
         end
-        if UIColony:IsUpgradeUnlocked(upgradableBuilding:GetUpgradeID(2)) then
-            upgradableBuilding:CheatUpgrade2()
+        if UIColony:IsUpgradeUnlocked(bld:GetUpgradeID(2)) then
+            bld:CheatUpgrade2()
         end
-        if UIColony:IsUpgradeUnlocked(upgradableBuilding:GetUpgradeID(3)) then
-            upgradableBuilding:CheatUpgrade3()
+        if UIColony:IsUpgradeUnlocked(bld:GetUpgradeID(3)) then
+            bld:CheatUpgrade3()
         end
     end
 end
 
+-- Upgrades all buildings in the Asteroid
+-- Except for the Lander
 local function FullyUpgradeAllNonLanderBuildings(city)
     local labels = city.labels or empty_table
     local buildings = labels.Building or empty_table
-    for _, upgradableBuilding in pairs(buildings) do
-        if not upgradableBuilding:IsKindOf("LanderRocket") then
-            FullyUpgradeBuilding(upgradableBuilding)
+    for _, bld in pairs(buildings) do
+        if not bld:IsKindOf("LanderRocket") then
+            FullyUpgradeBuildingIfPossible(bld)
         end
     end
 end
 
--- Apply the effects of the upgrades immediately upon landing
+-- Apply the effects of the upgrades immediately upon landing with the Multipurpose Upgrade
 function OnMsg.AsteroidRocketLanded(lander)
     if IsInAnAsteroid(lander) then
         lander.last_asteroid_landing_site_angle = lander.landing_site:GetAngle()
@@ -300,32 +356,42 @@ function OnMsg.BuildingUpgraded(building, upgrade_id)
     end
 end
 
--- If there's a lander with the multipurpose upgrade storage; fully upgrade it
+local function CityHasAsteroidLander(city)
+    local labels = city.labels or empty_table
+    local landerRockets = labels.LanderRocketBase or empty_table
+
+    return #table.filter(landerRockets, LanderHasMultipurposeUpgradeStorageFilter) > 0
+end
+
+-- If there's a lander with the multipurpose upgrade storage; fully upgrade newly built buildings
 function OnMsg.ConstructionComplete(bld)
     if bld:IsKindOf("UpgradableBuilding") and IsInAnAsteroid(bld) then
         local city = Cities[bld:GetMapID()] or empty_table
-        local labels = city.labels or empty_table
-        local landerRockets = labels.LanderRocketBase or empty_table
-
-        if #table.filter(landerRockets, LanderHasMultipurposeUpgradeStorageFilter) > 0 then
-            FullyUpgradeBuilding(bld)
+        if CityHasAsteroidLander(city) then
+            -- Even though construction is complete, the building isn't always initialized
+            -- So let's upgrade it after sleeping for 100 seconds
+            CreateRealTimeThread(function()
+                Sleep(100)
+                FullyUpgradeBuildingIfPossible(bld)
+            end)
         end
     end
 end
 
--- If a new upgrade is unlocked, and multipurpose upgrade storage is available, upgrade all buildings on the asteroid one more time
+-- If a new upgrade is unlocked, and multipurpose upgrade storage is available,
+-- then upgrade all buildings on the asteroid one more time
 function OnMsg.UpgradeUnlocked(upg)
     if UIColony:IsUpgradeUnlocked(MULTIPURPOSE_UPGRADE_STORAGE_UPGRADE_ID) then
         for _, city in ipairs(table.filter(Cities, IsAsteroidCity)) do
-            local labels = city.labels or empty_table
-            local landerRockets = labels.LanderRocketBase or empty_table
-            if #table.filter(landerRockets, LanderHasMultipurposeUpgradeStorageFilter) > 0 then
+            if CityHasAsteroidLander(city) then
                 FullyUpgradeAllNonLanderBuildings(city)
             end
         end
     end
 end
 
+-- Unlock all the upgrades
+-- Add all the buttons
 function OnMsg.ClassesPostprocess()
     AddMultipurposeUpgradeStorageUpgrade()
     AddSolarEnergyLanderUpgrade()
@@ -333,7 +399,9 @@ function OnMsg.ClassesPostprocess()
     AddAsteroidCleanupButton()
     AddConvertToAsteroidLandingPadButton()
 
-    -- Cache the global classes in locals, for performance
+    -- If we are on Mars, an the asteroid still exists,
+    -- then prepare the launch order to get back with the same amount of Drones
+    -- TODO: why is this inline?
     local Orig_Tremualin_RocketBase_WaitLaunchOrder = RocketBase.WaitLaunchOrder
     function LanderRocketBase:WaitLaunchOrder()
         if self.Tremualin_ToMarsAndBack
@@ -358,28 +426,4 @@ function OnMsg.ClassesPostprocess()
             Orig_Tremualin_RocketBase_WaitLaunchOrder(self)
         end
     end
-end
-
--- Required by LandingPad:HasRocket()
-local rocket_on_gnd_cmd = {
-    LandOnMars = true,
-    Unload = true,
-    Refuel = true,
-    WaitLaunchOrder = true,
-    Countdown = true,
-    Takeoff = true,
-    ExpeditionRefuelAndLoad = true
-}
--- The only change in this function is MainCity instead of UICity
-function LandingPad:HasRocket()
-    if self.rocket_construction then
-        return self.rocket_construction
-    end
-    local rockets = self.city.labels.AllRockets or empty_table
-    for _, rocket in ipairs(rockets) do
-        if rocket.landing_site and rocket.landing_site.landing_pad == self and (rocket_on_gnd_cmd[rocket.command] or rocket:IsLandAutomated()) then
-            return true, rocket
-        end
-    end
-    return false
 end

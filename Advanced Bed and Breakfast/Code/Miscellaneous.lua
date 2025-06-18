@@ -100,36 +100,55 @@ end
 
 -- Colonists who are on a dome on one city but also appear on another city will be removed from the wrong city
 local function FixColonistsInWrongCity(colonists)
-    if removeColonistsFromWrongMap then
-        for _, colonist in pairs(colonists) do
-            local city = colonist.city
-            local dome = colonist.dome
-            if city and dome and dome:GetMapID() ~= city:GetMapID() then
-                -- dome and colonist are in different maps
-                -- remove the colonist from the wrong city labels
-                colonist:RemoveFromLabels()
-                colonist.city = dome.city
-                colonist:SetDome(false)
-                colonist:SetDome(dome)
-            end
-            if city then
-                for _, anotherCity in pairs(Cities) do
-                    if anotherCity:GetMapID() ~= city:GetMapID() then
-                        RemoveFromLabelsInAnotherCity(colonist, anotherCity)
-                    end
+    for _, colonist in pairs(colonists) do
+        local city = colonist.city
+        local dome = colonist.dome
+        if city and dome and dome:GetMapID() ~= city:GetMapID() then
+            -- dome and colonist are in different maps
+            -- remove the colonist from the wrong city labels
+            colonist:RemoveFromLabels()
+            colonist.city = dome.city
+            colonist:SetDome(false)
+            colonist:SetDome(dome)
+        end
+        if city then
+            for _, anotherCity in pairs(Cities) do
+                if anotherCity:GetMapID() ~= city:GetMapID() then
+                    RemoveFromLabelsInAnotherCity(colonist, anotherCity)
                 end
             end
-            colonist:AddToLabels()
         end
+        colonist:AddToLabels()
     end
 end
 
 local function FixAllPossibleColonistsInWrongCity()
-    FixColonistsInWrongCity(UIColony.city_labels.labels.Colonist or empty_table)
-    for _, city in pairs(Cities) do
-        FixColonistsInWrongCity(city.labels.Homeless or empty_table)
-        FixColonistsInWrongCity(city.labels.Unemployed or empty_table)
+    if removeColonistsFromWrongMap then
+        FixColonistsInWrongCity(UIColony.city_labels.labels.Colonist or empty_table)
+        for _, city in pairs(Cities) do
+            FixColonistsInWrongCity(city.labels.Homeless or empty_table)
+            FixColonistsInWrongCity(city.labels.Unemployed or empty_table)
+        end
     end
 end
 
 OnMsg.LoadGame = FixAllPossibleColonistsInWrongCity
+
+function Building:IsRefabable()
+    local valid_class = not IsKindOfClasses(self, "RocketBase", "BaseRover", "ResourceStockpile", "DumpSiteWithAttachedVisualPilesBase", "ConstructionSite", "Passage")
+    return valid_class and not self.destroyed and not self.demolishing and not self.is_malfunctioned
+end
+
+local Orig_Tremualin_Dome_ToggleRefab = Building.ToggleRefab
+function Building:ToggleRefab()
+    local has_inside_buildings = IsKindOf(self, "Dome") and #(self.labels.Building or empty_table) > 0
+    if has_inside_buildings then
+        self:ForEachLabelObject("Building", function(bld)
+            if bld:IsRefabable() then
+                bld:ToggleRefab()
+            end
+        end)
+    else
+        Orig_Tremualin_Dome_ToggleRefab(self)
+    end
+end
