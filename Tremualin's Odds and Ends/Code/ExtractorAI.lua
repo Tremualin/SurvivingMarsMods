@@ -4,7 +4,7 @@ function OnMsg.ConstructionComplete(bld)
     if bld.specialist and bld.specialist == "geologist" and g_ExtractorAIResearched then
         -- Something else interferes with this code, unless executed with a delay
         CreateRealTimeThread(function()
-            Sleep(100)
+            Sleep(500)
             for i = 1, 3 do
                 bld:OpenShift(i)
                 bld:ClosePositions(i, 1)
