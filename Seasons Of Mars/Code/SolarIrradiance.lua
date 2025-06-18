@@ -96,7 +96,7 @@ end
 local Orig_Tremualin_GetVegOutputAmount = GetVegOutputAmount
 function GetVegOutputAmount(preset, pos_obj)
     local seasonsOfMars = SeasonsOfMars
-    local original_amount = GetVegOutputAmount(preset, pos_obj)
+    local original_amount = Orig_Tremualin_GetVegOutputAmount(preset, pos_obj)
     if seasonsOfMars.SolarIrradianceEnabled
         and SunAboveHorizon
         and not HasDustStorm()
