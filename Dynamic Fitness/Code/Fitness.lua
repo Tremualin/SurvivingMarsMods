@@ -57,7 +57,7 @@ function ModifyGyms()
     end
     -- Fit will no longer appear randomly as a trait - it must be earned
     TraitPresets.Fit.weight = 0
-    TraitPresets.Fit.description = Untranslated("+5 recovered while resting. Can work when health is low. Recovers +5 sanity when exercising.")
+    TraitPresets.Fit.description = Untranslated("+5 health recovered while resting. Can work when health is low. Recovers +5 sanity when exercising.")
 end
 
 OnMsg.ClassesPreprocess = ModifyGyms
