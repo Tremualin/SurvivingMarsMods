@@ -1,8 +1,9 @@
-local ADDITIONAL_DESCRIPTION = Untranslated("\nWill unlock another superior <em>breakthrough</em> upon research until all 2 Superior Breakthrough have been discovered.")
+local SUPERIOR_PIPES_ADDITIONAL_DESCRIPTION = Untranslated("\n\nWill unlock <em>Superior Cables</em> upon research if not already unlocked.")
+local SUPERIOR_CABLES_ADDITIONAL_DESCRIPTION = Untranslated("\n\nWill unlock <em>Superior Pipes</em> upon research if not already unlocked.")
 
-local function ModifyDescription(tech)
+local function ModifyDescription(tech, additional_description)
     if not tech.Tremualin_DiscoverFirstUndiscoveredSuperiorTech then
-        tech.description = tech.description .. ADDITIONAL_DESCRIPTION
+        tech.description = tech.description .. additional_description
         tech.Tremualin_DiscoverFirstUndiscoveredSuperiorTech = true
     end
 end
@@ -34,8 +35,8 @@ function ImproveSuperiorBreakthroughts()
         }))
     end
 
-    ModifyDescription(superiorCables)
-    ModifyDescription(superiorPipes)
+    ModifyDescription(superiorCables, SUPERIOR_CABLES_ADDITIONAL_DESCRIPTION)
+    ModifyDescription(superiorPipes, SUPERIOR_PIPES_ADDITIONAL_DESCRIPTION)
 end
 
 OnMsg.ClassesPostprocess = ImproveSuperiorBreakthroughts

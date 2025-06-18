@@ -1,7 +1,7 @@
 local DRONE_TECHS = {"AdvancedDroneDrive", "ArtificialMuscles", "WirelessPower"}
-local WIRELESS_POWER_ADDITIONAL_DESCRIPTION = Untranslated("\n\nUnlocks either <em>AdvancedDroneDrive or ArtificialMuscles</em>, if not already unlocked")
-local ADVANCED_DRONE_DRIVE_ADDITIONAL_DESCRIPTION = Untranslated("\n\nUnlocks either <em>ArtificialMuscles or WirelessPower</em>, if not already unlocked")
-local ARTIFICIAL_MUSLCES_ADDITIONAL_DESCRIPTION = Untranslated("\n\nUnlocks either <em>AdvancedDroneDrive or WirelessPower</em>, if not already unlocked")
+local WIRELESS_POWER_ADDITIONAL_DESCRIPTION = Untranslated("\n\nUnlocks either <em>Advanced Drone Drive or Artificial Muscles</em>. Unless already unlocked")
+local ADVANCED_DRONE_DRIVE_ADDITIONAL_DESCRIPTION = Untranslated("\n\nUnlocks either <em>Artificial Muscles or Wireless Power</em>. Unless already unlocked")
+local ARTIFICIAL_MUSLCES_ADDITIONAL_DESCRIPTION = Untranslated("\n\nUnlocks either <em>Advanced Drone Drive or Wireless Power</em>. Unless already unlocked")
 
 local function ModifyDescription(tech, new_description)
     if not tech.Tremualin_DiscoverFirstUndiscoveredDroneTechDescription then

@@ -16,8 +16,7 @@ return PlaceObj('ModDef', {
     Neo Concrete: ~no longer provides an 80% concrete discount to domes. Provides a 33% concrete discount to all buildings.
     Nocturnal Adaptation: +colonists no longer lose sanity at night.
     Plasma Rocket: +now provides a real 50% faster travel when playing the Long Ride game rule (Russia still slow). Also provides a 20 fuel discount for all rockets.
-    Space Rehabilitation: +Colonists have a 100% chance to lose a flaw on their journey to Mars, and Tourists will pay 50% more funding during their visits,
-    Superfungus: ~now provides 100% more food for 50% more oxygen (only for non B&B games)
+    Space Rehabilitation: +Colonists have a 100% chance to lose a flaw on their journey to Mars, and Tourists will pay 50% more funding during their visits.
     Superior Pipes and Superior Cables: +they unlock each other when one is researched.
  
     [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2588828764]Steam[/url]
@@ -42,7 +41,6 @@ return PlaceObj('ModDef', {
         "Code/GoodVibrations.lua",
         "Code/AlienImprints.lua",
         "Code/SpaceRehabilitation.lua",
-        "Code/Superfungus.lua",
         "Code/NeoConcrete.lua",
         "Code/MartianSteel.lua",
         "Code/DroneBreakthroughs.lua",

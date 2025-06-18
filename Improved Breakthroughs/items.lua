@@ -18,9 +18,6 @@ return {
         'FileName', "Code/SpaceRehabilitation.lua",
     }),
     PlaceObj('ModItemCode', {
-        'FileName', "Code/SuperFungus.lua",
-    }),
-    PlaceObj('ModItemCode', {
         'FileName', "Code/NeoConcrete.lua",
     }),
     PlaceObj('ModItemCode', {

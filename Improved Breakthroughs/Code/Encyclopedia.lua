@@ -17,12 +17,11 @@ local function AddEntriesToEncyclopedia()
             Untranslated("<em>Nocturnal Adaptation</em> disables night shift sanity loss."),
             Untranslated("<em>Plasma Rocket</em> now correctly reduces travel time when playing with the Long Ride rule (Russia still slow). Also provides a 20 fuel discount."),
             Untranslated("<em>Space Rehabilitation</em> now always removes one flaw (100% success). Also, Tourists pay 50% more funding during their visits."),
-            Untranslated("<em>Superfungus</em> now provides 100% more production at 50% more Oxygen (if you don't have B&B)"),
             Untranslated("<em>Superior Pipes</em> and <em>Superior Cables</em> will now unlock each other if you get any of them"),
             -- TODO: Landscaping and Construction nanites should unlock each other
-            -- TOOD: redo Vocation Oriented Society
+            -- TOOD: redo Vocation Oriented Society to grant bonuses for each happy trait
             -- TOOD: redo Martian Ingenuity Oriented Society to give bonuses as people age
-            -- TODO: Core Metals, Core Rare Metals and Core Water all unlock each other
+            -- TODO: Core Metals, Core Rare Metals and Core Water can be repeated.
             -- TODO: Boost Hull Polarization to 33%
             -- TODO: Multispiral Architecture and Gem Architecture now unlock each other
             -- TODO: Prefab Compression now provides a discount to all prefabs

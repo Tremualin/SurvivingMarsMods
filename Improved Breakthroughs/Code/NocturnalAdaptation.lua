@@ -16,6 +16,7 @@ local function ImproveNocturnalAdaptation()
         }))
     end
 end
+-- TODO: fix description if Nocturnal Adaptation is researched
 
 OnMsg.ClassesPostprocess = ImproveNocturnalAdaptation
 
