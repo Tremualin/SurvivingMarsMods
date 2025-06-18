@@ -115,7 +115,7 @@ function OnMsg.NewDay(...)
 end
 
 function OnMsg.NewHour(hour)
-    if VegetationPct < 100 then
+    if VegetationPct < 90 then
         for _, foresation_plant in ipairs(ForestationPlants) do
             if foresation_plant.working and 0 == foresation_plant:Random(MulDivRound(1000, 100 - VegetationPct, 100)) then
                 Tremualin_TrySpawnTechAnomalyNearObject(foresation_plant, foresation_plant.UIRange * const.GridSpacing)
@@ -204,7 +204,7 @@ end
 local function ModifyForestationPlant()
     local templates = FindAllTemplatesForNames({"ForestationPlant"})
     for _, template in ipairs(templates) do
-        template.description = Untranslated("Consumes Seeds to plant wild vegetation, increasing local Soil Quality. Plants will wither or grow according to local Soil Quality and global Temperature<icon_TemperatureTP_alt> and Water <icon_WaterTP_alt>.\nImproves global Vegetation <icon_VegetationTP_alt> depending on the type of Vegetation it's planting (0.01% from Lichen, 0.015% from Grass, 0.02% from Bushes, 0.03% from Trees, and 0.5% from Mixed Trees, whichever is highest), but only if soil quality in its work area allows it. Has a 0.001% chance per hour of generating <em>Tech Anomalies</em> in its work area. Doesn\226\128\153t work during Dust Storms and Toxic Rains.")
+        template.description = Untranslated("Consumes Seeds to plant wild vegetation, increasing local Soil Quality. Plants will wither or grow according to local Soil Quality and global Temperature<icon_TemperatureTP_alt> and Water <icon_WaterTP_alt>.<newline><newline>Improves global Vegetation <icon_VegetationTP_alt> depending on the type of Vegetation it's planting (0.01% from Lichen, 0.015% from Grass, 0.02% from Bushes, 0.03% from Trees, and 0.5% from Mixed Trees, whichever is highest), if soil quality in its work area allows it. <newline><newline>Has a small chance per hour of generating <em>Tech Anomalies</em> in its work area, increasing with Vegetation <icon_VegetationTP_alt> (stops at 90% Vegetation <icon_VegetationTP_alt>.<newline><newline>Doesn\226\128\153t work during Dust Storms and Toxic Rains.")
     end
 end
 OnMsg.ClassesPostprocess = ModifyForestationPlant
