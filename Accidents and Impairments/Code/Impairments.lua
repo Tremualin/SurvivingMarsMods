@@ -30,7 +30,7 @@ DefineClass.StatusEffect_TemporarilyImpaired = {
     __parents = {
         "StatusEffect"
     },
-    display_name = Untranslated("Temporarily Impaired"),
+    display_name = Untranslated("Recovering from an accident"),
     sign = "UnitSignAccidented",
     selection_arrow = "UnitArrowAccidented",
     priority = 70,
@@ -48,7 +48,7 @@ function StatusEffect_TemporarilyImpaired:DailyUpdate(unit, start, hours)
         unit:UpdateEmploymentLabels()
     else
         -- if the effect persists, double chances of recovery next time
-        unit.Tremualin_impaired_recovery_chance = unit.Tremualin_impaired_recovery_chance * 2
+        unit.Tremualin_impaired_recovery_chance = Max(100, unit.Tremualin_impaired_recovery_chance * 2)
         unit:ChangeSanity(self.temporarily_impaired_sanity_loss, self.temporarily_impaired_message)
     end -- unit:Random
 end -- function StatusEffect_TemporarilyImpaired
@@ -133,7 +133,7 @@ function OnMsg.ClassesGenerate()
     local Tremualin_Orig_Colonist_GetUIWorkplaceLine = Colonist.GetUIWorkplaceLine
     function Colonist:GetUIWorkplaceLine()
         if self.status_effects.StatusEffect_TemporarilyImpaired and self.Tremualin_impaired_recovery_chance then
-            return Untranslated("Temporarily impaired<right>Chance of recovery: " .. self.Tremualin_impaired_recovery_chance .. "%")
+            return Untranslated("Still recovering<right>Chances tonight: " .. self.Tremualin_impaired_recovery_chance .. "%")
         end -- if self.status_effects.StatusEffect_TemporarilyImpaired
         return Tremualin_Orig_Colonist_GetUIWorkplaceLine(self)
     end --  function Colonist:GetUIWorkplaceLine
