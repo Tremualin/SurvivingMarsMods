@@ -3,7 +3,6 @@ local functions = Tremualin.Functions
 local configuration = Tremualin.Configuration
 configuration.TouristGeodomeSatisfaction = 3000
 configuration.ProjectMorphiousPositiveTraitChance = 4
-configuration.ProjectMorphiousMaxTraits = 7
 
 local ProjectMorphiousPositiveTraitsKey = "Tremualin_ProjectMorphiousPositiveTraits"
 local TouristGeodomeSatisfactionReasonId = "Tremualin_GeoscapeDome"
@@ -22,15 +21,7 @@ function OnMsg.ClassesPostprocess()
         -- ProjectMorpheus grants even more positive traits
         local wonder = UIColony.city_labels.labels.ProjectMorpheus or empty_table
         if not self.traits.Child and #wonder > 0 and wonder[1].working then
-            local count = 0
-            for id, _ in pairs(self.traits) do
-                local trait = TraitPresets[id]
-                -- only counts positive traits
-                if trait and trait.category and trait.category == "Positive" then
-                    count = count + 1
-                end -- if trait
-            end -- for id, _
-            if count < configuration.ProjectMorphiousMaxTraits and self:Random(100) <= configuration.ProjectMorphiousPositiveTraitChance then
+            if self:Random(100) <= configuration.ProjectMorphiousPositiveTraitChance then
                 -- add positive trait
                 wonder[1]:AddTrait(self)
                 -- Tourists will pay more money for additional perks; remember it
