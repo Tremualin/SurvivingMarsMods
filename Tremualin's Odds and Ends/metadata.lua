@@ -22,6 +22,7 @@ return PlaceObj('ModDef', {
         "Code/TrainingComplete.lua",
         "Code/OpenAllShiftsByDefault.lua",
         "Code/MoreStoryBits.lua",
+        "Code/TunnelCostScale.lua",
     },
     'has_options', true,
     'saved', 1750228067,

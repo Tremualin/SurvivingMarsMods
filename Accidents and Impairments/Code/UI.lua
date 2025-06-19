@@ -66,7 +66,6 @@ function Dome:GetTremualinAccidentsLogRollover()
     local items = {}
     items[#items + 1] = accidentsLogDescription
     for accident_id, val in sorted_pairs(self.Tremualin_Accidents_Log) do
-        local trait = TraitPresets[accident_id]
         items[#items + 1] = accidents_text[accident_id] .. "<right>" .. val
     end
     return next(items) and table.concat(items, "<newline><left>") or Untranslated("Nothing yet")

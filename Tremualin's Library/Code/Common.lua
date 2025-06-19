@@ -1,3 +1,5 @@
+local ObjectIsInEnvironment = ObjectIsInEnvironment
+
 Tremualin = {}
 Tremualin.Configuration = {}
 Tremualin.Debugging = {}

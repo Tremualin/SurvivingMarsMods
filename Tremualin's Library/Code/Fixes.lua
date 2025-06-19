@@ -57,7 +57,7 @@ end
 OnMsg.ClassesPostprocess = FixSpawnColonistDescription
 
 function FixNilAddTrait()
-    -- Prevents nil traits from causing errors
+    -- Prevents nil traits from causing an error
     local Tremualin_Orig_Colonist_AddTrait = Colonist.AddTrait
     function Colonist:AddTrait(trait_id, ...)
         if trait_id then
