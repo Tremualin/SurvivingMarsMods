@@ -1,4 +1,6 @@
 local functions = Tremualin.Functions
+local AddIncompatibleTraits = functions.AddIncompatibleTraits
+local HasMedicalSpireOrHospital = functions.HasMedicalSpireOrHospital
 
 local physically_impaired = "PhysicallyImpaired"
 local physically_impaired_forbidden = {"geologist", "engineer", "security"}
@@ -16,16 +18,17 @@ function OnMsg.ClassesPostprocess()
     for id, buildingTemplate in pairs(BuildingTemplates) do
         if buildingTemplate.specialist and buildingTemplate.specialist ~= "none" then
             if table.find(physically_impaired_forbidden, buildingTemplate.specialist) then
-                functions.AddIncompatibleTraits(buildingTemplate, ct[id], physically_impaired)
+                AddIncompatibleTraits(buildingTemplate, ct[id], physically_impaired)
             elseif table.find(intellectually_impaired_forbidden, buildingTemplate.specialist) then
-                functions.AddIncompatibleTraits(buildingTemplate, ct[id], intellectually_impaired)
+                AddIncompatibleTraits(buildingTemplate, ct[id], intellectually_impaired)
             end -- if table.find
         elseif id == "InsidePasture" or id == "OpenPasture" then
-            functions.AddIncompatibleTraits(buildingTemplate, ct[id], physically_impaired)
+            AddIncompatibleTraits(buildingTemplate, ct[id], physically_impaired)
         end -- if buildingTemplate.specialist
     end -- for id, buildingTemplate
 end -- function OnMsg.ClassesPostprocess
 
+-- Status effect showing that the colonist has had an accident
 DefineClass.StatusEffect_TemporarilyImpaired = {
     __parents = {
         "StatusEffect"
@@ -41,6 +44,7 @@ DefineClass.StatusEffect_TemporarilyImpaired = {
     temporarily_impaired_message = Untranslated("Still recovering from my accident "),
 } -- DefineClass.StatusEffect_TemporarilyImpaired
 
+-- Update the status effect each Sol, removing it once the Colonist recovers
 function StatusEffect_TemporarilyImpaired:DailyUpdate(unit, start, hours)
     if unit:Random(100) < unit.Tremualin_impaired_recovery_chance then
         -- if the effect fades, remove it
@@ -53,8 +57,10 @@ function StatusEffect_TemporarilyImpaired:DailyUpdate(unit, start, hours)
     end -- unit:Random
 end -- function StatusEffect_TemporarilyImpaired
 
+-- If the Dome has access to medical services, increase chances of recovery
+-- Also increase chances if the Colonist is Fit
 function StatusEffect_TemporarilyImpaired:Start(unit, time)
-    local spire_or_hospital = functions.HasMedicalSpireOrHospital(unit.dome)
+    local spire_or_hospital = HasMedicalSpireOrHospital(unit.dome)
     local recovery_chance = self.base_recovery_chance
     if spire_or_hospital then
         recovery_chance = recovery_chance + MEDICAL_EXPERTS_RECOVERY_CHANCE
@@ -66,12 +72,14 @@ function StatusEffect_TemporarilyImpaired:Start(unit, time)
     unit:SetWorkplace(false)
 end -- function StatusEffect_TemporarilyImpaired
 
+-- When the status effect is gone, the colonist can once again work
 function StatusEffect_TemporarilyImpaired:Stop(unit)
     unit:UpdateEmploymentLabels()
     unit.Tremualin_impaired_recovery_chance = nil
 end -- function StatusEffect_TemporarilyImpaired
 
 -- Retrains a colonist's specialty based on that colonists impairments
+-- Botanists are always good, no matter the impairment
 function Colonist:RetrainBasedOnImpairments()
     if self.specialist ~= "none" then
         local allowed = table.copy(all_specializations)

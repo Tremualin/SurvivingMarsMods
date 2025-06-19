@@ -10,6 +10,9 @@ local accident_death_reason_id = "Tremualin_Accident"
 local functions = Tremualin.Functions
 local debugging = Tremualin.Debugging
 local stat_scale = const.Scale.Stat
+local IsUnhappy = functions.IsUnhappy
+local IsHappy = functions.IsHappy
+local TraitsByCategory = functions.TraitsByCategory
 
 local temporarily_impaired_status = "StatusEffect_TemporarilyImpaired"
 local impairments_list = {temporarily_impaired_status, "IntellectuallyImpaired", "PhysicallyImpaired", "SensoryImpaired"}
@@ -23,6 +26,7 @@ local UNHAPPY_WORKER_ACCIDENT_CHANCES = 5
 local INDIFFERENT_WORKER_ACCIDENT_CHANCES = 1
 local HAPPY_WORKER_ACCIDENT_CHANCES = -2
 
+-- Write to the dome log that there has been an accident
 local function IncreaseAciddentsByType(worker, type)
     local dome = worker.dome
     dome.Tremualin_Accidents_Log[type] = dome.Tremualin_Accidents_Log[type] or 0
@@ -36,7 +40,7 @@ local function TryGenerateInjury(worker, chances)
     local random_number = worker:Random(100)
     if random_number < chances then
         IncreaseAciddentsByType(worker, "Injuries")
-        worker:ChangeHealth(worker:Random(INJURY_WORST_HEALTH_LOSS, INJURY_BEST_HEALTH_LOSS), "Got injured while working ")
+        worker:ChangeHealth(worker:Random(INJURY_WORST_HEALTH_LOSS, INJURY_BEST_HEALTH_LOSS), "Got injured while working.")
     end -- random_number < chances
 end -- function TryGenerateInjury
 
@@ -64,20 +68,21 @@ local function TryGenerateAccident(worker, chances)
     end
 end -- function TryGenerateAccident
 
+-- Returns the chances the colonist has of having an accident
 function Colonist:GetTremualin_AccidentChances()
     local base_chances = debugging.AccidentBaseChances
     if self.workplace and self.workplace_shift and self.workplace.overtime and self.workplace.overtime[self.workplace_shift] then
         base_chances = base_chances + 2
     end -- if bld.overtime
     local chances = base_chances
-    if functions.IsUnhappy(self) then
+    if IsUnhappy(self) then
         chances = chances + UNHAPPY_WORKER_ACCIDENT_CHANCES
-    elseif functions.IsHappy(self) then
+    elseif IsHappy(self) then
         chances = chances + HAPPY_WORKER_ACCIDENT_CHANCES
     else
         chances = chances + INDIFFERENT_WORKER_ACCIDENT_CHANCES
     end -- if functions.IsUnhappy
-    local traits_by_category = functions.TraitsByCategory(self.traits)
+    local traits_by_category = TraitsByCategory(self.traits)
     return Max(0, chances + traits_by_category["Negative"] - traits_by_category["Positive"])
 end
 
@@ -125,11 +130,12 @@ function OnMsg.ClassesGenerate()
     end
 end
 
-function SavegameFixups.FixInitializeAccidentsLog()
-    table.foreach_value(UIColony.city_labels.labels.Dome or empty_table, InitializeAccidentsLog)
-end
-
 -- Add the new death reason so it appears on the UI
 function OnMsg.ClassesPostprocess()
     DeathReasons[accident_death_reason_id] = Untranslated("Fatal work accident")
+end
+
+-- Make sure that all domes have an accidents log, if the mod is installed on an old save
+function SavegameFixups.FixInitializeAccidentsLog()
+    table.foreach_value(UIColony.city_labels.labels.Dome or empty_table, InitializeAccidentsLog)
 end
