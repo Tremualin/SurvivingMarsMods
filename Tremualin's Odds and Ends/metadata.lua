@@ -21,6 +21,7 @@ return PlaceObj('ModDef', {
         "Code/MultiplesOfThree.lua",
         "Code/TrainingComplete.lua",
         "Code/OpenAllShiftsByDefault.lua",
+        "Code/MoreStoryBits.lua",
     },
     'has_options', true,
     'saved', 1750228067,
