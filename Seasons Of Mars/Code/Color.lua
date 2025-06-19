@@ -5,7 +5,7 @@ local SeasonsOfMars_Colors = {
     Winter = {RGB(0, 0, 0), RGB(25, 25, 25), RGB(50, 50, 50)};
 }
 
-local function SeasonsOfMars_ChangeColors(activeSeasonId)
+local function ChangeColors(activeSeasonId)
     if IsDlcAvailable("armstrong") then
         CreateGameTimeThread(function()
             if SeasonsOfMars_Colors[activeSeasonId] then
@@ -26,11 +26,19 @@ local function SeasonsOfMars_ChangeColors(activeSeasonId)
     end
 end
 
-function OnMsg.SeasonsOfMars_SeasonChange(activeSeasonId)
-    if SeasonsOfMars.ChangeColors then
-        SeasonsOfMars_ChangeColors(activeSeasonId, false)
+local function DailyChangeColors(sol)
+    if SeasonsOfMars.ChangeColors and sol % 5 == 0 then
+        ChangeColors(activeSeasonId, false)
     end
 end
+
+function OnMsg.SeasonsOfMars_SeasonChange(activeSeasonId)
+    if SeasonsOfMars.ChangeColors then
+        ChangeColors(activeSeasonId, false)
+    end
+end
+
+OnMsg.NewDay = DailyChangeColors
 
 function OnMsg.Tremualin_SeasonsOfMars_ColorsDisabled()
     -- Spring is neutral colors

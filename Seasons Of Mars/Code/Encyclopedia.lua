@@ -133,12 +133,12 @@ local function AddEntriesToEncyclopedia()
         group = "Tremualin",
         id = "Seasons of Mars - Colors",
         text = table.concat({
-            Untranslated("<em>Vegetation</em> changes colors at the beginning of each new season (requires Green Planet)"),
-            Untranslated("Colors only change at the beginning each new season (for performance reasons)"),
+            Untranslated("<em>Vegetation</em> changes colors every 5 sols and at the beginning of each new season (requires Green Planet)"),
             Untranslated("<newline>"),
-            Untranslated("If you have an extreme amount of vegetation and a slow CPU, you could experience some lag at the beginning of a new season"),
+            Untranslated("If you have an extreme amount of vegetation and a slow CPU, you could experience some lag"),
             Untranslated("If this becomes a problem, you can set ChangeColors to False in ModOptions and disable this option"),
         }, "<newline>"),
+        image = CurrentModPath .. "Colors.jpg",
         title_id = "SeasonsofMarsVegetation",
         title_text = Untranslated("Seasons of Mars - Colors"),
     })
