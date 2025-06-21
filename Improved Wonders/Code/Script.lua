@@ -50,3 +50,13 @@ function HolidayRating:RewardMoney(rating, tourist)
     local originalRewardMoney = Tremualin_Orig_Holday_Rating_Reward_Money(self, rating, tourist)
     return originalRewardMoney + MulDivRound(originalRewardMoney, tourist[ProjectMorphiousPositiveTraitsKey] or 0, 10)
 end
+
+-- Added if trait, for the case where there are no more traits to add
+function ProjectMorpheus:AddTrait(unit)
+    local trait = GetRandomTrait(unit.traits, {}, {}, "Positive", "base")
+    if trait then
+        unit:AddTrait(trait)
+        self.added_traits_log[trait] = (self.added_traits_log[trait] or 0) + 1
+        self.lifetime = self.lifetime + 1
+    end
+end
