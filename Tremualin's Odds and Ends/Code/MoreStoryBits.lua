@@ -10,7 +10,7 @@ function ApplyStoryBitCooldownModifier()
     local apply = CurrentModOptions:GetProperty("MoreStoryBits")
     for id, cooldown in pairs(Original_Cooldowns) do
         if apply then
-            const.StoryBits[id] = cooldown / 2
+            const.StoryBits[id] = cooldown / 4
         else
             const.StoryBits[id] = cooldown
         end
