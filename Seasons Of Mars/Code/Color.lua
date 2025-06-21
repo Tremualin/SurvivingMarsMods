@@ -27,8 +27,9 @@ local function ChangeColors(activeSeasonId)
 end
 
 local function DailyChangeColors(sol)
-    if SeasonsOfMars.ChangeColors and sol % 5 == 0 then
-        ChangeColors(activeSeasonId, false)
+    local seasonsOfMars = SeasonsOfMars
+    if seasonsOfMars.ChangeColors and sol % 5 == 0 then
+        ChangeColors(seasonsOfMars.ActiveSeason, false)
     end
 end
 
