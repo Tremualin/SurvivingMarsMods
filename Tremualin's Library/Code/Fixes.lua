@@ -13,6 +13,39 @@ OnMsg.CityStart = FixTraitsWithDailyUpdates
 OnMsg.LoadGame = FixTraitsWithDailyUpdates
 OnMsg.ModsReloaded = FixTraitsWithDailyUpdates
 
+local function GetStringName(worker)
+    return _InternalTranslate(worker:GetDisplayName())
+end
+
+function Tremualin_FindDuplicateWorkers(dome)
+    local colonists = {}
+    for _, colonist in pairs(dome.labels.Colonist) do
+        table.insert(colonists, colonist)
+    end
+    local workers = {}
+    local sum = 0
+    for _, workplace in pairs(dome.labels.Workplace) do
+        if workplace.workers then
+            for shift = 1, 3 do
+                for _, worker in pairs(workplace.workers[shift]) do
+                    if workers[worker] then
+                        print("Duplicated worker")
+                        print(GetStringName(worker))
+                    else
+                        workers[worker] = true
+                        sum = sum + 1
+                    end
+                end
+            end
+        end
+    end
+    for _, colonist in pairs(dome.labels.Colonist) do
+        workers[colonist] = false
+    end
+    print(sum)
+    return workers, colonists
+end
+
 local function FixColonistsWithoutAWorkplaceAppearingInWorkplaces()
     for _, city in ipairs(Cities) do
         local domes = city.labels.Dome or empty_table
@@ -65,3 +98,17 @@ function FixNilAddTrait()
         end -- if trait_id
     end
 end -- function FixAddNilTrait
+
+local Orig_Tremualin_ShiftsBuilding_CanWorkTrainHereDomeCheck = ShiftsBuilding.CanWorkTrainHereDomeCheck
+function ShiftsBuilding:CanWorkTrainHereDomeCheck(colonist)
+    local his_dome = colonist.dome
+    if not his_dome then
+        return false
+    end
+    local my_dome = self.parent_dome
+    my_dome = my_dome or his_dome
+    if his_dome ~= my_dome and not his_dome.allow_work_in_connected then
+        return false
+    end
+    return Orig_Tremualin_ShiftsBuilding_CanWorkTrainHereDomeCheck(self, colonist)
+end
