@@ -11,7 +11,8 @@ return PlaceObj('ModDef', {
     Dome Streamlining: +now applies a 50% discount to Polymers and Exotic Metals.
     Advanced Drone Drive, Artificial Muscles, Wireless Power: +they unlock each other when one is researched.
     Good Vibrations: +also increases birth rate by 20 for all colonists.
-    Hive Mind: ~Applies to all residences. +1 performance for any unique trait (age, gender, perk, quirk, specialization) in the Residence. -2 performance for each unique flaw. 
+    Hive Mind: ~Applies to all residences. +1 performance for any unique trait (age, gender, perk, quirk, specialization) in the Residence. -2 performance for each unique flaw.
+    Martianborn Ingenuity: +bonus performance re-applied each time the colonist is successfully reborn due to Project Phoenix (if reborn once, +20 performance, twice, +30 performance, and so on).
     Martian Steel: +metal discount boosted to 33%.
     Neo Concrete: ~no longer provides an 80% concrete discount to domes. Provides a 33% concrete discount to all buildings.
     Nocturnal Adaptation: +colonists no longer lose sanity at night.
@@ -47,6 +48,7 @@ return PlaceObj('ModDef', {
         "Code/SuperiorBreakthroughs.lua",
         "Code/DomeStreamlining.lua",
         "Code/NocturnalAdaptation.lua",
+        "Code/MartianbornIngenuity.lua",
         "Code/Encyclopedia.lua",
     },
     'saved', 1644885926,

@@ -36,6 +36,9 @@ return {
         'FileName', "Code/NocturnalAdaptation.lua",
     }),
     PlaceObj('ModItemCode', {
+        'FileName', "Code/MartianbornIngenuity.lua",
+    }),
+    PlaceObj('ModItemCode', {
         'FileName', "Code/Encyclopedia.lua",
     }),
 }

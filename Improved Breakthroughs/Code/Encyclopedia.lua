@@ -12,6 +12,7 @@ local function AddEntriesToEncyclopedia()
             Untranslated("<em>Advanced Drone Drive</em>, <em>Artificial Muscles</em> and <em>Wireless Power</em> will now unlock each other if you get any of them"),
             Untranslated("<em>Good Vibrations</em> now increases birth rate by 20 for each Colonist"),
             Untranslated("<em>Hive Mind</em> reworked. Applies to all residences. Provides +1 performance for all unique traits (age, gender, perks, quirks, specializations) in the same residence, but -2 performance for each unique flaw."),
+            Untranslated("<em>Martianborn Ingenuity</em: +bonus performance re-applied each time the colonist is successfully reborn due to Project Phoenix (if reborn once, +20 performance, twice, +30 performance, and so on).")
             Untranslated("<em>Martian Steel</em> metals discount increased to 33%"),
             Untranslated("<em>Neo Concrete</em> reworked. Provides a 33% concrete discount to all buildings."),
             Untranslated("<em>Nocturnal Adaptation</em> disables night shift sanity loss."),
@@ -20,9 +21,7 @@ local function AddEntriesToEncyclopedia()
             Untranslated("<em>Superior Pipes</em> and <em>Superior Cables</em> will now unlock each other if you get any of them"),
             -- TODO: Landscaping and Construction nanites should unlock each other
             -- TOOD: redo Vocation Oriented Society to grant bonuses for each happy trait
-            -- TOOD: redo Martian Ingenuity Oriented Society to give bonuses as people age
             -- TODO: Core Metals, Core Rare Metals and Core Water can be repeated.
-            -- TODO: Boost Hull Polarization to 33%
             -- TODO: Multispiral Architecture and Gem Architecture now unlock each other
             -- TODO: Prefab Compression now provides a discount to all prefabs
             -- TODO: Ancient Terraforming Device now provides 0.5% per sol to all Terraforming Parameters
