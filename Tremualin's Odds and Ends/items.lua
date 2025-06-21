@@ -20,6 +20,12 @@ return {
     PlaceObj('ModItemCode', {
         'FileName', "Code/TunnelCostScale.lua",
     }),
+    PlaceObj('ModItemCode', {
+        'FileName', "Code/TrainsAllowServices.lua",
+    }),
+    PlaceObj('ModItemCode', {
+        'FileName', "Code/FindSanatoriumFast.lua",
+    }),
     PlaceObj('ModItemOptionToggle', {
         'name', "MultiplesOfThree",
         'DisplayName', "Multiples Of Three",
