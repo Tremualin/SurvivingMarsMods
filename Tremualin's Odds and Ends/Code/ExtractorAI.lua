@@ -13,3 +13,22 @@ function OnMsg.ConstructionComplete(bld)
     end
 end
 
+--[[
+local LONG_RANGE_EXTRACTORS_ID = "TREMUALIN_LONG_RANGE_EXTRACTORS_ID"
+function OnMsg.ClassesPreprocess()
+    for _, property in ipairs(BuildingDepositExploiterComponent.properties) do
+        if property.id == "exploitation_radius" then
+            property.modifiable = true
+        end
+    end
+end
+ 
+--local EXTRACTORS = {MetalsExtractor, PreciousMetalsExtractor, WaterExtractor, AutomaticMicroGExtractor, }
+function OnMsg.LoadGame()
+    MainCity:SetLabelModifier("ResourceExploiter", LONG_RANGE_EXTRACTORS_ID, Modifier:new({
+        prop = "exploitation_radius",
+        percent = 100,
+        id = LONG_RANGE_EXTRACTORS_ID
+    }))
+end
+]]

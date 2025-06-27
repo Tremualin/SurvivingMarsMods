@@ -12,7 +12,7 @@ end
 function OnMsg.ClassesPostprocess()
     PlaceObj("GameRules", {
         SortKey = 200001,
-        challenge_mod = 40,
+        challenge_mod = 30,
         description = Untranslated("Colonists lose sanity from educational buildings."),
         display_name = Untranslated("Another Brick In The Wall"),
         flavor = Untranslated("<grey>\"Teachers, leave them kids alone\"<newline><right>Pink Floyd</grey><left>"),

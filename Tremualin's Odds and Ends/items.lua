@@ -26,6 +26,15 @@ return {
     PlaceObj('ModItemCode', {
         'FileName', "Code/FindSanatoriumFast.lua",
     }),
+    PlaceObj('ModItemCode', {
+        'FileName', "Code/LosingMyReligion.lua",
+    }),
+    PlaceObj('ModItemCode', {
+        'FileName', "Code/AnotherBrickInTheWall.lua",
+    }),
+    PlaceObj('ModItemCode', {
+        'FileName', "Code/Royals.lua",
+    }),
     PlaceObj('ModItemOptionToggle', {
         'name', "MultiplesOfThree",
         'DisplayName', "Multiples Of Three",
