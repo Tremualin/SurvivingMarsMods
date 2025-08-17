@@ -12,6 +12,10 @@ return {
         'FileName', "Code/Miscellaneous.lua",
     }),
     PlaceObj('ModItemCode', {
+        'name', "PauseNotifications",
+        'FileName', "Code/PauseNotifications.lua",
+    }),
+    PlaceObj('ModItemCode', {
         'name', "SecondaryTerraformingParam",
         'FileName', "Code/SecondaryTerraformingParam.lua",
     }),
@@ -30,9 +34,5 @@ return {
     PlaceObj('ModItemCode', {
         'name', "Water",
         'FileName', "Code/Water.lua",
-    }),
-    PlaceObj('ModItemCode', {
-        'name', "PauseNotifications",
-        'FileName', "Code/PauseNotifications.lua",
     }),
 }

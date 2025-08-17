@@ -10,6 +10,8 @@ local function SkipNot(func, id, ...)
             lookup_disable[id] = true
             return result
         end
+    else
+        func(id, ...)
     end
 end
 

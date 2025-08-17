@@ -1,8 +1,16 @@
 # Specify file patterns you want git to ignore.
 .vs
+# Not my mod
 Layout Capture Mod
+# Not a mod I want to share
 Tremualin Layouts
-Predictable Breakthroughs
+# Vortex mod manager; installer of Layout Capture Mod
 vortex.deployment.json
-Food Factory
+# Fixed some errors on this one
 (QoL) Auto request upgrades
+# Fixed some errors on this one
+Career A.I
+# Fixed some errors on this one
+Martian Express Fix Pack
+# This mod is no longer available on Steam
+Play All Mysteries
